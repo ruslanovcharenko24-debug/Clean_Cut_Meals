@@ -12,10 +12,10 @@ const readyText = Astro.props.product.ready_claim ? `${Astro.props.product.ready
 const steps = [
   { label: 'Remove sleeve', icon: 'sleeve' },
   { label: 'Pierce film', icon: 'pierce' },
-  { label: 'Plate or baking tray', icon: 'place' },
-  { label: 'Heat', icon: 'heat' },
-  { label: 'Peel off film carefully', icon: 'peel' },
-  { label: c ? `Stand ${c.stand}` : 'Stand', icon: 'stand' },
+  { label: 'Place on a suitable plate or baking tray', note: 'Microwave: a microwave-safe plate. Oven: a baking tray.', icon: 'place' },
+  { label: 'Heat using the settings above', icon: 'heat' },
+  { label: 'Carefully peel off film', icon: 'peel' },
+  { label: c ? `Stand for ${c.stand.replace('min', 'minute')}` : 'Stand', icon: 'stand' },
   { label: 'Stir & serve', icon: 'stir' },
 ];
 ---
@@ -79,9 +79,11 @@ const steps = [
         </section>
       </div>
 
-      <ol class="steps" aria-label="Steps">
-        {steps.map((s) => (
+      <h3 class="steps-title" id="steps-title">Step by step</h3>
+      <ol class="steps" aria-labelledby="steps-title">
+        {steps.map((s, i) => (
           <li class="step">
+            <span class="step-n" aria-hidden="true">{i + 1}</span>
             <svg class="step-icon" viewBox="0 0 32 32" aria-hidden="true">
               {s.icon === 'sleeve' && (
                 <>
@@ -121,7 +123,7 @@ const steps = [
                 </>
               )}
             </svg>
-            <span>{s.label}</span>
+            <span class="step-text">{s.label}{s.note && <span class="step-note">{s.note}</span>}</span>
           </li>
         ))}
       </ol>
@@ -221,30 +223,57 @@ const steps = [
     margin: var(--s2) 0 0;
     font-size: var(--fs-small);
   }
-  /* Seven steps: four per row on a phone, one row on wider screens. */
+  /* The heating block starts below its summary line, so the first card's border never touches it. */
+  .heat {
+    padding-top: var(--s3);
+  }
+  .steps-title {
+    margin: var(--s4) 0 var(--s2);
+    font-size: var(--fs-body);
+    font-weight: 700;
+  }
+  /* One row per step: number, icon, text on shared columns; rows grow with the text. */
   .steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
-    gap: var(--s3) var(--s1);
-    margin: var(--s4) 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
-    counter-reset: none;
+    border-top: 1px solid var(--rule);
   }
   .step {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 28px 32px 1fr;
     align-items: center;
-    gap: var(--s1);
-    font-size: 0.8125rem;
+    gap: var(--s3);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--fs-body);
     font-weight: 600;
-    line-height: 1.2;
-    text-align: center;
+    line-height: 1.3;
+  }
+  .step-n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
   .step-icon {
     width: 32px;
     height: 32px;
     stroke-width: 2;
+  }
+  .step-note {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--fs-small);
+    font-weight: 400;
+    color: var(--ink-soft);
   }
   .caution {
     margin: var(--s4) 0 0;

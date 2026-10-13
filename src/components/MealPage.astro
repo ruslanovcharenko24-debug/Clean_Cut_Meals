@@ -146,7 +146,9 @@ const BUY_HEADING: Record<MealMode, string> = {
       section.open = true;
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-      section.querySelector('summary')?.focus({ preventScroll: true });
+      // Move focus only for keyboard activation (detail === 0); after a tap it would draw a focus ring
+      // across the summary that reads as an extra divider.
+      if ((event as MouseEvent).detail === 0) section.querySelector('summary')?.focus({ preventScroll: true });
     });
   });
 </script>

@@ -1,0 +1,8 @@
+{
+  "note": "Short routes /s/<short>/ render the same meal page as /meals/<slug>/ (static GitHub Pages has no server redirects).",
+  "links": {
+    "beef-stroganoff": "stroganoff",
+    "spaghetti-bolognese": "bolognese",
+    "butter-chicken": "butter-chicken"
+  }
+}

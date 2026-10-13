@@ -1,0 +1,17 @@
+---
+// Short share link. GitHub Pages has no server redirects, so the full meal page is rendered here as well;
+// canonical points to /meals/<slug>/.
+import MealPage from '../../../components/MealPage.astro';
+import { pageProducts, shortSlug, shortPath, type Product } from '../../../lib/products';
+
+export function getStaticPaths() {
+  return pageProducts.map((p) => ({ params: { short: shortSlug(p) }, props: { product: p } }));
+}
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+---
+
+<MealPage product={product} path={shortPath(product)} />

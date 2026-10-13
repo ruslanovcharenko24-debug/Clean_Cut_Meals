@@ -1,6 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import data from '../../data/products.json';
 import orderData from '../../data/order-links.json';
+import shortData from '../../data/short-links.json';
 
 // Product data comes only from data/products.json (SuperValu SKU cards, 13 Oct 2026).
 // Nothing here adds claims that the source does not contain.
@@ -74,6 +75,24 @@ export function others(p: Product): Product[] {
 
 export function mealPath(p: Product): string {
   return withBase(`/meals/${p.slug}/`);
+}
+
+// Short share links /s/<short>/ (data/short-links.json); same page as /meals/<slug>/.
+export function shortSlug(p: Product): string {
+  return shortData.links[p.slug as keyof typeof shortData.links];
+}
+
+export function shortPath(p: Product): string {
+  return withBase(`/s/${shortSlug(p)}/`);
+}
+
+// Meal cards made by scripts/make-cards.py and served from public/cards/.
+export function cardPath(p: Product, kind: 'og' | 'story'): string {
+  return withBase(`/cards/${p.slug}-${kind}.jpg`);
+}
+
+export function shareText(p: Product): string {
+  return `Fancy ${SHORT_NAME[p.slug]}? ${perPack(p, 'Protein')} protein · ${perPack(p, 'kcal')}. See details & ordering options:`;
 }
 
 export const channels = data.channels;

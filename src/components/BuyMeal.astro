@@ -62,7 +62,7 @@ const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
               data-demo-open={`demo-${d.service}`}
               style={`--svc-bg: ${d.bg}; --svc-fg: ${d.fg}`}
               aria-haspopup="dialog"
-              aria-label={`${d.serviceName}: ${d.label}`}
+              aria-label={`${d.serviceName} demo: ${d.label}`}
             >
               <span class:list={['svc-logo', `svc-logo--${d.service}`, { 'svc-logo--icon': isIcon(d) }]}>
                 {logo ? <Image src={logo} alt="" height={64} /> : d.serviceName}

@@ -1,30 +1,62 @@
 ---
-interface Props {
+interface Share {
+  /** Absolute short link when the public address is configured */
+  url: string | null;
+  /** Short link path (with base), used when url is null (local preview) */
   path: string;
-  shareUrl?: string | null;
-  dishName: string;
+  title: string;
+  text: string;
+  /** Path of the 1080×1920 meal card */
+  card: string;
+  cardName: string;
 }
-const { path, shareUrl, dishName } = Astro.props;
-const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in it:`;
+interface Props {
+  dishName: string;
+  mealPath: string;
+  share: Share;
+}
+const { mealPath, share } = Astro.props;
+const shownUrl = share.url ?? share.path;
 ---
 
-<div class="actions" data-share-root data-path={path} data-url={shareUrl ?? undefined} data-title={`${dishName} — Clean Cut Meals`} data-text={shareText}>
+<div
+  class="actions"
+  data-share-root
+  data-path={share.path}
+  data-url={share.url ?? undefined}
+  data-title={share.title}
+  data-text={share.text}
+  data-card={share.card}
+  data-card-name={share.cardName}
+>
   <div class="action-row">
     <a class="btn btn--primary" href="#how-to-heat" data-open-heat>How to heat</a>
-    <a class="btn" href={`${path}choose/`}>Choose another meal</a>
-    <button type="button" class="btn" data-share-button aria-controls="share-panel" aria-expanded="false">Share</button>
+    <a class="btn" href={`${mealPath}choose/`}>Choose another meal</a>
+  </div>
+  <div class="action-row share-row-btns">
+    <button type="button" class="btn" data-share-link aria-controls="share-panel">Share link</button>
+    <button type="button" class="btn" data-share-card aria-controls="share-panel">Share meal card</button>
   </div>
 
   <div id="share-panel" class="share-panel" data-share-panel hidden>
     <label for="share-url" class="share-label">Link to this meal</label>
     <div class="share-row">
-      <input id="share-url" class="share-url" type="text" readonly data-share-url value={shareUrl ?? path} />
+      <input id="share-url" class="share-url" type="text" readonly data-share-url value={shownUrl} />
       <button type="button" class="btn btn--primary share-copy" data-copy-button>Copy link</button>
     </div>
+    <p class="share-card-fallback" data-card-fallback hidden>
+      This browser can't send images directly.{' '}
+      <a data-card-link href={share.card} download={share.cardName} target="_blank" rel="noopener">Open the meal card</a>, save it, then send
+      it with the link.
+    </p>
   </div>
   <p class="share-status" role="status" aria-live="polite" data-share-status></p>
-  <p class="share-tip">Share sends a link to this meal. Ask whoever you're eating with to reply with the one they'd pick.</p>
-  <noscript><p class="share-tip">Link to share: <span class="share-noscript">{shareUrl ?? path}</span></p></noscript>
+  <p class="share-tip">Ask whoever you're eating with to reply with the one they'd pick.</p>
+  <noscript>
+    <p class="share-tip">
+      Link to share: <span class="share-noscript">{shownUrl}</span>. <a href={share.card}>Meal card image</a>
+    </p>
+  </noscript>
 </div>
 
 <script>
@@ -43,13 +75,16 @@ const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in 
   });
 
   function initShare(root: HTMLElement) {
-    const button = root.querySelector<HTMLButtonElement>('[data-share-button]')!;
+    const linkBtn = root.querySelector<HTMLButtonElement>('[data-share-link]')!;
+    const cardBtn = root.querySelector<HTMLButtonElement>('[data-share-card]')!;
     const panel = root.querySelector<HTMLElement>('[data-share-panel]')!;
     const input = root.querySelector<HTMLInputElement>('[data-share-url]')!;
     const copy = root.querySelector<HTMLButtonElement>('[data-copy-button]')!;
+    const cardFallback = root.querySelector<HTMLElement>('[data-card-fallback]')!;
     const status = root.querySelector<HTMLElement>('[data-share-status]')!;
-    // Absolute public URL from the build when configured; otherwise the address this page was opened on.
     const url = root.dataset.url || new URL(root.dataset.path!, window.location.origin).href;
+    const title = root.dataset.title!;
+    const text = root.dataset.text!;
     input.value = url;
 
     const say = (msg: string) => {
@@ -57,34 +92,11 @@ const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in 
       // Set on the next frame so a repeated message is announced again.
       requestAnimationFrame(() => (status.textContent = msg));
     };
-
-    const openPanel = () => {
+    const openPanel = (withCardHelp: boolean) => {
       panel.hidden = false;
-      button.setAttribute('aria-expanded', 'true');
+      cardFallback.hidden = !withCardHelp;
     };
-
-    button.addEventListener('click', async () => {
-      const data = { title: root.dataset.title, text: root.dataset.text, url };
-      const canNativeShare = typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data));
-      if (canNativeShare) {
-        try {
-          await navigator.share(data);
-          say('Shared.');
-        } catch (err) {
-          // Closing the share sheet is a normal choice, not an error.
-          if ((err as DOMException).name !== 'AbortError') {
-            openPanel();
-            say("Sharing didn't open. Copy the link instead.");
-          }
-        }
-        return;
-      }
-      openPanel();
-      input.focus();
-      input.select();
-    });
-
-    copy.addEventListener('click', async () => {
+    const copyLink = async () => {
       try {
         if (!navigator.clipboard) throw new Error('no clipboard');
         await navigator.clipboard.writeText(url);
@@ -94,7 +106,58 @@ const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in 
         input.select();
         say('Copy the selected link.');
       }
+    };
+    const isAbort = (err: unknown) => (err as DOMException)?.name === 'AbortError';
+
+    linkBtn.addEventListener('click', async () => {
+      const data = { title, text, url };
+      if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data))) {
+        try {
+          await navigator.share(data);
+          say('Shared.');
+        } catch (err) {
+          // Closing the share sheet is a normal choice, not an error.
+          if (!isAbort(err)) {
+            openPanel(false);
+            await copyLink();
+          }
+        }
+        return;
+      }
+      openPanel(false);
+      await copyLink();
     });
+
+    // The card is fetched once, only when the person is about to share it (no download on page load).
+    let cardFile: Promise<File | null> | null = null;
+    const getCard = () =>
+      (cardFile ??= fetch(root.dataset.card!)
+        .then((r) => (r.ok ? r.blob() : Promise.reject(r.status)))
+        .then((b) => new File([b], root.dataset.cardName!, { type: 'image/jpeg' }))
+        .catch(() => null));
+    ['pointerdown', 'focus'].forEach((type) => cardBtn.addEventListener(type, () => void getCard(), { once: true }));
+
+    cardBtn.addEventListener('click', async () => {
+      const file = await getCard();
+      // Some apps drop `url` when files are attached, so the link also goes in the text.
+      const data = file ? { files: [file], title, text: `${text} ${url}` } : null;
+      const canShareFiles =
+        !!data && typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare(data);
+      if (canShareFiles) {
+        try {
+          await navigator.share(data!);
+          say('Shared.');
+          return;
+        } catch (err) {
+          if (isAbort(err)) return;
+        }
+      }
+      openPanel(true);
+      // The panel explains what to do; move focus there so it's read out once.
+      root.querySelector<HTMLAnchorElement>('[data-card-link]')!.focus();
+    });
+
+    copy.addEventListener('click', copyLink);
   }
 
   document.querySelectorAll<HTMLElement>('[data-share-root]').forEach(initShare);
@@ -103,8 +166,11 @@ const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in 
 <style>
   .action-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--s2);
+  }
+  .action-row + .action-row {
+    margin-top: var(--s2);
   }
   .action-row .btn {
     min-height: 56px;
@@ -140,6 +206,10 @@ const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in 
   .share-copy {
     width: auto;
     white-space: nowrap;
+  }
+  .share-card-fallback {
+    margin: var(--s3) 0 0;
+    font-size: var(--fs-small);
   }
   .share-status {
     margin: var(--s2) 0 0;

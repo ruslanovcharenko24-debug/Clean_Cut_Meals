@@ -9,15 +9,29 @@ import { DATA_DATE_LABEL, withBase, absoluteUrl } from '../lib/products';
 const logos = import.meta.glob<{ default: ImageMetadata }>('../../assets/brand/ccm-logo.png', { eager: true });
 const logo = Object.values(logos)[0]?.default ?? null;
 
+interface Preview {
+  title: string;
+  description: string;
+  /** Site path (with base) of a 1200×630 JPEG */
+  image: string;
+  imageAlt: string;
+  /** Site path this copy is served at */
+  url: string;
+  canonical?: string;
+}
 interface Props {
   title: string;
   description: string;
-  ogImage?: string;
+  preview?: Preview;
 }
 
-const { title, description, ogImage } = Astro.props;
-const pageUrl = absoluteUrl(Astro.url.pathname, Astro.site);
-const ogImageUrl = ogImage && Astro.site ? new URL(ogImage, Astro.site).href : null;
+const { title, description, preview } = Astro.props;
+// Link-preview tags are plain HTML so messenger crawlers read them without running JavaScript.
+const pageUrl = absoluteUrl(preview?.url ?? Astro.url.pathname, Astro.site);
+const canonicalUrl = absoluteUrl(preview?.canonical ?? preview?.url ?? Astro.url.pathname, Astro.site);
+const ogTitle = preview?.title ?? title;
+const ogDescription = preview?.description ?? description;
+const ogImageUrl = preview && Astro.site ? new URL(preview.image, Astro.site).href : null;
 const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official Clean Cut Meals service.';
 ---
 
@@ -31,11 +45,29 @@ const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official 
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Clean Cut Meals — student concept" />
+    <meta property="og:locale" content="en_IE" />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
     {pageUrl && <meta property="og:url" content={pageUrl} />}
-    {pageUrl && <link rel="canonical" href={pageUrl} />}
-    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {
+      ogImageUrl && (
+        <>
+          <meta property="og:image" content={ogImageUrl} />
+          <meta property="og:image:secure_url" content={ogImageUrl} />
+          <meta property="og:image:type" content="image/jpeg" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={preview!.imageAlt} />
+        </>
+      )
+    }
+    <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+    {ogImageUrl && <meta name="twitter:image:alt" content={preview!.imageAlt} />}
     <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
   </head>
   <body>

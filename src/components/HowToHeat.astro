@@ -10,7 +10,9 @@ const c = cookingFor(Astro.props.product);
 const steps = [
   { label: 'Remove sleeve', icon: 'sleeve' },
   { label: 'Pierce film', icon: 'pierce' },
+  { label: 'Plate or baking tray', icon: 'place' },
   { label: 'Heat', icon: 'heat' },
+  { label: 'Peel off film carefully', icon: 'peel' },
   { label: c ? `Stand ${c.stand}` : 'Stand', icon: 'stand' },
   { label: 'Stir & serve', icon: 'stir' },
 ];
@@ -89,6 +91,18 @@ const steps = [
                 <>
                   <rect x="4" y="17" width="24" height="8" rx="2" />
                   <path d="M10 4v10M16 4v10M22 4v10" />
+                </>
+              )}
+              {s.icon === 'place' && (
+                <>
+                  <ellipse cx="16" cy="22" rx="13" ry="4" />
+                  <rect x="8" y="12" width="16" height="8" rx="2" />
+                </>
+              )}
+              {s.icon === 'peel' && (
+                <>
+                  <rect x="4" y="18" width="24" height="8" rx="2" />
+                  <path d="M6 18c4-8 12-11 20-9" />
                 </>
               )}
               {s.icon === 'heat' && <path d="M9 26c0-5 4-6 4-11s-3-6-3-9M16 26c0-5 4-6 4-11s-3-6-3-9M23 26c0-5 4-6 4-11s-3-6-3-9" />}
@@ -205,10 +219,11 @@ const steps = [
     margin: var(--s2) 0 0;
     font-size: var(--fs-small);
   }
+  /* Seven steps: four per row on a phone, one row on wider screens. */
   .steps {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: var(--s1);
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: var(--s3) var(--s1);
     margin: var(--s4) 0 0;
     padding: 0;
     list-style: none;

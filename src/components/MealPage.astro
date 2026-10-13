@@ -64,7 +64,7 @@ const BUY_HEADING: Record<MealMode, string> = {
           formats={['avif', 'webp']}
           widths={[400, 700, 1000, 1400]}
           sizes="(max-width: 520px) calc(100vw - 32px), 480px"
-          alt={`${officialName(p)}, 400 g pack`}
+          alt={`${officialName(p)}, ${p.size} pack`}
           loading="eager"
           fetchpriority="high"
         />

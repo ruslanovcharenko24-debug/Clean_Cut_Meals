@@ -1,17 +1,31 @@
 import type { ImageMetadata } from 'astro';
-import data from '../../data/products.json';
+import catalog from '../../data/catalog.json';
 import orderData from '../../data/order-links.json';
 import shortData from '../../data/short-links.json';
 import cookingData from '../../data/cooking-instructions.json';
 
-// Product data comes only from data/products.json (SuperValu SKU cards, 13 Oct 2026).
-// Nothing here adds claims that the source does not contain.
+// Product data comes only from data/catalog.json (SuperValu product cards captured 13 Oct 2026,
+// built by scripts/build-catalog.py). Nothing here adds claims that the cards do not contain.
 
-export type Product = (typeof data.products)[number];
+export type Product = (typeof catalog.products)[number];
+export type Category = 'meals' | 'fakeaway' | 'protein-pots' | 'breakfast' | 'ice-cream';
 
 export const DATA_DATE_LABEL = '13 Oct 2026';
 
-// Navigation band colours sampled from each pack (docs/BRAND_RULES.md §2).
+export const CATEGORIES: { id: Category; label: string }[] = [
+  { id: 'meals', label: 'Meals' },
+  { id: 'fakeaway', label: 'Fakeaway' },
+  { id: 'protein-pots', label: 'Protein Pots' },
+  { id: 'breakfast', label: 'Breakfast' },
+  { id: 'ice-cream', label: 'Ice Cream' },
+];
+
+// Ice cream and the protein yogurts are cold products: no heating section. Pancakes keep the pack-instructions note.
+export function isCold(p: Product): boolean {
+  return p.category === 'ice-cream' || /yogurt/i.test(p.official_name);
+}
+
+// Band colours sampled from three packs (docs/BRAND_RULES.md §2); other products use the brand pink.
 const BAND: Record<string, string> = {
   'butter-chicken': '#FFBD83',
   'beef-stroganoff': '#FFA0D0',
@@ -24,40 +38,34 @@ const SHORT_NAME: Record<string, string> = {
   'spaghetti-bolognese': 'Spaghetti Bolognese',
 };
 
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '../../assets/products/supervalu/*.jpg',
-  { eager: true },
-);
+const images = import.meta.glob<{ default: ImageMetadata }>('../../assets/products/supervalu/*.jpg', { eager: true });
 // Derived copies with only the empty white background cropped away (pack untouched); originals are kept.
-const trimmed = import.meta.glob<{ default: ImageMetadata }>(
-  '../../assets/products/supervalu-trimmed/*.jpg',
-  { eager: true },
-);
+const trimmed = import.meta.glob<{ default: ImageMetadata }>('../../assets/products/supervalu-trimmed/*.jpg', { eager: true });
 
-export const products: Product[] = [...data.products].sort((a, b) =>
-  SHORT_NAME[a.slug].localeCompare(SHORT_NAME[b.slug]),
+const CAT_ORDER = CATEGORIES.map((c) => c.id as string);
+export const products: Product[] = [...catalog.products].sort(
+  (a, b) => CAT_ORDER.indexOf(a.category) - CAT_ORDER.indexOf(b.category) || shortName(a).localeCompare(shortName(b)),
 );
 
 export function band(p: Product): string {
-  return BAND[p.slug];
+  return BAND[p.slug] ?? '#E0A0C9';
 }
 
 export function shortName(p: Product): string {
-  return SHORT_NAME[p.slug];
+  return SHORT_NAME[p.slug] ?? p.official_name.replace(/^Clean Cut (Meals )?/, '').replace(/\s*\(.*?\)\s*$/, '');
 }
 
-// Official card name without the trailing "(400 g)", which is shown separately.
+// Official card name without the trailing size, which is shown separately.
 export function officialName(p: Product): string {
-  return p.official_name.replace(/\s*\(400 g\)$/, '');
+  return p.official_name.replace(/\s*\(\d+\s*(g|ml)\)$/, '');
 }
 
-// Pack photo for pages: trimmed copy first, original as fallback. Returns null if neither file is present.
+export function categoryLabel(p: Product): string {
+  return CATEGORIES.find((c) => c.id === p.category)!.label;
+}
+
 export function packImage(p: Product): ImageMetadata | null {
-  return (
-    trimmed[`../../assets/products/supervalu-trimmed/${p.slug}.jpg`]?.default ??
-    images[`../../${p.image.file}`]?.default ??
-    null
-  );
+  return trimmed[`../../${p.image.trimmed}`]?.default ?? images[`../../${p.image.file}`]?.default ?? null;
 }
 
 export const hasPackImages = products.every((p) => packImage(p) !== null);
@@ -73,9 +81,15 @@ export function absoluteUrl(path: string, site: URL | undefined): string | null 
   return site ? new URL(path, site).href : null;
 }
 
-export function perPack(p: Product, key: 'Protein' | 'kcal'): string {
-  // Card units are kept; only a space is added between number and unit for reading.
-  return p.nutrition[key].per_pack.replace(/^([\d.]+)\s*(g|kcal)$/, '$1 $2');
+// Value from the card's last nutrition column (per pack / per serving / per pot / per tub), units as printed.
+export function perPack(p: Product, key: 'Protein' | 'kcal'): string | null {
+  const v = (p.nutrition as Record<string, string[] | undefined>)[key];
+  return v ? v[v.length - 1].replace(/^([\d.]+)\s*(g|kcal)$/, '$1 $2') : null;
+}
+
+// Label of that column, e.g. "per pack", "per serving", "per tub (275g)".
+export function perPackLabel(p: Product): string {
+  return p.nutrition_columns[p.nutrition_columns.length - 1].replace(/^\(As (Microwaved|Consumed)\):?\s*/i, '').toLowerCase();
 }
 
 export function others(p: Product): Product[] {
@@ -88,7 +102,7 @@ export function mealPath(p: Product): string {
 
 // Short share links /s/<short>/ (data/short-links.json); same page as /meals/<slug>/.
 export function shortSlug(p: Product): string {
-  return shortData.links[p.slug as keyof typeof shortData.links];
+  return (shortData.links as Record<string, string>)[p.slug] ?? p.slug;
 }
 
 export function shortPath(p: Product): string {
@@ -118,7 +132,6 @@ export function pickPath(p: Product): string {
 export const INVITE_TEXT = 'What would you like for lunch or dinner? Pick your meal:';
 export const REPLY_TEXT = 'This one for me, please:';
 
-export const channels = data.channels;
 
 // One page per product; the template was first checked on Spaghetti Bolognese.
 export const pageProducts = products;
@@ -145,36 +158,25 @@ export interface DemoService extends ServiceStyle {
   label: string;
 }
 
-const LEVELS: OrderLevel[] = ['exact_product', 'store_search', 'store_page'];
 
 function serviceStyle(service: string): ServiceStyle {
   const s = orderData.services[service as keyof typeof orderData.services];
   return { service, serviceName: s.name, logo: s.logo, bg: s.bg, border: s.border, fg: s.fg };
 }
 
+const UBER = orderData.links.find((l) => l.service === 'uber_eats' && l.status === 'verified')!;
+
+// SuperValu: this product's own card. Uber Eats: the checked store page (no claim that every product is listed).
 export function orderLinks(p: Product): OrderLink[] {
-  return orderData.links
-    .filter((l) => l.product === p.slug && l.status === 'verified')
-    .map((l) => {
-      if (!l.url || !l.url.startsWith('https://') || !LEVELS.includes(l.level as OrderLevel) || l.checks.length === 0 || !l.label) {
-        throw new Error(`Order link for ${p.slug}/${l.service} is marked verified but is incomplete`);
-      }
-      return {
-        ...serviceStyle(l.service),
-        level: l.level as OrderLevel,
-        url: l.url,
-        store: l.store ?? '',
-        location: l.location ?? '',
-        label: l.label,
-      };
-    });
+  return [
+    { ...serviceStyle('supervalu'), level: 'exact_product', url: p.card_url, store: 'SuperValu Online', location: '', label: 'View this meal' },
+    { ...serviceStyle('uber_eats'), level: 'store_page', url: UBER.url!, store: UBER.store ?? '', location: UBER.location ?? '', label: UBER.label ?? '' },
+  ];
 }
 
-// Services shown for the showcase as a labelled demo: no link and no availability claim.
-export function demoServices(p: Product): DemoService[] {
-  return orderData.links
-    .filter((l) => l.product === p.slug && l.status === 'demo')
-    .map((l) => ({ ...serviceStyle(l.service), label: l.label ?? 'Demo' }));
+// Just Eat stays a labelled demo: no link and no availability claim.
+export function demoServices(_p: Product): DemoService[] {
+  return [{ ...serviceStyle('just_eat'), label: 'Choose a store' }];
 }
 
 // Pack cooking instructions (data/cooking-instructions.json): only a record confirmed for this exact meal.

@@ -5,7 +5,7 @@ import BuyMeal from './BuyMeal.astro';
 import SendButton from './SendButton.astro';
 import InfoSections from './InfoSections.astro';
 import {
-  absoluteUrl, band, shortName, officialName, packImage, perPack, mealPath, invitePath, pickPath, cardPath,
+  absoluteUrl, band, shortName, officialName, packImage, perPack, perPackLabel, isCold, mealPath, invitePath, pickPath, cardPath,
   INVITE_TEXT, REPLY_TEXT, type MealMode, type Product,
 } from '../lib/products';
 
@@ -24,6 +24,8 @@ const img = packImage(p);
 const name = shortName(p);
 const protein = perPack(p, 'Protein');
 const kcal = perPack(p, 'kcal');
+const basis = perPackLabel(p);
+const cold = isCold(p);
 
 const PREVIEW_TITLE: Record<MealMode, string> = {
   standard: 'View meal & order',
@@ -40,12 +42,12 @@ const BUY_HEADING: Record<MealMode, string> = {
 
 <Base
   title={`${name} — Clean Cut Meals (student concept)`}
-  description={p.description}
+  description={p.description ?? officialName(p)}
   preview={{
     title: PREVIEW_TITLE[mode],
     description: 'Student concept — not an official Clean Cut Meals service.',
     image: cardPath(p),
-    imageAlt: `${name}: Clean Cut Meals pack, ${protein} protein, ${kcal}, ${p.weight} pack.`,
+    imageAlt: `${name}: Clean Cut pack, ${protein ?? ''} protein, ${kcal ?? ''}, ${p.size}.`,
     url: path,
     canonical: mealPath(p),
   }}
@@ -75,9 +77,9 @@ const BUY_HEADING: Record<MealMode, string> = {
 
     <section class="facts wrap" aria-label="Key facts, per pack">
       <dl>
-        <div><dt>Pack</dt><dd>{p.weight}</dd></div>
-        <div><dt>Protein</dt><dd>{protein}</dd></div>
-        <div><dt>Energy</dt><dd>{kcal}</dd></div>
+        <div><dt>Pack</dt><dd>{p.size}</dd></div>
+        <div><dt>Protein</dt><dd>{protein ?? '—'}</dd></div>
+        <div><dt>Energy</dt><dd>{kcal ?? '—'}</dd></div>
       </dl>
     </section>
 
@@ -115,15 +117,16 @@ const BUY_HEADING: Record<MealMode, string> = {
     }
 
     <section class="wrap dish-about" aria-label="About this meal">
-      <p class="desc">{p.description}</p>
+      {p.description && <p class="desc">{p.description}</p>}
       <ul class="about-facts">
-        <li>Ready in 5 minutes. Follow the heating instructions on your pack.</li>
-        {p.origin.ingredients_statements.length > 0 && <li>Made with {p.origin.ingredients_statements.join(', ')}.</li>}
+        <li>Protein and energy {basis}, as printed on the product card.</li>
+        {!cold && p.ready_claim && <li>{p.ready_claim}, according to the pack. Follow the heating instructions on your pack.</li>}
+        {p.origin_statements.length > 0 && <li>Made with {p.origin_statements.join(', ')}.</li>}
       </ul>
     </section>
 
     <nav class="wrap secondary" aria-label="More options">
-      <a class="btn btn--small" href="#how-to-heat" data-open-heat>How to heat</a>
+      <a class="btn btn--small" href={cold ? '#how-to-enjoy' : '#how-to-heat'} data-open-heat>{cold ? 'How to enjoy' : 'How to heat'}</a>
       {mode !== 'invite' && <a class="btn btn--small" href={chooseHref}>Choose another meal</a>}
     </nav>
 
@@ -137,7 +140,7 @@ const BUY_HEADING: Record<MealMode, string> = {
   // "How to heat" opens its section below instead of jumping to a closed one.
   document.querySelectorAll<HTMLAnchorElement>('[data-open-heat]').forEach((link) => {
     link.addEventListener('click', (event) => {
-      const section = document.getElementById('how-to-heat') as HTMLDetailsElement | null;
+      const section = document.getElementById(link.hash.slice(1)) as HTMLDetailsElement | null;
       if (!section) return;
       event.preventDefault();
       section.open = true;

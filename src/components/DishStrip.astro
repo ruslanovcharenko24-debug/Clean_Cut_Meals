@@ -24,13 +24,11 @@ const img = packImage(p);
   />}
   <div class="strip-text">
     <Heading class="strip-name">{shortName(p)}</Heading>
-    <p class="strip-desc">{p.description}</p>
     <p class="strip-facts">
-      <span>{p.weight}</span>
-      <span>{perPack(p, 'Protein')} protein</span>
-      <span>{perPack(p, 'kcal')}</span>
+      <span>{p.size}</span>
+      {perPack(p, 'Protein') && <span>{perPack(p, 'Protein')} protein</span>}
+      {perPack(p, 'kcal') && <span>{perPack(p, 'kcal')}</span>}
     </p>
-    <p class="strip-allergens">Contains: {p.allergens.contains.join(', ')}</p>
   </div>
 </a>
 

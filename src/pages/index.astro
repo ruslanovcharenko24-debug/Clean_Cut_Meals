@@ -1,30 +1,5 @@
 ---
-import Base from '../layouts/Base.astro';
-import DishStrip from '../components/DishStrip.astro';
-import { products } from '../lib/products';
+import ChoosePage from '../components/ChoosePage.astro';
 ---
 
-<Base title="Clean Cut Meals — QR prototype (student concept)" description="Three Clean Cut Meals with their pack details, a way to compare them and a link to share.">
-  <div class="wrap intro">
-    <h1 class="title">Pick a meal</h1>
-    <p>On the shelf, scanning the code on a meal brings you straight to it. Without a code, start here.</p>
-  </div>
-  <div class="list">
-    {products.map((p) => <DishStrip product={p} />)}
-  </div>
-</Base>
-
-<style>
-  .title {
-    margin: var(--s2) 0 var(--s2);
-    font-size: var(--fs-h2);
-    line-height: 1.1;
-  }
-  .intro p {
-    margin: 0 0 var(--s4);
-    max-width: var(--measure);
-  }
-  .list {
-    border-top: 1px solid var(--rule);
-  }
-</style>
+<ChoosePage />

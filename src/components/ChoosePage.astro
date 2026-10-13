@@ -1,48 +1,50 @@
 ---
 import Base from '../layouts/Base.astro';
 import DishStrip from './DishStrip.astro';
-import { others, shortName, mealPath, invitePath, type Product } from '../lib/products';
+import { products, CATEGORIES, shortName, mealPath, invitePath, withBase, type Product } from '../lib/products';
 
-// Alternatives list. In invite mode the strips lead to /invite/<short>/ so the recipient can still answer
-// with the meal they pick.
+// Catalogue of all Clean Cut products captured from SuperValu, filtered by category with radio buttons
+// (CSS only, works without JavaScript). From a product page it lists the others; in invite mode every link
+// stays in invite mode so the recipient can answer with the product they pick.
 interface Props {
-  product: Product;
+  product?: Product;
   mode?: 'standard' | 'invite';
 }
 const { product: p, mode = 'standard' } = Astro.props;
-const backHref = mode === 'invite' ? invitePath(p) : mealPath(p);
+const list = p ? products.filter((o) => o.slug !== p.slug) : products;
+const backHref = p ? (mode === 'invite' ? invitePath(p) : mealPath(p)) : null;
+const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, list.filter((o) => o.category === c.id).length]));
+const title = mode === 'invite' ? 'What would you like?' : p ? 'Choose another' : 'Clean Cut range';
 ---
 
-
-<Base title={`Pick another meal — Clean Cut Meals (student concept)`} description="Compare the other Clean Cut Meals in this prototype.">
+<Base title={`${title} — Clean Cut Meals (student concept)`} description="Clean Cut products listed on SuperValu Online.">
   <div class="choose">
     <div class="wrap">
-      <a class="back" href={backHref}>Back to {shortName(p)}</a>
-      <h1 class="title">{mode === 'invite' ? 'What would you like?' : 'Pick another meal'}</h1>
+      {backHref && <a class="back" href={backHref}>Back to {shortName(p!)}</a>}
+      <h1 class="title">{title}</h1>
+      <p class="lede">Clean Cut products on SuperValu Online, {list.length} {p ? 'more ' : ''}to browse. Not every store stocks every product.</p>
 
-      <fieldset class="when">
-        <legend class="visually-hidden">When are you eating it?</legend>
-        <input type="radio" name="when" id="when-tonight" value="tonight" checked />
-        <label for="when-tonight">Tonight</label>
-        <input type="radio" name="when" id="when-tomorrow" value="tomorrow" />
-        <label for="when-tomorrow">Tomorrow at work</label>
+      <fieldset class="filters">
+        <legend class="visually-hidden">Show</legend>
+        <input type="radio" name="cat" id="cat-all" value="all" checked />
+        <label for="cat-all">All</label>
+        {CATEGORIES.map((c) => (
+          <>
+            <input type="radio" name="cat" id={`cat-${c.id}`} value={c.id} />
+            <label for={`cat-${c.id}`}>{c.label} <span class="n">{counts[c.id]}</span></label>
+          </>
+        ))}
       </fieldset>
-
-      <div class="hints" aria-live="polite">
-        <p class="hint hint-tonight">
-          Ready in 5 minutes. Follow the instructions on your pack.
-        </p>
-        <p class="hint hint-tomorrow">
-          Keep it in the fridge at 0°C to 5°C and check the use-by date on the front of the pack. Heat it at work following the
-          instructions on your pack.
-        </p>
-      </div>
-      <p class="order-note">Listed A to Z. Each meal is one 400 g pack.</p>
     </div>
 
-    <div class="list">
-      {others(p).map((o) => <DishStrip product={o} href={mode === 'invite' ? invitePath(o) : mealPath(o)} />)}
-    </div>
+    <ul class="list">
+      {list.map((o) => (
+        <li class={`item item--${o.category}`}>
+          <DishStrip product={o} href={mode === 'invite' ? invitePath(o) : mealPath(o)} />
+        </li>
+      ))}
+    </ul>
+    {!p && <p class="wrap foot"><a href={withBase('/about/')}>About this prototype and its sources</a></p>}
   </div>
 </Base>
 
@@ -64,68 +66,71 @@ const backHref = mode === 'invite' ? invitePath(p) : mealPath(p);
     transform: rotate(45deg);
   }
   .title {
-    margin: var(--s2) 0 var(--s4);
+    margin: var(--s2) 0 var(--s2);
     font-size: var(--fs-h2);
     line-height: 1.1;
   }
-  /* Segmented control: the one pill shape on the site */
-  .when {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin: 0;
-    padding: 4px;
-    border: 2px solid var(--ink);
-    border-radius: 999px;
+  .lede {
+    margin: 0 0 var(--s3);
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
   }
-  .when input {
+  /* Category chips wrap onto two lines on narrow phones instead of scrolling sideways. */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    margin: 0 0 var(--s3);
+    padding: 0;
+    border: 0;
+  }
+  .filters input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
   }
-  .when label {
-    display: flex;
+  .filters label {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
     min-height: 44px;
-    padding: 0 var(--s2);
+    padding: 0 14px;
+    border: 2px solid var(--ink);
     border-radius: 999px;
-    font-weight: 600;
     font-size: var(--fs-small);
-    text-align: center;
+    font-weight: 600;
     cursor: pointer;
   }
-  .when input:checked + label {
+  .filters .n {
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .filters input:checked + label {
     background: var(--ink);
     color: var(--paper);
   }
-  .when input:focus-visible + label {
+  .filters input:checked + label .n {
+    color: var(--accent);
+  }
+  .filters input:focus-visible + label {
     outline: 3px solid var(--ink);
     outline-offset: 3px;
   }
-  .hints {
-    margin-top: var(--s3);
-  }
-  .hint {
-    margin: 0;
-    padding: var(--s3);
-    background: var(--surface);
-    border-left: 4px solid var(--accent);
-  }
-  .hint-tomorrow {
-    display: none;
-  }
-  .choose:has(#when-tomorrow:checked) .hint-tonight {
-    display: none;
-  }
-  .choose:has(#when-tomorrow:checked) .hint-tomorrow {
-    display: block;
-  }
-  .order-note {
-    margin: var(--s3) 0 var(--s3);
-    font-size: var(--fs-small);
-    color: var(--ink-soft);
-  }
   .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
     border-top: 1px solid var(--rule);
+  }
+  .choose:has(#cat-meals:checked) .item:not(.item--meals),
+  .choose:has(#cat-fakeaway:checked) .item:not(.item--fakeaway),
+  .choose:has(#cat-protein-pots:checked) .item:not(.item--protein-pots),
+  .choose:has(#cat-breakfast:checked) .item:not(.item--breakfast),
+  .choose:has(#cat-ice-cream:checked) .item:not(.item--ice-cream) {
+    display: none;
+  }
+  .foot {
+    margin-top: var(--s4);
+    font-size: var(--fs-small);
   }
 </style>

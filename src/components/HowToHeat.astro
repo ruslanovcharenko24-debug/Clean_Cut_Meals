@@ -7,6 +7,8 @@ interface Props {
   product: Product;
 }
 const c = cookingFor(Astro.props.product);
+// Only the card's own claim, e.g. "Ready in 5 Minutes"; nothing inferred.
+const readyText = Astro.props.product.ready_claim ? `${Astro.props.product.ready_claim.replace(/Minutes?/, (m) => m.toLowerCase())}. ` : '';
 const steps = [
   { label: 'Remove sleeve', icon: 'sleeve' },
   { label: 'Pierce film', icon: 'pierce' },
@@ -132,7 +134,7 @@ const steps = [
     </div>
   ) : (
     <div class="heat">
-      <p class="heat-main">Ready in 5 minutes. Follow the heating instructions on the back of your pack.</p>
+      <p class="heat-main">{readyText}Follow the heating instructions on the back of your pack.</p>
       <p>Make sure it's piping hot before eating.</p>
     </div>
   )

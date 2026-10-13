@@ -1,17 +1,20 @@
 ---
 import type { Product } from '../lib/products';
+import { isCold } from '../lib/products';
 import HowToHeat from './HowToHeat.astro';
 
 interface Props {
   product: Product;
 }
 const { product: p } = Astro.props;
+const cold = isCold(p);
 
 // Card text keeps allergens in capitals; we only make them bold.
-const ingredientParts = p.ingredients.split(/(\b[A-Z]{3,}\b)/g);
+const ingredientParts = (p.ingredients ?? '').split(/(\b[A-Z]{3,}\b)/g);
 
 const NUTRITION_LABELS: Record<string, string> = {
-  kcal: 'Energy',
+  kJ: 'Energy (kJ)',
+  kcal: 'Energy (kcal)',
   Fat: 'Fat',
   'of which saturates': 'of which saturates',
   Carbohydrate: 'Carbohydrate',
@@ -20,34 +23,40 @@ const NUTRITION_LABELS: Record<string, string> = {
   Protein: 'Protein',
   Salt: 'Salt',
 };
-const nutritionRows = Object.entries(p.nutrition) as [string, { per_100g: string; per_pack: string }][];
-const originStatements = p.origin.ingredients_statements;
+const nutritionRows = Object.entries(p.nutrition as Record<string, string[]>);
+const cols = p.nutrition_columns;
+const basis = cols.join(' ').match(/As (Microwaved|Consumed)/i)?.[0];
+const colLabel = (c: string) => c.replace(/^\(As (Microwaved|Consumed)\):?\s*/i, '');
 ---
 
 <div class="info">
-  <details class="info-item" id="how-to-heat">
-    <summary>How to heat</summary>
-    <div class="info-body">
-      <HowToHeat product={p} />
-    </div>
-  </details>
+  {
+    cold ? (
+      <details class="info-item" id="how-to-enjoy">
+        <summary>How to enjoy</summary>
+        <div class="info-body">
+          <p class="heat-main">No heating needed. {p.storage_type === 'Frozen' ? 'Keep it frozen until you serve it.' : 'Keep it in the fridge.'}</p>
+          <p class="note">The product card has no other serving instructions. Check the pack.</p>
+        </div>
+      </details>
+    ) : (
+      <details class="info-item" id="how-to-heat">
+        <summary>How to heat</summary>
+        <div class="info-body">
+          <HowToHeat product={p} />
+        </div>
+      </details>
+    )
+  }
 
   <details class="info-item">
     <summary>Ingredients and allergens</summary>
     <div class="info-body">
-      <p class="allergen-line"><strong>Contains:</strong> {p.allergens.contains.join(', ')}</p>
-      {
-        p.allergens.may_contain.length > 0 && (
-          <p class="allergen-line">
-            <strong>May contain:</strong> {p.allergens.may_contain.join(', ')}
-          </p>
-        )
-      }
-      <p class="note">Allergens are listed as on the SuperValu product page. Always check the pack before eating.</p>
+      <p class="allergen-line"><strong>Contains:</strong> {p.allergens.contains.length ? p.allergens.contains.join(', ') : 'none listed'}</p>
+      {p.allergens.may_contain.length > 0 && <p class="allergen-line"><strong>May contain:</strong> {p.allergens.may_contain.join(', ')}</p>}
+      <p class="note">Allergens as listed on the SuperValu product page. Always check the pack before eating.</p>
       <h3 class="info-h">Ingredients</h3>
-      <p class="ingredients">
-        {ingredientParts.map((part, i) => (i % 2 === 1 ? <strong>{part}</strong> : part))}
-      </p>
+      {p.ingredients ? <p class="ingredients">{ingredientParts.map((part, i) => (i % 2 === 1 ? <strong>{part}</strong> : part))}</p> : <p class="note">Ingredients aren't listed on the product card.</p>}
     </div>
   </details>
 
@@ -55,55 +64,43 @@ const originStatements = p.origin.ingredients_statements;
     <summary>Nutrition</summary>
     <div class="info-body">
       <table class="nutrition">
-        <caption>As microwaved. One pack is 400 g.</caption>
+        <caption>{basis ? `${basis}. ` : ''}Values as printed on the product card. Pack size: {p.size}.</caption>
         <thead>
-          <tr><th scope="col">Typical values</th><th scope="col">Per 100 g</th><th scope="col">Per pack</th></tr>
+          <tr><th scope="col">Typical values</th>{cols.map((c) => <th scope="col">{colLabel(c)}</th>)}</tr>
         </thead>
         <tbody>
-          {
-            nutritionRows.map(([key, v]) => (
-              <tr class={key.startsWith('of which') ? 'sub' : undefined}>
-                <th scope="row">{NUTRITION_LABELS[key] ?? key}</th>
-                <td>{v.per_100g}</td>
-                <td>{v.per_pack}</td>
-              </tr>
-            ))
-          }
+          {nutritionRows.map(([key, v]) => (
+            <tr class={key.startsWith('of which') ? 'sub' : undefined}>
+              <th scope="row">{NUTRITION_LABELS[key] ?? key}</th>
+              {v.map((x) => <td>{x}</td>)}
+            </tr>
+          ))}
         </tbody>
       </table>
-      <p class="note">Servings per pack aren't stated on the card.</p>
     </div>
   </details>
 
   <details class="info-item">
     <summary>Storage</summary>
     <div class="info-body">
-      <p>{p.storage}</p>
-      <p class="note">{p.safety_warning}</p>
+      {p.storage ? <p>{p.storage}</p> : <p class="note">Storage advice isn't listed on the product card.</p>}
     </div>
   </details>
 
   <details class="info-item">
     <summary>Where it's from</summary>
     <div class="info-body">
-      {
-        originStatements.length > 0 ? (
-          <p>The ingredients list says: {originStatements.join(', ')}.</p>
-        ) : (
-          <p>The ingredients list doesn't say where the ingredients come from.</p>
-        )
-      }
-      <p>The SuperValu product page labels this meal "Irish Made". That label doesn't mean every ingredient is from Ireland.</p>
+      {p.origin_statements.length > 0 ? <p>The ingredients list says: {p.origin_statements.join(', ')}.</p> : <p>The ingredients list doesn't say where the ingredients come from.</p>}
     </div>
   </details>
 
   <details class="info-item" id="where-to-buy">
     <summary>Where to buy</summary>
     <div class="info-body">
-      <p>In the chilled aisle at SuperValu and Centra. Not every store stocks every meal.</p>
+      <p>Clean Cut products at SuperValu and Centra. Not every store stocks every product.</p>
       <p>
-        Order to your door: SuperValu opens this meal on its online shop. Uber Eats opens Centra Shandon Street, Cork; look
-        for the meal there. Just Eat is a demo for now. Availability, delivery areas and prices depend on your location and
+        Order to your door: SuperValu opens this product on its online shop. Uber Eats opens Centra Shandon Street, Cork; look
+        for the product there. Just Eat is a demo for now. Availability, delivery areas and prices depend on your location and
         the store.
       </p>
     </div>

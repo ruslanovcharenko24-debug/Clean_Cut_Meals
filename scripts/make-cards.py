@@ -7,6 +7,7 @@ Figures come only from data/products.json; the pack photo file is used unchanged
 """
 import base64
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -36,7 +37,7 @@ FONT_CSS = """
 * { box-sizing: border-box; margin: 0; }
 html, body { width: W; height: H; overflow: hidden; }
 body { font-family: Lexend, sans-serif; color: #24014C; background: #fff; -webkit-font-smoothing: antialiased; }
-.pack { display: block; object-fit: cover; object-position: 50% 50%; aspect-ratio: 5 / 4; }
+.pack { display: block; object-fit: contain; object-position: 50% 50%; }
 .name { font-weight: 700; text-transform: uppercase; line-height: .95; letter-spacing: -.01em; }
 .num { font-weight: 700; line-height: 1; letter-spacing: -.02em; }
 .unit { font-weight: 700; }
@@ -49,9 +50,9 @@ def og_html(p, c) -> str:
 body {{ display: grid; grid-template-columns: 600px 600px; }}
 .left {{ position: relative; background: #fff; }}
 .logo {{ position: absolute; left: 48px; top: 40px; width: 190px; }}
-.left .pack {{ position: absolute; left: 50px; top: 118px; width: 520px; }}
+.left .pack {{ position: absolute; left: 50px; top: 118px; width: 520px; height: 460px; }}
 .right {{ background: {c['band']}; padding: 0 56px 0 44px; display: flex; flex-direction: column; justify-content: center; }}
-.name {{ font-size: 64px; }}
+.name {{ font-size: {c['name_px']}px; }}
 .stats {{ margin-top: 34px; display: grid; gap: 14px; }}
 .stat {{ display: flex; align-items: baseline; gap: 14px; background: #fff; border-radius: 18px; padding: 16px 22px; width: fit-content; }}
 .stat .num {{ font-size: 76px; }}
@@ -83,28 +84,29 @@ def render(html: str, size: tuple[int, int], out_jpg: Path, tmp: Path) -> None:
     img.save(out_jpg, 'JPEG', quality=88, optimize=True, progressive=True)
 
 
+def short_name(p):
+    return SHORT_NAME.get(p['slug']) or re.sub(r'\s*\(.*?\)\s*$', '', re.sub(r'^Clean Cut (Meals )?', '', p['official_name']))
+
+
 def main() -> None:
-    products = {p['slug']: p for p in json.loads((ROOT / 'data/products.json').read_text())['products']}
+    products = json.loads((ROOT / 'data/catalog.json').read_text())['products']
+    legacy = {p['slug']: p for p in json.loads((ROOT / 'data/products.json').read_text())['products']}
     font = data_uri(ROOT / 'src/assets/fonts/lexend-latin.woff2', 'font/woff2')
     logo = data_uri(ROOT / 'assets/brand/ccm-logo.png', 'image/png')
     OUT.mkdir(parents=True, exist_ok=True)
     ok = True
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
-        for slug, p in products.items():
-            got = (p['nutrition']['Protein']['per_pack'], p['nutrition']['kcal']['per_pack'], p['weight'])
-            if got != EXPECTED[slug]:
-                print(f'STOP {slug}: products.json {got} != brief {EXPECTED[slug]}')
-                ok = False
-                continue
-            c = {
-                'font': font, 'logo': logo, 'band': BAND[slug],
-                'pack': data_uri(ROOT / p['image']['file'], 'image/jpeg'),
-                'name': SHORT_NAME[slug],
-                'protein': got[0].removesuffix('g'), 'kcal': got[1].removesuffix('kcal'), 'weight': got[2],
-            }
+        for p in products:
+            slug = p['slug']; n = p['nutrition']
+            protein = n['Protein'][-1]; kcal = n['kcal'][-1]
+            if slug in EXPECTED and (protein, kcal, p['size']) != EXPECTED[slug]:  # cross-check the three original meals
+                print(f'STOP {slug}: catalog {(protein, kcal, p["size"])} != {EXPECTED[slug]}'); ok = False; continue
+            c = {'font': font, 'logo': logo, 'band': BAND.get(slug, '#E0A0C9'),
+                 'pack': data_uri(ROOT / p['image']['trimmed'], 'image/jpeg'), 'name': short_name(p), 'name_px': 56 if len(short_name(p)) <= 26 else 44,
+                 'protein': protein.removesuffix('g'), 'kcal': kcal.removesuffix('kcal'), 'weight': p['size']}
             render(og_html(p, c), (1200, 630), OUT / f'{slug}-share.jpg', tmp)
-            print(f'{slug}: {got[0]} protein, {got[1]}, {got[2]} -> public/cards/{slug}-share.jpg')
+        print('cards written', len(list(OUT.glob('*-share.jpg'))))
     sys.exit(0 if ok else 1)
 
 

@@ -37,7 +37,7 @@ const img = packImage(p);
 <style>
   .strip {
     display: grid;
-    grid-template-columns: 112px 1fr;
+    grid-template-columns: 112px minmax(0, 1fr);
     gap: var(--s3);
     align-items: start;
     padding: var(--s3) var(--gutter) var(--s3) calc(var(--gutter) - 2px);
@@ -55,9 +55,13 @@ const img = packImage(p);
     text-decoration: underline;
     text-underline-offset: 0.15em;
   }
+  /* Fixed width, height from the file's own ratio (trimmed pack photos are ~1.27:1, not square).
+     The 112px grid column never shrinks, so neighbouring text can't squeeze the image. */
   .strip :global(.strip-img) {
+    display: block;
     width: 112px;
-    height: 112px;
+    max-width: none;
+    height: auto;
   }
   .strip-name {
     margin: 0;

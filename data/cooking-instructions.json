@@ -1,0 +1,47 @@
+{
+  "note": "Pack cooking instructions. A record is shown on a meal page only when `product` names that meal's slug and `product_confirmed` is true. Never copy one pack's instructions to another meal.",
+  "records": [
+    {
+      "id": "pack-back-photo-2026-10-13",
+      "product": null,
+      "product_confirmed": false,
+      "product_note": "The photo shows the back-of-pack instruction panel only; no meal name, band colour or barcode is visible. SuperValu cards for all three meals (checked 2026-10-13) have no cooking-instruction field. Awaiting the user's confirmation of which meal this pack was.",
+      "source": {
+        "type": "user photo of the back of a Clean Cut Meals pack",
+        "received": "2026-10-13",
+        "local_copy": "evidence/cooking/pack-back_cooking-instructions_user-photo_2026-10-13.jpg",
+        "sha256": "da5964ba443cfa8314baf8439a8372489174f122f93bd5d854339da9095584b6",
+        "size_px": [2318, 1270]
+      },
+      "verbatim": "Cooking Instructions: All appliances vary, the following are guidelines only. For best results, microwave cook. To Microwave Cook: Remove sleeve and pierce film in several places. Place onto a microwavable plate and heat on full power for 4 minutes 30 seconds (900W) or 5 minutes (800W). Remove from microwave and peel off film carefully. To Oven Cook: Preheat oven to 190°C/170°C Fan/375°F/Gas Mark 5. Remove sleeve and pierce film lid in several places. Place on a baking tray in centre of preheated oven and cook for 20-25 minutes. Remove from oven and peel off film lid carefully. Allow to stand for 1 minute. Stir well and serve. Caution: Container will be hot. Take care with pack as it may become flexible during heating. Beware of escaping steam when removing film. Ensure product is piping hot throughout prior to serving. Do not reheat.",
+      "general": "All appliances vary, the following are guidelines only. For best results, microwave cook.",
+      "microwave": {
+        "prep": "Remove sleeve and pierce film in several places. Place onto a microwavable plate.",
+        "power": "full power",
+        "times": [
+          { "watts": "900 W", "time": "4 min 30 sec" },
+          { "watts": "800 W", "time": "5 min" }
+        ],
+        "after": "Remove from microwave and peel off film carefully."
+      },
+      "oven": {
+        "preheat": true,
+        "conventional": "190°C",
+        "fan": "170°C",
+        "fahrenheit": "375°F",
+        "gas": "Gas Mark 5",
+        "prep": "Remove sleeve and pierce film lid in several places. Place on a baking tray in the centre of the preheated oven.",
+        "time": "20–25 min",
+        "after": "Remove from oven and peel off film lid carefully."
+      },
+      "stand": "1 min",
+      "finish": "Stir well and serve.",
+      "caution": [
+        "Container will be hot. Take care with pack as it may become flexible during heating.",
+        "Beware of escaping steam when removing film.",
+        "Ensure product is piping hot throughout prior to serving.",
+        "Do not reheat."
+      ]
+    }
+  ]
+}

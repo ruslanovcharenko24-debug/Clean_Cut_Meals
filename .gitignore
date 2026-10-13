@@ -24,3 +24,6 @@ skills-lock.json
 *.cookies
 *.har
 /qr/
+
+# User-supplied research photos (provenance in docs/ASSET_REGISTER.md); not published
+/evidence/

@@ -1,5 +1,6 @@
 ---
 import type { Product } from '../lib/products';
+import HowToHeat from './HowToHeat.astro';
 
 interface Props {
   product: Product;
@@ -27,8 +28,7 @@ const originStatements = p.origin.ingredients_statements;
   <details class="info-item" id="how-to-heat">
     <summary>How to heat</summary>
     <div class="info-body">
-      <p class="heat-main">Ready in 5 minutes. Follow the heating instructions on the back of your pack.</p>
-      <p>Make sure it's piping hot before eating.</p>
+      <HowToHeat product={p} />
     </div>
   </details>
 
@@ -155,11 +155,6 @@ const originStatements = p.origin.ingredients_statements;
   .info-h {
     margin: var(--s4) 0 var(--s2);
     font-size: var(--fs-body);
-  }
-  .heat-main {
-    font-size: var(--fs-h3);
-    font-weight: 600;
-    line-height: 1.25;
   }
   .info-item {
     scroll-margin-top: var(--s3);

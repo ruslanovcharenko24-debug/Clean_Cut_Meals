@@ -2,6 +2,7 @@ import type { ImageMetadata } from 'astro';
 import data from '../../data/products.json';
 import orderData from '../../data/order-links.json';
 import shortData from '../../data/short-links.json';
+import cookingData from '../../data/cooking-instructions.json';
 
 // Product data comes only from data/products.json (SuperValu SKU cards, 13 Oct 2026).
 // Nothing here adds claims that the source does not contain.
@@ -173,4 +174,10 @@ export function demoServices(p: Product): DemoService[] {
   return orderData.links
     .filter((l) => l.product === p.slug && l.status === 'demo')
     .map((l) => ({ ...serviceStyle(l.service), label: l.label ?? 'Demo' }));
+}
+
+// Pack cooking instructions (data/cooking-instructions.json): only a record confirmed for this exact meal.
+export type Cooking = (typeof cookingData.records)[number];
+export function cookingFor(p: Product): Cooking | null {
+  return cookingData.records.find((r) => (r.product as string | null) === p.slug && r.product_confirmed) ?? null;
 }

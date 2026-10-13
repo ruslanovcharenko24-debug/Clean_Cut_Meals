@@ -1,0 +1,252 @@
+---
+import { cookingFor, type Product } from '../lib/products';
+
+// Visual heating guide from the meal's own pack instructions. Without a confirmed record for this meal,
+// it only points to the pack: values are never borrowed from another meal or inferred from "5 minutes".
+interface Props {
+  product: Product;
+}
+const c = cookingFor(Astro.props.product);
+const steps = [
+  { label: 'Remove sleeve', icon: 'sleeve' },
+  { label: 'Pierce film', icon: 'pierce' },
+  { label: 'Heat', icon: 'heat' },
+  { label: c ? `Stand ${c.stand}` : 'Stand', icon: 'stand' },
+  { label: 'Stir & serve', icon: 'stir' },
+];
+---
+
+{
+  c ? (
+    <div class="heat">
+      <div class="heat-cards">
+        <section class="hcard" aria-labelledby="heat-mw">
+          <header class="hcard-head">
+            <svg class="hcard-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <rect x="4" y="9" width="40" height="30" rx="4" />
+              <rect x="9" y="14" width="23" height="20" rx="2" />
+              <circle cx="38" cy="18" r="2.5" />
+              <line x1="35" y1="27" x2="41" y2="27" />
+              <line x1="35" y1="32" x2="41" y2="32" />
+            </svg>
+            <h3 id="heat-mw" class="hcard-title">Microwave</h3>
+          </header>
+          <p class="hcard-sub">Full power</p>
+          <dl class="hcard-values">
+            {c.microwave.times.map((t) => (
+              <div class="hv">
+                <dt>{t.watts}</dt>
+                <dd>{t.time}</dd>
+              </div>
+            ))}
+          </dl>
+          <p class="hcard-prep">Pierce the film in several places and put the tray on a microwavable plate.</p>
+        </section>
+
+        <section class="hcard" aria-labelledby="heat-oven">
+          <header class="hcard-head">
+            <svg class="hcard-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <rect x="6" y="4" width="36" height="40" rx="4" />
+              <line x1="6" y1="14" x2="42" y2="14" />
+              <rect x="12" y="20" width="24" height="17" rx="2" />
+              <circle cx="14" cy="9" r="1.8" />
+              <circle cx="22" cy="9" r="1.8" />
+              <circle cx="30" cy="9" r="1.8" />
+            </svg>
+            <h3 id="heat-oven" class="hcard-title">Oven</h3>
+          </header>
+          <p class="hcard-sub"><span class="preheat">Preheat oven</span></p>
+          <dl class="hcard-values">
+            <div class="hv">
+              <dt>Conventional</dt>
+              <dd>{c.oven.conventional}</dd>
+            </div>
+            <div class="hv">
+              <dt>Fan</dt>
+              <dd>{c.oven.fan}</dd>
+            </div>
+            <div class="hv">
+              <dt>Cook</dt>
+              <dd>{c.oven.time}</dd>
+            </div>
+          </dl>
+          <p class="hcard-alt">{c.oven.fahrenheit} / {c.oven.gas}</p>
+          <p class="hcard-prep">Pierce the film lid in several places. Put the tray on a baking tray in the centre of the oven.</p>
+        </section>
+      </div>
+
+      <ol class="steps" aria-label="Steps">
+        {steps.map((s) => (
+          <li class="step">
+            <svg class="step-icon" viewBox="0 0 32 32" aria-hidden="true">
+              {s.icon === 'sleeve' && (
+                <>
+                  <rect x="4" y="11" width="18" height="12" rx="2" />
+                  <path d="M20 17h9M25 13l4 4-4 4" />
+                </>
+              )}
+              {s.icon === 'pierce' && (
+                <>
+                  <rect x="4" y="17" width="24" height="8" rx="2" />
+                  <path d="M10 4v10M16 4v10M22 4v10" />
+                </>
+              )}
+              {s.icon === 'heat' && <path d="M9 26c0-5 4-6 4-11s-3-6-3-9M16 26c0-5 4-6 4-11s-3-6-3-9M23 26c0-5 4-6 4-11s-3-6-3-9" />}
+              {s.icon === 'stand' && (
+                <>
+                  <circle cx="16" cy="17" r="11" />
+                  <path d="M16 10v7l5 3M13 3h6" />
+                </>
+              )}
+              {s.icon === 'stir' && (
+                <>
+                  <path d="M5 18h22a11 11 0 0 1-22 0z" />
+                  <path d="M20 4l-5 13" />
+                </>
+              )}
+            </svg>
+            <span>{s.label}</span>
+          </li>
+        ))}
+      </ol>
+
+      <ul class="caution" aria-label="Take care">
+        <li>The tray gets hot and may bend. Watch for steam when you peel off the film.</li>
+        <li>Make sure it's piping hot throughout. Do not reheat.</li>
+      </ul>
+      <p class="heat-note">From the pack: all appliances vary and these are guidelines only. The pack suggests the microwave for best results.</p>
+    </div>
+  ) : (
+    <div class="heat">
+      <p class="heat-main">Ready in 5 minutes. Follow the heating instructions on the back of your pack.</p>
+      <p>Make sure it's piping hot before eating.</p>
+    </div>
+  )
+}
+
+<style>
+  .heat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--s3);
+  }
+  .hcard {
+    padding: var(--s3);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    background: var(--paper);
+  }
+  .hcard-head {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .hcard-icon,
+  .step-icon {
+    flex: none;
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hcard-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .hcard-title {
+    margin: 0;
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .hcard-sub {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .preheat {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--ink);
+  }
+  .hcard-values {
+    margin: var(--s2) 0 0;
+  }
+  .hv {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding: var(--s2) 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hv dt {
+    font-size: var(--fs-body);
+    font-weight: 600;
+  }
+  .hv dd {
+    margin: 0;
+    font-size: 1.625rem;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hcard-alt {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .hcard-prep {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--s1);
+    margin: var(--s4) 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s1);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .step-icon {
+    width: 32px;
+    height: 32px;
+    stroke-width: 2;
+  }
+  .caution {
+    margin: var(--s4) 0 0;
+    padding: var(--s3) var(--s3) var(--s3) calc(var(--s3) + 1em);
+    border-left: 4px solid var(--accent);
+    background: var(--surface);
+    font-size: var(--fs-small);
+  }
+  .caution li + li {
+    margin-top: var(--s1);
+  }
+  .heat-note {
+    margin: var(--s3) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .heat-main {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+</style>

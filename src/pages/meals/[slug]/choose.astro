@@ -1,0 +1,131 @@
+---
+import Base from '../../../layouts/Base.astro';
+import DishStrip from '../../../components/DishStrip.astro';
+import { pageProducts, others, shortName, mealPath, type Product } from '../../../lib/products';
+
+
+export function getStaticPaths() {
+  return pageProducts.map((p) => ({ params: { slug: p.slug }, props: { product: p } }));
+}
+
+interface Props {
+  product: Product;
+}
+const { product: p } = Astro.props;
+---
+
+<Base title={`Pick another meal — Clean Cut Meals (student concept)`} description="Compare the other Clean Cut Meals in this prototype.">
+  <div class="choose">
+    <div class="wrap">
+      <a class="back" href={mealPath(p)}>Back to {shortName(p)}</a>
+      <h1 class="title">Pick another meal</h1>
+
+      <fieldset class="when">
+        <legend class="visually-hidden">When are you eating it?</legend>
+        <input type="radio" name="when" id="when-tonight" value="tonight" checked />
+        <label for="when-tonight">Tonight</label>
+        <input type="radio" name="when" id="when-tomorrow" value="tomorrow" />
+        <label for="when-tomorrow">Tomorrow at work</label>
+      </fieldset>
+
+      <div class="hints" aria-live="polite">
+        <p class="hint hint-tonight">
+          Ready in 5 minutes, according to the product cards. Follow the instructions on your pack.
+        </p>
+        <p class="hint hint-tomorrow">
+          Keep it in the fridge at 0°C to 5°C and check the use-by date on the front of the pack. Heat it at work following the
+          instructions on your pack.
+        </p>
+      </div>
+      <p class="order-note">Listed A to Z. Each meal is one 400 g pack.</p>
+    </div>
+
+    <div class="list">
+      {others(p).map((o) => <DishStrip product={o} />)}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .back::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    margin-right: var(--s2);
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+  }
+  .title {
+    margin: var(--s2) 0 var(--s4);
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+  }
+  /* Segmented control: the one pill shape on the site */
+  .when {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 0;
+    padding: 4px;
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+  }
+  .when input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .when label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 var(--s2);
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: var(--fs-small);
+    text-align: center;
+    cursor: pointer;
+  }
+  .when input:checked + label {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .when input:focus-visible + label {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+  .hints {
+    margin-top: var(--s3);
+  }
+  .hint {
+    margin: 0;
+    padding: var(--s3);
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+  }
+  .hint-tomorrow {
+    display: none;
+  }
+  .choose:has(#when-tomorrow:checked) .hint-tonight {
+    display: none;
+  }
+  .choose:has(#when-tomorrow:checked) .hint-tomorrow {
+    display: block;
+  }
+  .order-note {
+    margin: var(--s3) 0 var(--s3);
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .list {
+    border-top: 1px solid var(--rule);
+  }
+</style>

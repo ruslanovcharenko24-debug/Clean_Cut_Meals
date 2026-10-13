@@ -1,0 +1,341 @@
+{
+  "data_date": "2026-10-13",
+  "sources": {
+    "snapshot": "sources/products/product_database.json (SuperValu card snapshot; capture date not recorded in file)",
+    "live_check": "SuperValu cards fetched 2026-10-13T13:45Z; ingredients, storage, per-pack nutrition and description matched snapshot",
+    "brandbook": "sources/brand/Clean Cut Brand Book June 2026.pdf (design only, not product data)"
+  },
+  "channels": {
+    "retail": "SuperValu and Centra; availability varies by store",
+    "uber_eats_example": {
+      "store": "Centra Shandon Street, 91 Shandon Street, Cork, T23 KD21",
+      "status": "User-confirmed from screenshots (screenshots not in project); CCM 400 g mains shown at €9 there; fees/delivery not shown; no hot-delivery claim",
+      "source": "sources/drive/CCM_Сравнительная_карта_и_3_направления_RU.md",
+      "show_price_in_ui": false
+    }
+  },
+  "products": [
+    {
+      "slug": "butter-chicken",
+      "official_name": "Clean Cut Meals Butter Chicken (400 g)",
+      "pack_name": "BUTTER CHICKEN",
+      "supervalu_product_id": "1955758000",
+      "card_url": "https://shop.supervalu.ie/sm/delivery/rsid/5550/product/clean-cut-meals-butter-chicken-400-g-id-1955758000",
+      "image": {
+        "file": "assets/products/supervalu/butter-chicken_1955758000_1.jpg",
+        "source_url": "https://images.cdn.shop.supervalu.ie/1955758000_1",
+        "type": "front-of-pack product photo (pack + visible tray contents); bowl on sleeve marked 'Serving Suggestion'",
+        "retrieved": "2026-10-13T13:45Z",
+        "size_px": [
+          1500,
+          1500
+        ],
+        "rights": "Retailer/brand image used for a student concept with attribution; public or commercial reuse not confirmed"
+      },
+      "weight": "400 g",
+      "servings": null,
+      "servings_note": "Not stated on card; nutrition given 'Per Pack'.",
+      "description": "Succulent chicken breast pieces, coconut pilau rice and quinoa simmered in a butter masala sauce",
+      "card_claims": [
+        "High Protein",
+        "52g Protein",
+        "524 kcal",
+        "5 Ready in Minutes"
+      ],
+      "nutrition_basis": "as microwaved",
+      "nutrition": {
+        "kcal": {
+          "per_100g": "131kcal",
+          "per_pack": "524kcal"
+        },
+        "Fat": {
+          "per_100g": "4.3g",
+          "per_pack": "17g"
+        },
+        "of which saturates": {
+          "per_100g": "1.7g",
+          "per_pack": "6.8g"
+        },
+        "Carbohydrate": {
+          "per_100g": "9.4g",
+          "per_pack": "38g"
+        },
+        "of which sugars": {
+          "per_100g": "2.2g",
+          "per_pack": "8.8g"
+        },
+        "Fibre": {
+          "per_100g": "1.4g",
+          "per_pack": "5.6g"
+        },
+        "Protein": {
+          "per_100g": "13g",
+          "per_pack": "52g"
+        },
+        "Salt": {
+          "per_100g": "0.33g",
+          "per_pack": "1.3g"
+        }
+      },
+      "ingredients": "Pilau Rice (32%) [Water, Basmati Rice, Garlic Purée, Ginger Purée, Spices, Salt], Chicken Breast (28%), Water, Tomatoes, Onions, CREAM (MILK), Tomato Paste, Vegetable Oils (Rapeseed, Sunflower), Spices, Natural Yoghurt (MILK), Butter (MILK), Garlic Purée, Ginger Purée, Skimmed MILK Powder, Starch, White Quinoa, Sugar, Honey, Desiccated Coconut, Salt, Herbs, MUSTARD Powder, Maltodextrin, Garlic Powder, Ginger Powder, Yeast Extract, Colours (Paprika Extract, Plain Caramel), Parsnip Powder, Onion Powder, Ground CELERY",
+      "allergens": {
+        "contains": [
+          "Celery",
+          "Milk",
+          "Mustard"
+        ],
+        "may_contain": []
+      },
+      "safety_warning": "Although every care has been taken to remove all bones, some may remain.",
+      "storage": "Keep refrigerated at 0°C to 5°C. Once opened, keep refrigerated and consume within 1 day. Do not exceed the use by date shown on front of pack. Suitable for home freezing. Freeze by use by date shown and consume within 1 month. Defrost thoroughly before use. Once defrosted (in a refrigerator) consume within 1 day. Do not refreeze.",
+      "cooking": {
+        "instructions": null,
+        "ui_text": "Follow the instructions on your pack.",
+        "front_of_pack": [
+          "Ready in 5 minutes (microwave icon)",
+          "Ensure piping hot — See back of pack for cooking instructions"
+        ],
+        "note": "Back-of-pack instructions not available in sources; card has no instruction field."
+      },
+      "origin": {
+        "ingredients_statements": [],
+        "store_label": "Irish Made",
+        "store_label_note": "Store label on card; does not mean all raw materials are Irish.",
+        "card_party_statement": "Specially produced for: Musgrave Retail Partners Ireland / Musgrave Northern Ireland",
+        "card_party_note": "Statement of who the product is produced for; not a statement of the actual manufacturer."
+      },
+      "price": {
+        "regular_eur": 6.75,
+        "unit_price": "€16.88/kg",
+        "retailer": "SuperValu online (rsid 5550)",
+        "data_date": "2026-10-13",
+        "show_in_ui": false
+      },
+      "promotion": {
+        "text": "2 for €11",
+        "valid_snapshot": "24/09/2026–14/10/2026",
+        "valid_live_card_2026-10-13": "23/09/2026–14/10/2026",
+        "expires": "2026-10-14",
+        "show_in_ui": false,
+        "note": "Start date differs between snapshot and live card; expired after 14 Oct 2026 — never show as current."
+      }
+    },
+    {
+      "slug": "beef-stroganoff",
+      "official_name": "Clean Cut Meals Beef Stroganoff with Long Grain Rice (400 g)",
+      "pack_name": "BEEF STROGANOFF",
+      "supervalu_product_id": "1934793000",
+      "card_url": "https://shop.supervalu.ie/sm/delivery/rsid/5550/product/clean-cut-meals-beef-stroganoff-with-long-grain-rice-400-g-id-1934793000",
+      "image": {
+        "file": "assets/products/supervalu/beef-stroganoff_1934793000_1.jpg",
+        "source_url": "https://images.cdn.shop.supervalu.ie/1934793000_1",
+        "type": "front-of-pack product photo (pack + visible tray contents); bowl on sleeve marked 'Serving Suggestion'",
+        "retrieved": "2026-10-13T13:45Z",
+        "size_px": [
+          1500,
+          1500
+        ],
+        "rights": "Retailer/brand image used for a student concept with attribution; public or commercial reuse not confirmed"
+      },
+      "weight": "400 g",
+      "servings": null,
+      "servings_note": "Not stated on card; nutrition given 'Per Pack'.",
+      "description": "Tender Irish beef in a rich, creamy mushroom sauce with long grain rice",
+      "card_claims": [
+        "High Protein",
+        "37g Protein",
+        "485 Kcal",
+        "Ready in 5 Minutes"
+      ],
+      "nutrition_basis": "as microwaved",
+      "nutrition": {
+        "kcal": {
+          "per_100g": "122kcal",
+          "per_pack": "485kcal"
+        },
+        "Fat": {
+          "per_100g": "4.3g",
+          "per_pack": "17g"
+        },
+        "of which saturates": {
+          "per_100g": "1.9g",
+          "per_pack": "7.6g"
+        },
+        "Carbohydrate": {
+          "per_100g": "11g",
+          "per_pack": "44g"
+        },
+        "of which sugars": {
+          "per_100g": "0.5g",
+          "per_pack": "2g"
+        },
+        "Fibre": {
+          "per_100g": "1g",
+          "per_pack": "4g"
+        },
+        "Protein": {
+          "per_100g": "9.2g",
+          "per_pack": "37g"
+        },
+        "Salt": {
+          "per_100g": "0.42g",
+          "per_pack": "1.7g"
+        }
+      },
+      "ingredients": "Cooked Long Grain Rice (35%) [Water, Long Grain Rice], Irish Beef (28%), Water, Mushrooms (9%), Sour CREAM (6%) [CREAM (MILK), Skimmed MILK Powder, Modified Maize Starch], Onions, Beef Juice, Dry Cured Smoked Bacon Lardons [Pork, Salt, Preservatives (Sodium Nitrate, Sodium Nitrite), Antioxidant (Sodium Ascorbate)], Corn Starch, CREAM (MILK), Gherkins, Paprika, Salt, MUSTARD Seeds, Rapeseed Oil, Yeast Extract, Beef Stock [Water, Salt, Beef Bones], Spirit Vinegar, Concentrated Lemon Juice, Beef Powder, Potato Flakes, Sugar, Beef Fat, BARLEY Malt Extract, Natural Flavouring, Onion Powder, Black Pepper",
+      "allergens": {
+        "contains": [
+          "Barley",
+          "Milk",
+          "Mustard"
+        ],
+        "may_contain": []
+      },
+      "safety_warning": "Although every care has been taken to remove all bones, some may remain.",
+      "storage": "Keep refrigerated at 0°C to 5°C. Once opened, keep refrigerated and consume within 1 day. Do not exceed the use by date shown on front of pack. Suitable for home freezing. Freeze by use by date shown and consume within 1 month. Defrost thoroughly before use. Once defrosted (in a refrigerator) consume within 1 day. Do not refreeze.",
+      "cooking": {
+        "instructions": null,
+        "ui_text": "Follow the instructions on your pack.",
+        "front_of_pack": [
+          "Ready in 5 minutes (microwave icon)",
+          "Ensure piping hot — See back of pack for cooking instructions"
+        ],
+        "note": "Back-of-pack instructions not available in sources; card has no instruction field."
+      },
+      "origin": {
+        "ingredients_statements": [
+          "Irish Beef (28%)"
+        ],
+        "store_label": "Irish Made",
+        "store_label_note": "Store label on card; does not mean all raw materials are Irish.",
+        "card_party_statement": "Specially produced for: Musgrave Retail Partners Ireland / Musgrave Northern Ireland",
+        "card_party_note": "Statement of who the product is produced for; not a statement of the actual manufacturer."
+      },
+      "price": {
+        "regular_eur": 6.75,
+        "unit_price": "€16.88/kg",
+        "retailer": "SuperValu online (rsid 5550)",
+        "data_date": "2026-10-13",
+        "show_in_ui": false
+      },
+      "promotion": {
+        "text": "2 for €11",
+        "valid_snapshot": "24/09/2026–14/10/2026",
+        "valid_live_card_2026-10-13": "23/09/2026–14/10/2026",
+        "expires": "2026-10-14",
+        "show_in_ui": false,
+        "note": "Start date differs between snapshot and live card; expired after 14 Oct 2026 — never show as current."
+      }
+    },
+    {
+      "slug": "spaghetti-bolognese",
+      "official_name": "Clean Cut Meals Spaghetti Bolognese with Irish Beef (400 g)",
+      "pack_name": "SPAGHETTI BOLOGNESE",
+      "supervalu_product_id": "1934872000",
+      "card_url": "https://shop.supervalu.ie/sm/delivery/rsid/5550/product/clean-cut-meals-spaghetti-bolognese-with-irish-beef-400-g-id-1934872000",
+      "image": {
+        "file": "assets/products/supervalu/spaghetti-bolognese_1934872000_1.jpg",
+        "source_url": "https://images.cdn.shop.supervalu.ie/1934872000_1",
+        "type": "front-of-pack product photo (pack + visible tray contents); bowl on sleeve marked 'Serving Suggestion'",
+        "retrieved": "2026-10-13T13:45Z",
+        "size_px": [
+          1500,
+          1500
+        ],
+        "rights": "Retailer/brand image used for a student concept with attribution; public or commercial reuse not confirmed"
+      },
+      "weight": "400 g",
+      "servings": null,
+      "servings_note": "Not stated on card; nutrition given 'Per Pack'.",
+      "description": "Minced lean Irish beef, rich tomato sauce with herbs on a bed of spaghetti",
+      "card_claims": [
+        "High Protein",
+        "33g Protein",
+        "480 Kcal",
+        "Ready in 5 Minutes"
+      ],
+      "nutrition_basis": "as microwaved",
+      "nutrition": {
+        "kcal": {
+          "per_100g": "119kcal",
+          "per_pack": "480kcal"
+        },
+        "Fat": {
+          "per_100g": "4.4g",
+          "per_pack": "18g"
+        },
+        "of which saturates": {
+          "per_100g": "1.8g",
+          "per_pack": "7.2g"
+        },
+        "Carbohydrate": {
+          "per_100g": "11g",
+          "per_pack": "44g"
+        },
+        "of which sugars": {
+          "per_100g": "2.1g",
+          "per_pack": "8.4g"
+        },
+        "Fibre": {
+          "per_100g": "1.3g",
+          "per_pack": "5.2g"
+        },
+        "Protein": {
+          "per_100g": "8.3g",
+          "per_pack": "33g"
+        },
+        "Salt": {
+          "per_100g": "0.53g",
+          "per_pack": "2.1g"
+        }
+      },
+      "ingredients": "Cooked Spaghetti (38%) [Water, Durum WHEAT Semolina, Rapeseed Oil], Irish Beef (25%), Tomatoes, Tomato Paste, Carrots (2.5%), Mushrooms (2%), Onions, Italian style full Fat hard Cheese (MILK), Peas, Red Peppers, Corn Starch, Herbs, Garlic Purée, Sugar, Salt, Paprika, Rapeseed Oil, Red Wine Vinegar, Black Pepper, Cane Molasses",
+      "allergens": {
+        "contains": [
+          "Milk",
+          "Wheat"
+        ],
+        "may_contain": [
+          "Eggs",
+          "Mustard",
+          "Soya"
+        ]
+      },
+      "safety_warning": "Although every care has been taken to remove all bones, some may remain.",
+      "storage": "Keep refrigerated at 0°C to 5°C. Once opened, keep refrigerated and consume within 1 day. Do not exceed the use by date shown on front of pack. Suitable for home freezing. Freeze by use by date shown and consume within 1 month. Defrost thoroughly before use. Once defrosted (in a refrigerator) consume within 1 day. Do not refreeze.",
+      "cooking": {
+        "instructions": null,
+        "ui_text": "Follow the instructions on your pack.",
+        "front_of_pack": [
+          "Ready in 5 minutes (microwave icon)",
+          "Ensure piping hot — See back of pack for cooking instructions"
+        ],
+        "note": "Back-of-pack instructions not available in sources; card has no instruction field."
+      },
+      "origin": {
+        "ingredients_statements": [
+          "Irish Beef (25%)"
+        ],
+        "store_label": "Irish Made",
+        "store_label_note": "Store label on card; does not mean all raw materials are Irish.",
+        "card_party_statement": "Specially produced for: Musgrave Retail Partners Ireland / Musgrave Northern Ireland",
+        "card_party_note": "Statement of who the product is produced for; not a statement of the actual manufacturer."
+      },
+      "price": {
+        "regular_eur": 6.75,
+        "unit_price": "€16.88/kg",
+        "retailer": "SuperValu online (rsid 5550)",
+        "data_date": "2026-10-13",
+        "show_in_ui": false
+      },
+      "promotion": {
+        "text": "2 for €11",
+        "valid_snapshot": "24/09/2026–14/10/2026",
+        "valid_live_card_2026-10-13": "23/09/2026–14/10/2026",
+        "expires": "2026-10-14",
+        "show_in_ui": false,
+        "note": "Start date differs between snapshot and live card; expired after 14 Oct 2026 — never show as current."
+      }
+    }
+  ]
+}

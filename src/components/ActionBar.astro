@@ -1,0 +1,159 @@
+---
+interface Props {
+  path: string;
+  shareUrl?: string | null;
+  dishName: string;
+}
+const { path, shareUrl, dishName } = Astro.props;
+const shareText = `How about ${dishName} from Clean Cut Meals? Here's what's in it:`;
+---
+
+<div class="actions" data-share-root data-path={path} data-url={shareUrl ?? undefined} data-title={`${dishName} — Clean Cut Meals`} data-text={shareText}>
+  <div class="action-row">
+    <a class="btn btn--primary" href="#how-to-heat" data-open-heat>How to heat</a>
+    <a class="btn" href={`${path}choose/`}>Choose another meal</a>
+    <button type="button" class="btn" data-share-button aria-controls="share-panel" aria-expanded="false">Share</button>
+  </div>
+
+  <div id="share-panel" class="share-panel" data-share-panel hidden>
+    <label for="share-url" class="share-label">Link to this meal</label>
+    <div class="share-row">
+      <input id="share-url" class="share-url" type="text" readonly data-share-url value={shareUrl ?? path} />
+      <button type="button" class="btn btn--primary share-copy" data-copy-button>Copy link</button>
+    </div>
+  </div>
+  <p class="share-status" role="status" aria-live="polite" data-share-status></p>
+  <p class="share-tip">Share sends a link to this meal. Ask whoever you're eating with to reply with the one they'd pick.</p>
+  <noscript><p class="share-tip">Link to share: <span class="share-noscript">{shareUrl ?? path}</span></p></noscript>
+</div>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // "How to heat" opens its section below instead of jumping to a closed one.
+  document.querySelectorAll<HTMLAnchorElement>('[data-open-heat]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const section = document.getElementById('how-to-heat') as HTMLDetailsElement | null;
+      if (!section) return;
+      event.preventDefault();
+      section.open = true;
+      section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      section.querySelector('summary')?.focus({ preventScroll: true });
+    });
+  });
+
+  function initShare(root: HTMLElement) {
+    const button = root.querySelector<HTMLButtonElement>('[data-share-button]')!;
+    const panel = root.querySelector<HTMLElement>('[data-share-panel]')!;
+    const input = root.querySelector<HTMLInputElement>('[data-share-url]')!;
+    const copy = root.querySelector<HTMLButtonElement>('[data-copy-button]')!;
+    const status = root.querySelector<HTMLElement>('[data-share-status]')!;
+    // Absolute public URL from the build when configured; otherwise the address this page was opened on.
+    const url = root.dataset.url || new URL(root.dataset.path!, window.location.origin).href;
+    input.value = url;
+
+    const say = (msg: string) => {
+      status.textContent = '';
+      // Set on the next frame so a repeated message is announced again.
+      requestAnimationFrame(() => (status.textContent = msg));
+    };
+
+    const openPanel = () => {
+      panel.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+    };
+
+    button.addEventListener('click', async () => {
+      const data = { title: root.dataset.title, text: root.dataset.text, url };
+      const canNativeShare = typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data));
+      if (canNativeShare) {
+        try {
+          await navigator.share(data);
+          say('Shared.');
+        } catch (err) {
+          // Closing the share sheet is a normal choice, not an error.
+          if ((err as DOMException).name !== 'AbortError') {
+            openPanel();
+            say("Sharing didn't open. Copy the link instead.");
+          }
+        }
+        return;
+      }
+      openPanel();
+      input.focus();
+      input.select();
+    });
+
+    copy.addEventListener('click', async () => {
+      try {
+        if (!navigator.clipboard) throw new Error('no clipboard');
+        await navigator.clipboard.writeText(url);
+        say('Link copied');
+      } catch {
+        input.focus();
+        input.select();
+        say('Copy the selected link.');
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-share-root]').forEach(initShare);
+</script>
+
+<style>
+  .action-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s2);
+  }
+  .action-row .btn {
+    min-height: 56px;
+    padding: var(--s1) var(--s2);
+    font-size: var(--fs-small);
+    text-align: center;
+    line-height: 1.15;
+  }
+  .share-panel {
+    margin-top: var(--s3);
+  }
+  .share-label {
+    display: block;
+    margin-bottom: var(--s2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .share-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s2);
+  }
+  .share-url {
+    min-width: 0;
+    min-height: 52px;
+    padding: var(--s2) var(--s3);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    font: 400 var(--fs-small) / 1.2 var(--font);
+    color: var(--ink);
+    background: var(--surface);
+  }
+  .share-copy {
+    width: auto;
+    white-space: nowrap;
+  }
+  .share-status {
+    margin: var(--s2) 0 0;
+    font-weight: 600;
+  }
+  .share-status:empty {
+    display: none;
+  }
+  .share-tip {
+    margin: var(--s3) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .share-noscript {
+    word-break: break-all;
+  }
+</style>

@@ -1,0 +1,16 @@
+{
+  "name": "ccm-qr-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Student concept for the MTU Brand Challenge. Not an official Clean Cut Meals or SuperValu service.",
+  "scripts": {
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
+    "start": "ASTRO_TELEMETRY_DISABLED=1 astro build && ASTRO_TELEMETRY_DISABLED=1 astro preview"
+  },
+  "dependencies": {
+    "astro": "7.3.5"
+  }
+}

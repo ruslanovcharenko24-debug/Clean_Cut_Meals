@@ -1,0 +1,120 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import '../styles/global.css';
+import fontUrl from '../assets/fonts/lexend-latin.woff2?url';
+import { DATA_DATE_LABEL, withBase, absoluteUrl } from '../lib/products';
+
+// The logo file is not in the public repository (rights not confirmed); a plain text name replaces it there.
+const logos = import.meta.glob<{ default: ImageMetadata }>('../../assets/brand/ccm-logo.png', { eager: true });
+const logo = Object.values(logos)[0]?.default ?? null;
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+}
+
+const { title, description, ogImage } = Astro.props;
+const pageUrl = absoluteUrl(Astro.url.pathname, Astro.site);
+const ogImageUrl = ogImage && Astro.site ? new URL(ogImage, Astro.site).href : null;
+const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official Clean Cut Meals service.';
+---
+
+<!doctype html>
+<html lang="en-IE">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {pageUrl && <meta property="og:url" content={pageUrl} />}
+    {pageUrl && <link rel="canonical" href={pageUrl} />}
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <div class="page">
+      <p class="concept-bar">{DISCLAIMER}</p>
+      <header class="site-header">
+        <a href={withBase('/')} class="logo-link" aria-label="Clean Cut Meals prototype home">
+          {
+            logo ? (
+              <Image src={logo} alt="Clean Cut Meals" width={256} loading="eager" class="logo" />
+            ) : (
+              <span class="text-mark">Clean Cut Meals <span class="text-mark-note">prototype</span></span>
+            )
+          }
+        </a>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer class="site-footer wrap">
+        <p><strong>{DISCLAIMER}</strong> Not a SuperValu service either.</p>
+        <p>
+          Product info from SuperValu product pages, data as of {DATA_DATE_LABEL}. Always check the pack, especially if you have
+          an allergy.
+        </p>
+        <p><a href={withBase('/about/')}>About this prototype and its sources</a></p>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style>
+  .concept-bar {
+    margin: 0;
+    padding: 6px var(--gutter);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .text-mark {
+    display: inline-block;
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .text-mark-note {
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .site-header {
+    /* Logo clearance: at least the height of the logo's "e" on every side (brandbook p.11) */
+    padding: 0 var(--gutter);
+  }
+  .logo-link {
+    text-decoration: none;
+    display: inline-block;
+    padding: 10px; /* ≈ height of the logo's “e” at 128px */
+    margin-left: -10px;
+  }
+  .logo {
+    width: 128px; /* digital minimum is 120px (brandbook p.11) */
+    height: auto;
+  }
+  .site-footer {
+    margin-top: var(--s6);
+    padding-top: var(--s4);
+    padding-bottom: var(--s5);
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .site-footer p {
+    margin: 0 0 var(--s2);
+    max-width: var(--measure);
+  }
+  .site-footer strong {
+    color: var(--ink);
+  }
+</style>

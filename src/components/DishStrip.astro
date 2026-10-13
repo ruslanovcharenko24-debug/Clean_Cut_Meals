@@ -1,0 +1,84 @@
+---
+import { Picture } from 'astro:assets';
+import { band, shortName, packImage, perPack, mealPath, type Product } from '../lib/products';
+
+interface Props {
+  product: Product;
+  headingLevel?: 'h2' | 'h3';
+}
+const { product: p, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+const img = packImage(p);
+---
+
+<a class:list={['strip', { 'strip--text': !img }]} href={mealPath(p)} style={`--band: ${band(p)}`}>
+  {img && <Picture
+    src={img}
+    formats={['avif', 'webp']}
+    widths={[112, 224]}
+    sizes="112px"
+    alt=""
+    class="strip-img"
+  />}
+  <div class="strip-text">
+    <Heading class="strip-name">{shortName(p)}</Heading>
+    <p class="strip-desc">{p.description}</p>
+    <p class="strip-facts">
+      <span>{p.weight}</span>
+      <span>{perPack(p, 'Protein')} protein</span>
+      <span>{perPack(p, 'kcal')}</span>
+    </p>
+    <p class="strip-allergens">Contains: {p.allergens.contains.join(', ')}</p>
+  </div>
+</a>
+
+<style>
+  .strip {
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: var(--s3);
+    align-items: start;
+    padding: var(--s3) var(--gutter) var(--s3) calc(var(--gutter) - 2px);
+    border-left: 10px solid var(--band);
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--paper);
+  }
+  .strip--text {
+    grid-template-columns: 1fr;
+  }
+  .strip:hover .strip-name,
+  .strip:focus-visible .strip-name {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .strip :global(.strip-img) {
+    width: 112px;
+    height: 112px;
+  }
+  .strip-name {
+    margin: 0;
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+  .strip-desc {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+  }
+  .strip-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s3);
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .strip-allergens {
+    margin: var(--s1) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+</style>

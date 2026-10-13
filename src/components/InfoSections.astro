@@ -1,0 +1,211 @@
+---
+import type { Product } from '../lib/products';
+
+interface Props {
+  product: Product;
+}
+const { product: p } = Astro.props;
+
+// Card text keeps allergens in capitals; we only make them bold.
+const ingredientParts = p.ingredients.split(/(\b[A-Z]{3,}\b)/g);
+
+const NUTRITION_LABELS: Record<string, string> = {
+  kcal: 'Energy',
+  Fat: 'Fat',
+  'of which saturates': 'of which saturates',
+  Carbohydrate: 'Carbohydrate',
+  'of which sugars': 'of which sugars',
+  Fibre: 'Fibre',
+  Protein: 'Protein',
+  Salt: 'Salt',
+};
+const nutritionRows = Object.entries(p.nutrition) as [string, { per_100g: string; per_pack: string }][];
+const originStatements = p.origin.ingredients_statements;
+---
+
+<div class="info">
+  <details class="info-item" id="how-to-heat">
+    <summary>How to heat</summary>
+    <div class="info-body">
+      <p class="heat-main">Follow the instructions on your pack.</p>
+      <p>The front of the pack says: “Ensure piping hot. See back of pack for cooking instructions.”</p>
+      <p class="note">The product card says it's ready in 5 minutes but gives no heating steps, so this prototype doesn't either.</p>
+    </div>
+  </details>
+
+  <details class="info-item">
+    <summary>Ingredients and allergens</summary>
+    <div class="info-body">
+      <p class="allergen-line"><strong>Contains:</strong> {p.allergens.contains.join(', ')}</p>
+      {
+        p.allergens.may_contain.length > 0 && (
+          <p class="allergen-line">
+            <strong>May contain:</strong> {p.allergens.may_contain.join(', ')}
+          </p>
+        )
+      }
+      <p class="note">Allergens are listed as on the SuperValu product page. Always check the pack before eating.</p>
+      <h3 class="info-h">Ingredients</h3>
+      <p class="ingredients">
+        {ingredientParts.map((part, i) => (i % 2 === 1 ? <strong>{part}</strong> : part))}
+      </p>
+    </div>
+  </details>
+
+  <details class="info-item">
+    <summary>Nutrition</summary>
+    <div class="info-body">
+      <table class="nutrition">
+        <caption>As microwaved, from the product card. One pack is 400 g.</caption>
+        <thead>
+          <tr><th scope="col">Typical values</th><th scope="col">Per 100 g</th><th scope="col">Per pack</th></tr>
+        </thead>
+        <tbody>
+          {
+            nutritionRows.map(([key, v]) => (
+              <tr class={key.startsWith('of which') ? 'sub' : undefined}>
+                <th scope="row">{NUTRITION_LABELS[key] ?? key}</th>
+                <td>{v.per_100g}</td>
+                <td>{v.per_pack}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p class="note">Servings per pack aren't stated on the card.</p>
+    </div>
+  </details>
+
+  <details class="info-item">
+    <summary>Storage</summary>
+    <div class="info-body">
+      <p>{p.storage}</p>
+      <p class="note">{p.safety_warning}</p>
+    </div>
+  </details>
+
+  <details class="info-item">
+    <summary>Where it's from</summary>
+    <div class="info-body">
+      {
+        originStatements.length > 0 ? (
+          <p>The ingredients list says: {originStatements.join(', ')}.</p>
+        ) : (
+          <p>The ingredients list doesn't say where the ingredients come from.</p>
+        )
+      }
+      <p>The SuperValu product page labels this meal "Irish Made". That label doesn't mean every ingredient is from Ireland.</p>
+    </div>
+  </details>
+
+  <details class="info-item" id="where-to-buy">
+    <summary>Where to buy</summary>
+    <div class="info-body">
+      <p>In the chilled aisle at SuperValu and Centra. Not every store stocks every meal.</p>
+      <p>Online: see <a href="#buy">Buy this meal</a> above.</p>
+      <p>
+        Delivery: one example is Centra Shandon Street, Cork, on Uber Eats. Prices and range there can differ from the shop
+        and from other areas.
+      </p>
+    </div>
+  </details>
+</div>
+
+<style>
+  .info {
+    border-top: 1px solid var(--rule);
+  }
+  .info-item {
+    border-bottom: 1px solid var(--rule);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    padding: var(--s2) var(--gutter);
+    font-weight: 600;
+    font-size: var(--fs-body);
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::after {
+    content: '';
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-left: var(--s3);
+    border-right: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    transform: rotate(45deg) translateY(-3px);
+    transition: transform 160ms ease;
+  }
+  details[open] > summary::after {
+    transform: rotate(-135deg) translate(-2px, -1px);
+  }
+  .info-body {
+    padding: 0 var(--gutter) var(--s4);
+    max-width: var(--measure);
+  }
+  .info-body p {
+    margin: 0 0 var(--s3);
+  }
+  .info-h {
+    margin: var(--s4) 0 var(--s2);
+    font-size: var(--fs-body);
+  }
+  .heat-main {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .info-item {
+    scroll-margin-top: var(--s3);
+  }
+  .allergen-line {
+    font-size: var(--fs-h3);
+    line-height: 1.3;
+  }
+  .ingredients {
+    font-size: var(--fs-small);
+    line-height: 1.55;
+  }
+  .note {
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .nutrition {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: var(--s3);
+  }
+  .nutrition caption {
+    text-align: left;
+    padding-bottom: var(--s2);
+    color: var(--ink-soft);
+  }
+  .nutrition th,
+  .nutrition td {
+    padding: var(--s2) var(--s1);
+    border-bottom: 1px solid var(--rule);
+    text-align: right;
+  }
+  .nutrition th[scope='row'],
+  .nutrition thead th:first-child {
+    text-align: left;
+    font-weight: 600;
+  }
+  .nutrition thead th {
+    font-weight: 600;
+    vertical-align: bottom;
+  }
+  .nutrition tr.sub th {
+    font-weight: 400;
+    padding-left: var(--s3);
+  }
+</style>

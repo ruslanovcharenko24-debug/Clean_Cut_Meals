@@ -1,0 +1,182 @@
+{
+  "data_date": "2026-10-13",
+  "rules": [
+    "The UI shows a link only when status is 'verified' for that exact meal and service.",
+    "Plain HTTPS links only, exactly as copied from the service. No invented deep links, URL schemes or tracking parameters.",
+    "No price, stock, delivery or promotion claims. The prototype does not take orders or payment."
+  ],
+  "levels": {
+    "exact_product": "Opens this meal's own product page",
+    "store_search": "Opens a search for this meal inside one store",
+    "store_page": "Opens a store page; the shopper looks for the meal there"
+  },
+  "services": {
+    "supervalu": {
+      "name": "SuperValu"
+    },
+    "uber_eats": {
+      "name": "Uber Eats"
+    },
+    "just_eat": {
+      "name": "Just Eat"
+    }
+  },
+  "links": [
+    {
+      "product": "butter-chicken",
+      "service": "supervalu",
+      "status": "verified",
+      "level": "exact_product",
+      "url": "https://shop.supervalu.ie/sm/delivery/rsid/5550/product/clean-cut-meals-butter-chicken-400-g-id-1955758000",
+      "store": "SuperValu Online (default online catalogue, rsid 5550)",
+      "location": "Online; the site's store record says Cork. The shopper picks their own store or delivery address on SuperValu.",
+      "checks": [
+        {
+          "date": "2026-10-13",
+          "device": "Mac, headless Google Chrome, not signed in, viewports 1280×900 and 390×844",
+          "result": "Opens the product page titled 'Clean Cut Meals Butter Chicken (400 g)'; no redirect"
+        }
+      ],
+      "label": "View this meal"
+    },
+    {
+      "product": "beef-stroganoff",
+      "service": "supervalu",
+      "status": "verified",
+      "level": "exact_product",
+      "url": "https://shop.supervalu.ie/sm/delivery/rsid/5550/product/clean-cut-meals-beef-stroganoff-with-long-grain-rice-400-g-id-1934793000",
+      "store": "SuperValu Online (default online catalogue, rsid 5550)",
+      "location": "Online; the site's store record says Cork. The shopper picks their own store or delivery address on SuperValu.",
+      "checks": [
+        {
+          "date": "2026-10-13",
+          "device": "Mac, headless Google Chrome, not signed in, viewport 390×844",
+          "result": "Opens the product page titled 'Clean Cut Meals Beef Stroganoff with Long Grain Rice (400 g)'; no redirect"
+        }
+      ],
+      "label": "View this meal"
+    },
+    {
+      "product": "spaghetti-bolognese",
+      "service": "supervalu",
+      "status": "verified",
+      "level": "exact_product",
+      "url": "https://shop.supervalu.ie/sm/delivery/rsid/5550/product/clean-cut-meals-spaghetti-bolognese-with-irish-beef-400-g-id-1934872000",
+      "store": "SuperValu Online (default online catalogue, rsid 5550)",
+      "location": "Online; the site's store record says Cork. The shopper picks their own store or delivery address on SuperValu.",
+      "checks": [
+        {
+          "date": "2026-10-13",
+          "device": "Mac, headless Google Chrome, not signed in, viewport 390×844",
+          "result": "Opens the product page titled 'Clean Cut Meals Spaghetti Bolognese with Irish Beef (400 g)'; no redirect"
+        }
+      ],
+      "label": "View this meal"
+    },
+    {
+      "product": "butter-chicken",
+      "service": "uber_eats",
+      "status": "verified",
+      "level": "store_page",
+      "url": "https://www.ubereats.com/ie/store/centra-shandon-street-cork/ZItTswcCVwO0xP7JDn6Wxw",
+      "store": "Centra Shandon Street",
+      "location": "91 Shandon Street, Cork, T23 KD21",
+      "note": "Link supplied and checked by the user; CCM offers at this store confirmed by the user's screenshots. Whether this particular meal is listed is not confirmed, so the UI only offers the store page. App opening on a phone not checked.",
+      "checks": [
+        {
+          "date": "2026-10-13",
+          "device": "User's own check (device not recorded); screenshots held by the user",
+          "result": "Store page opens; CCM offers shown"
+        },
+        {
+          "date": "2026-10-13",
+          "device": "Mac, headless Google Chrome (Claude)",
+          "result": "Not checked: Cloudflare security verification page; not bypassed"
+        }
+      ],
+      "label": "Browse Centra Shandon Street"
+    },
+    {
+      "product": "beef-stroganoff",
+      "service": "uber_eats",
+      "status": "verified",
+      "level": "store_page",
+      "url": "https://www.ubereats.com/ie/store/centra-shandon-street-cork/ZItTswcCVwO0xP7JDn6Wxw",
+      "store": "Centra Shandon Street",
+      "location": "91 Shandon Street, Cork, T23 KD21",
+      "note": "Link supplied and checked by the user; CCM offers at this store confirmed by the user's screenshots. Whether this particular meal is listed is not confirmed, so the UI only offers the store page. App opening on a phone not checked.",
+      "checks": [
+        {
+          "date": "2026-10-13",
+          "device": "User's own check (device not recorded); screenshots held by the user",
+          "result": "Store page opens; CCM offers shown"
+        },
+        {
+          "date": "2026-10-13",
+          "device": "Mac, headless Google Chrome (Claude)",
+          "result": "Not checked: Cloudflare security verification page; not bypassed"
+        }
+      ],
+      "label": "Browse Centra Shandon Street"
+    },
+    {
+      "product": "spaghetti-bolognese",
+      "service": "uber_eats",
+      "status": "verified",
+      "level": "store_page",
+      "url": "https://www.ubereats.com/ie/store/centra-shandon-street-cork/ZItTswcCVwO0xP7JDn6Wxw",
+      "store": "Centra Shandon Street",
+      "location": "91 Shandon Street, Cork, T23 KD21",
+      "note": "Link supplied and checked by the user; CCM offers at this store confirmed by the user's screenshots. Whether this particular meal is listed is not confirmed, so the UI only offers the store page. App opening on a phone not checked.",
+      "checks": [
+        {
+          "date": "2026-10-13",
+          "device": "User's own check (device not recorded); screenshots held by the user",
+          "result": "Store page opens; CCM offers shown"
+        },
+        {
+          "date": "2026-10-13",
+          "device": "Mac, headless Google Chrome (Claude)",
+          "result": "Not checked: Cloudflare security verification page; not bypassed"
+        }
+      ],
+      "label": "Browse Centra Shandon Street"
+    },
+    {
+      "product": "butter-chicken",
+      "service": "just_eat",
+      "status": "pending",
+      "level": null,
+      "url": null,
+      "store": "Centra North Main Street (candidate, different store from Uber Eats)",
+      "location": "North Main Street, Cork",
+      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden.",
+      "checks": [],
+      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu"
+    },
+    {
+      "product": "beef-stroganoff",
+      "service": "just_eat",
+      "status": "pending",
+      "level": null,
+      "url": null,
+      "store": "Centra North Main Street (candidate, different store from Uber Eats)",
+      "location": "North Main Street, Cork",
+      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden.",
+      "checks": [],
+      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu"
+    },
+    {
+      "product": "spaghetti-bolognese",
+      "service": "just_eat",
+      "status": "pending",
+      "level": null,
+      "url": null,
+      "store": "Centra North Main Street (candidate, different store from Uber Eats)",
+      "location": "North Main Street, Cork",
+      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden.",
+      "checks": [],
+      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu"
+    }
+  ]
+}

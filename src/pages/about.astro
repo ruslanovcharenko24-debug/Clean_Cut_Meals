@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import { products, shortName, hasPackImages, DATA_DATE_LABEL } from '../lib/products';
+---
+
+<Base title="About this prototype — Clean Cut Meals (student concept)" description="Sources, dates and limits of this student prototype.">
+  <div class="wrap about">
+    <h1 class="title">About this prototype</h1>
+    <p>
+      This is a student concept made for the MTU Brand Challenge 2026. It isn't an official Clean Cut Meals, Musgrave or SuperValu
+      service, and nothing can be ordered here. No account, cookies or tracking are used.
+    </p>
+
+    <h2>Where the information comes from</h2>
+    <p>
+      Names, descriptions, ingredients, allergens, nutrition and storage are copied from each meal's SuperValu product page,
+      data as of {DATA_DATE_LABEL}. Cooking instructions aren't on those pages, so this prototype asks you to follow the
+      instructions on your pack.
+    </p>
+    <ul>
+      {
+        products.map((p) => (
+          <li>
+            <a href={p.card_url} rel="noopener noreferrer" target="_blank">
+              {shortName(p)} on SuperValu online<span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2>Images and design</h2>
+    {
+      hasPackImages ? (
+        <p>
+          Pack images are from the SuperValu product pages and are shown unchanged for this student concept. The bowl printed
+          on each pack is a serving suggestion. Colours and logo follow the Clean Cut Meals Brand Book (June 2026).
+        </p>
+      ) : (
+        <p>
+          This public version has no pack photos and no logo, because we haven't confirmed permission to publish them. Look
+          for the pack in the chilled aisle; the colour band on each page matches the band on its pack. Colours follow the
+          Clean Cut Meals Brand Book (June 2026).
+        </p>
+      )
+    }
+    <p>The brand typeface Rink isn't available to us, so Lexend (SIL Open Font License) stands in for it.</p>
+  </div>
+</Base>
+
+<style>
+  .about {
+    max-width: var(--measure);
+  }
+  .title {
+    margin: var(--s2) 0 var(--s3);
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+  }
+  h2 {
+    margin: var(--s5) 0 var(--s2);
+    font-size: var(--fs-h3);
+  }
+  p,
+  li {
+    margin: 0 0 var(--s3);
+  }
+  ul {
+    padding-left: 1.2em;
+  }
+</style>

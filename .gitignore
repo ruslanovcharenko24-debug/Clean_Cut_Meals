@@ -1,0 +1,26 @@
+# Build output and dependencies
+node_modules/
+dist/
+.astro/
+.DS_Store
+
+# Never published: read-only source copies, internal documents, assistant settings
+/sources/
+/docs/
+CLAUDE.md
+SKILLS_GUIDE.md
+skills-lock.json
+.claude/
+
+# Pack photos and logo: rights for public reuse not confirmed (OPEN_QUESTIONS Q8).
+# Local builds use them; the public build falls back to text.
+/assets/
+
+# Secrets and local files
+.env
+.env.*
+*.pem
+*.key
+*.cookies
+*.har
+/qr/

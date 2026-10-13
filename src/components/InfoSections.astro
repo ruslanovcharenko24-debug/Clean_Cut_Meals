@@ -84,6 +84,7 @@ const colLabel = (c: string) => c.replace(/^\(As (Microwaved|Consumed)\):?\s*/i,
     <summary>Storage</summary>
     <div class="info-body">
       {p.storage ? <p>{p.storage}</p> : <p class="note">Storage advice isn't listed on the product card.</p>}
+      {p.safety_warning && <p class="note">{p.safety_warning}</p>}
     </div>
   </details>
 

@@ -40,7 +40,7 @@ const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official 
   </head>
   <body>
     <div class="page">
-      <p class="concept-bar">{DISCLAIMER}</p>
+      <p class="concept-bar">Student concept, not an official service. <a href="#site-footer">Details</a></p>
       <header class="site-header">
         <a href={withBase('/')} class="logo-link" aria-label="Clean Cut Meals prototype home">
           {
@@ -55,7 +55,7 @@ const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official 
       <main>
         <slot />
       </main>
-      <footer class="site-footer wrap">
+      <footer class="site-footer wrap" id="site-footer">
         <p><strong>{DISCLAIMER}</strong> Not a SuperValu service either.</p>
         <p>
           Product info from SuperValu product pages, data as of {DATA_DATE_LABEL}. Always check the pack, especially if you have
@@ -70,12 +70,15 @@ const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official 
 <style>
   .concept-bar {
     margin: 0;
-    padding: 6px var(--gutter);
-    background: var(--ink);
-    color: var(--paper);
+    padding: 4px var(--gutter);
+    background: var(--surface);
+    color: var(--ink);
     font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.35;
+  }
+  .concept-bar a {
+    color: inherit;
   }
   .text-mark {
     display: inline-block;

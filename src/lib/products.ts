@@ -84,34 +84,52 @@ export const pageProducts = products;
 // Order links (data/order-links.json): only links checked for this exact meal and service are shown.
 
 export type OrderLevel = 'exact_product' | 'store_search' | 'store_page';
-export interface OrderLink {
+export interface ServiceStyle {
   service: string;
   serviceName: string;
+  logo: string;
+  bg: string;
+  fg: string;
+}
+export interface OrderLink extends ServiceStyle {
   level: OrderLevel;
   url: string;
   store: string;
   location: string;
   label: string;
 }
+export interface DemoService extends ServiceStyle {
+  label: string;
+}
 
 const LEVELS: OrderLevel[] = ['exact_product', 'store_search', 'store_page'];
+
+function serviceStyle(service: string): ServiceStyle {
+  const s = orderData.services[service as keyof typeof orderData.services];
+  return { service, serviceName: s.name, logo: s.logo, bg: s.bg, fg: s.fg };
+}
 
 export function orderLinks(p: Product): OrderLink[] {
   return orderData.links
     .filter((l) => l.product === p.slug && l.status === 'verified')
     .map((l) => {
-      if (!l.url || !l.url.startsWith('https://') || !LEVELS.includes(l.level as OrderLevel) || l.checks.length === 0 || !('label' in l) || !l.label) {
+      if (!l.url || !l.url.startsWith('https://') || !LEVELS.includes(l.level as OrderLevel) || l.checks.length === 0 || !l.label) {
         throw new Error(`Order link for ${p.slug}/${l.service} is marked verified but is incomplete`);
       }
-      const service = orderData.services[l.service as keyof typeof orderData.services];
       return {
-        service: l.service,
-        serviceName: service.name,
+        ...serviceStyle(l.service),
         level: l.level as OrderLevel,
         url: l.url,
         store: l.store ?? '',
         location: l.location ?? '',
-        label: l.label as string,
+        label: l.label,
       };
     });
+}
+
+// Services shown for the showcase as a labelled demo: no link and no availability claim.
+export function demoServices(p: Product): DemoService[] {
+  return orderData.links
+    .filter((l) => l.product === p.slug && l.status === 'demo')
+    .map((l) => ({ ...serviceStyle(l.service), label: l.label ?? 'Demo' }));
 }

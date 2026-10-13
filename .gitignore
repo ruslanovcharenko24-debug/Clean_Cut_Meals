@@ -12,9 +12,9 @@ SKILLS_GUIDE.md
 skills-lock.json
 .claude/
 
-# Pack photos and logo: rights for public reuse not confirmed (OPEN_QUESTIONS Q8).
-# Local builds use them; the public build falls back to text.
-/assets/
+# CCM logo stays local (not cleared for the public site). Pack photos (assets/products/) and retailer
+# logos (assets/retailers/) ARE published: presentation version approved by the user on 13 Oct 2026.
+/assets/brand/
 
 # Secrets and local files
 .env

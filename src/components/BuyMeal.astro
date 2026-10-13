@@ -1,52 +1,109 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { orderLinks, type Product } from '../lib/products';
+import { orderLinks, demoServices, type Product, type ServiceStyle } from '../lib/products';
 
 interface Props {
   product: Product;
+  dishName: string;
 }
-const { product } = Astro.props;
+const { product, dishName } = Astro.props;
 const links = orderLinks(product);
+const demos = demoServices(product);
 
-// Retailer logos are shown only from files placed in assets/retailers/<service>.(svg|png) after permission is confirmed
-// (docs/OPEN_QUESTIONS.md Q12). assets/ is not published, so the public site always shows the name as text.
+// Official retailer logos (sources in data/order-links.json → services). Files are shown unchanged, aspect ratio kept.
 const logoFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/retailers/*.{svg,png}', { eager: true });
-function logoFor(service: string): ImageMetadata | null {
-  const hit = Object.entries(logoFiles).find(([path]) => path.split('/').pop()!.startsWith(`${service}.`));
-  return hit?.[1].default ?? null;
+function logoFor(s: ServiceStyle): ImageMetadata | null {
+  return logoFiles[`../../${s.logo}`]?.default ?? null;
 }
+// App icons are square and carry the name only in small type, so the name is also written out.
+const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
 ---
 
 <section class="buy" id="buy" aria-labelledby="buy-title">
   <h2 id="buy-title" class="buy-title">Buy this meal</h2>
-  {
-    links.length > 0 ? (
-      <ul class="buy-list">
-        {links.map((l) => {
-          const logo = logoFor(l.service);
-          return (
-            <li>
-              <a class="buy-btn" href={l.url} rel="noopener noreferrer" target="_blank">
-                <span class="buy-service">
-                  {logo ? <Image src={logo} alt={l.serviceName} height={24} class="buy-logo" /> : l.serviceName}
+  <ul class="buy-list">
+    {
+      links.map((l) => {
+        const logo = logoFor(l);
+        return (
+          <li>
+            <a
+              class="svc"
+              href={l.url}
+              rel="noopener noreferrer"
+              target="_blank"
+              style={`--svc-bg: ${l.bg}; --svc-fg: ${l.fg}`}
+              aria-label={`${l.serviceName}: ${l.label} (opens in a new tab)`}
+            >
+              <span class:list={['svc-logo', `svc-logo--${l.service}`, { 'svc-logo--icon': isIcon(l) }]}>
+                {logo ? <Image src={logo} alt="" height={64} /> : l.serviceName}
+              </span>
+              <span class="svc-text">
+                {isIcon(l) && <span class="svc-name">{l.serviceName}</span>}
+                <span class="svc-action">{l.label}</span>
+              </span>
+              <svg class="svc-ext" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                <path d="M6 3H3v10h10v-3M9 2h5v5M14 2 7 9" fill="none" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </a>
+          </li>
+        );
+      })
+    }
+    {
+      demos.map((d) => {
+        const logo = logoFor(d);
+        return (
+          <li>
+            <button
+              type="button"
+              class="svc"
+              data-demo-open={`demo-${d.service}`}
+              style={`--svc-bg: ${d.bg}; --svc-fg: ${d.fg}`}
+              aria-haspopup="dialog"
+              aria-label={`${d.serviceName}: ${d.label}`}
+            >
+              <span class:list={['svc-logo', `svc-logo--${d.service}`, { 'svc-logo--icon': isIcon(d) }]}>
+                {logo ? <Image src={logo} alt="" height={64} /> : d.serviceName}
+              </span>
+              <span class="svc-text">
+                <span class="svc-name">
+                  {isIcon(d) && d.serviceName} <span class="svc-tag">Demo</span>
                 </span>
-                <span class="buy-action">{l.label}</span>
-                <svg class="buy-ext" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-                  <path d="M6 3H3v10h10v-3M9 2h5v5M14 2 7 9" fill="none" stroke="currentColor" stroke-width="1.8" />
-                </svg>
-                <span class="visually-hidden"> (opens {l.serviceName} in a new tab)</span>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    ) : (
-      <p>Look for it in the chilled aisle at SuperValu and Centra.</p>
-    )
-  }
+                <span class="svc-action">{d.label}</span>
+              </span>
+            </button>
+            <dialog id={`demo-${d.service}`} class="demo" aria-labelledby={`demo-${d.service}-title`}>
+              <h3 id={`demo-${d.service}-title`} class="demo-title">Choose a participating store — demo</h3>
+              <p>
+                This is a demo for the student showcase. We haven't confirmed which {d.serviceName} stores list {dishName},
+                so there's no store or meal link here.
+              </p>
+              <p class="demo-note">In a real version, you'd pick a nearby store that stocks this meal.</p>
+              <form method="dialog">
+                <button type="submit" class="btn btn--primary">Close</button>
+              </form>
+            </dialog>
+          </li>
+        );
+      })
+    }
+  </ul>
   <p class="buy-note">Availability and delivery depend on your location.</p>
 </section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-demo-open]').forEach((button) => {
+    const dialog = document.getElementById(button.dataset.demoOpen!) as HTMLDialogElement | null;
+    if (!dialog) return;
+    button.addEventListener('click', () => dialog.showModal());
+    // Tap outside the box closes it too.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+</script>
 
 <style>
   .buy {
@@ -57,61 +114,126 @@ function logoFor(service: string): ImageMetadata | null {
     font-size: var(--fs-body);
     font-weight: 700;
   }
-  /* Two services side by side on a phone; each button keeps full-size text and a tall target. */
   .buy-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: var(--s2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .buy-list li {
-    display: flex;
+  /* Each service keeps its own colours; the CCM frame is the heading, spacing and note around them. */
+  .svc {
+    display: grid;
+    grid-template-columns: 124px 1fr auto;
+    align-items: center;
+    gap: var(--s3);
+    width: 100%;
+    min-height: 60px;
+    padding: var(--s2) var(--s3);
+    border: 0;
+    border-radius: 10px;
+    background: var(--svc-bg);
+    color: var(--svc-fg);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
   }
-  .buy-btn {
-    position: relative;
+  .svc:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+  .svc:active {
+    transform: translateY(1px);
+  }
+  .svc-logo {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    font-weight: 700;
+  }
+  .svc-logo :global(img) {
+    display: block;
+    width: auto;
+    max-width: 112px;
+    height: 32px;
+    object-fit: contain;
+    object-position: left center;
+  }
+  /* App icon: shown whole with the rounded corners of an app tile */
+  /* The Uber Eats file has green clear space built in (brand rule), so it is shown taller. */
+  .svc-logo--uber_eats {
+    height: 44px;
+  }
+  .svc-logo--uber_eats :global(img) {
+    height: 44px;
+    max-width: 124px;
+  }
+  /* App icon: rounded tile; the store artwork's light edge falls outside the clip. */
+  .svc-logo--icon {
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 9px;
+  }
+  .svc-logo--icon :global(img) {
+    width: 40px;
+    height: 40px;
+    transform: scale(1.06);
+  }
+  .svc-text {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-    width: 100%;
-    min-height: 72px;
-    padding: var(--s2) calc(var(--s3) + 18px) var(--s2) var(--s3);
-    border: 2px solid var(--ink);
-    background: var(--surface);
-    color: var(--ink);
-    text-decoration: none;
+    gap: 1px;
   }
-  .buy-btn:hover {
-    background: var(--rule);
-  }
-  .buy-btn:focus-visible {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
-  }
-  .buy-service {
-    font-size: var(--fs-body);
+  .svc-name {
     font-weight: 700;
     line-height: 1.2;
   }
-  .buy-logo {
-    display: block;
-    width: auto;
-    height: 24px;
-  }
-  .buy-action {
+  .svc-action {
     font-size: var(--fs-small);
+    font-weight: 600;
     line-height: 1.25;
   }
-  .buy-ext {
-    position: absolute;
-    top: var(--s2);
-    right: var(--s2);
+  .svc-tag {
+    display: inline-block;
+    margin-left: var(--s1);
+    padding: 0 8px;
+    vertical-align: 2px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
   }
   .buy-note {
     margin: var(--s2) 0 0;
     font-size: var(--fs-small);
     color: var(--ink-soft);
+  }
+  .demo {
+    max-width: min(26rem, calc(100vw - 2 * var(--gutter)));
+    padding: var(--s4);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    color: var(--ink);
+    background: var(--paper);
+  }
+  .demo::backdrop {
+    background: rgb(36 1 76 / 0.45);
+  }
+  .demo-title {
+    margin: 0 0 var(--s3);
+    font-size: var(--fs-h3);
+    line-height: 1.2;
+  }
+  .demo p {
+    margin: 0 0 var(--s3);
+  }
+  .demo-note {
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .demo form {
+    margin: 0;
   }
 </style>

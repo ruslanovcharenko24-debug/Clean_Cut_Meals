@@ -6,7 +6,8 @@ A mobile web page a shopper opens by scanning a QR code at the shelf: one meal p
 
 - Product information: copied from each meal's SuperValu product page, data as of 13 Oct 2026 (`data/products.json`). Always check the pack, especially for allergies.
 - Order links: `data/order-links.json`; only checked links are shown.
-- Pack photos and the logo are **not** in this repository: permission to publish them is not confirmed. The public site shows text instead.
+- Pack photos: official SuperValu product images (unchanged). Retailer logos: official files from SuperValu, Uber Eats and the Just Eat app listing (sources in `data/order-links.json`). Used for a student showcase; no partnership is implied. The Clean Cut Meals logo is not included.
+- Just Eat is shown as a labelled demo: no store or meal availability is claimed.
 - Typeface: Lexend, SIL Open Font License (`public/fonts/OFL-Lexend.txt`).
 
 ## Run locally

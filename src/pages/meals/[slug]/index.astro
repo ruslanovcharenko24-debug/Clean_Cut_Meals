@@ -34,13 +34,11 @@ const name = shortName(p);
           loading="eager"
           fetchpriority="high"
         />
-        <p class="caption">Pack image from the SuperValu product page. The bowl on the pack is a serving suggestion.</p>
+        <p class="caption">Pack photo from SuperValu. The bowl on the pack is a serving suggestion.</p>
       </div>
       )}
       <div class:list={['hero-band wrap', { 'hero-band--solo': !img }]}>
         <h1 id="dish-name" class="dish-name">{name}</h1>
-        <p class="official">{officialName(p)}</p>
-        <p class="desc">{p.description}</p>
       </div>
     </section>
 
@@ -50,12 +48,17 @@ const name = shortName(p);
         <div><dt>Protein</dt><dd>{perPack(p, 'Protein')}</dd></div>
         <div><dt>Energy</dt><dd>{perPack(p, 'kcal')}</dd></div>
       </dl>
-      <p class="claim">Ready in 5 minutes, according to the product card.</p>
     </section>
 
     <div class="wrap">
-      <BuyMeal product={p} />
+      <BuyMeal product={p} dishName={name} />
     </div>
+
+    <section class="wrap dish-about" aria-label="About this meal">
+      <p class="official">{officialName(p)}</p>
+      <p class="desc">{p.description}</p>
+      <p class="claim">Ready in 5 minutes, according to the product card.</p>
+    </section>
 
     <section class="wrap act" aria-label="What next">
       <ActionBar path={mealPath(p)} shareUrl={absoluteUrl(mealPath(p), Astro.site)} dishName={name} />
@@ -106,8 +109,11 @@ const name = shortName(p);
     text-transform: uppercase;
     text-wrap: balance;
   }
+  .dish-about {
+    padding-top: var(--s4);
+  }
   .official {
-    margin: var(--s1) 0 0;
+    margin: 0;
     font-size: var(--fs-small);
     font-weight: 600;
   }

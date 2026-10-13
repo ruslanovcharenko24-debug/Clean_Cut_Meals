@@ -1,7 +1,7 @@
 {
   "data_date": "2026-10-13",
   "rules": [
-    "The UI shows a link only when status is 'verified' for that exact meal and service.",
+    "The UI shows a real link only when status is 'verified' for that exact meal and service. Status 'demo' shows a clearly labelled demo dialog with no link.",
     "Plain HTTPS links only, exactly as copied from the service. No invented deep links, URL schemes or tracking parameters.",
     "No price, stock, delivery or promotion claims. The prototype does not take orders or payment."
   ],
@@ -12,13 +12,28 @@
   },
   "services": {
     "supervalu": {
-      "name": "SuperValu"
+      "name": "SuperValu",
+      "logo": "assets/retailers/supervalu.svg",
+      "logo_source": "https://storage.googleapis.com/images-mus-prd-7e2fdbe.mus.prd.v8.commerce.mi9cloud.com/web/img/primary_logo.svg (logo served by shop.supervalu.ie header, 2026-10-13)",
+      "bg": "#C8102E",
+      "bg_source": "shop.supervalu.ie header background rgb(200,16,46), 2026-10-13",
+      "fg": "#FFFFFF"
     },
     "uber_eats": {
-      "name": "Uber Eats"
+      "name": "Uber Eats",
+      "logo": "assets/retailers/uber_eats.svg",
+      "logo_source": "Uber brand portal assets.uber.com, Logos collection 150, 'UE_Logo_Horizontal_RGB_web_GreenBG' (linked from merchants.ubereats.com co-marketing tools), 2026-10-13",
+      "bg": "#06C167",
+      "bg_source": "Uber Eats green, merchants.ubereats.com co-marketing guidance and the logo file itself",
+      "fg": "#000000"
     },
     "just_eat": {
-      "name": "Just Eat"
+      "name": "Just Eat",
+      "logo": "assets/retailers/just_eat.png",
+      "logo_source": "Official App Store icon of 'Just Eat: Food and Shops' (seller Just-Eat Holdings Limited), via itunes.apple.com search API, 512×512, 2026-10-13. just-eat.ie and justeattakeaway.com brand pages blocked automated access (Cloudflare)",
+      "bg": "#FF8000",
+      "bg_source": "Sampled from the official app icon [interpretation]",
+      "fg": "#000000"
     }
   },
   "links": [
@@ -145,38 +160,41 @@
     {
       "product": "butter-chicken",
       "service": "just_eat",
-      "status": "pending",
-      "level": null,
+      "status": "demo",
+      "level": "demo",
       "url": null,
       "store": "Centra North Main Street (candidate, different store from Uber Eats)",
       "location": "North Main Street, Cork",
-      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden.",
+      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden. 2026-10-13: shown as a labelled demo dialog at the user's request; no availability or link claimed.",
       "checks": [],
-      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu"
+      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu",
+      "label": "Choose a store"
     },
     {
       "product": "beef-stroganoff",
       "service": "just_eat",
-      "status": "pending",
-      "level": null,
+      "status": "demo",
+      "level": "demo",
       "url": null,
       "store": "Centra North Main Street (candidate, different store from Uber Eats)",
       "location": "North Main Street, Cork",
-      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden.",
+      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden. 2026-10-13: shown as a labelled demo dialog at the user's request; no availability or link claimed.",
       "checks": [],
-      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu"
+      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu",
+      "label": "Choose a store"
     },
     {
       "product": "spaghetti-bolognese",
       "service": "just_eat",
-      "status": "pending",
-      "level": null,
+      "status": "demo",
+      "level": "demo",
       "url": null,
       "store": "Centra North Main Street (candidate, different store from Uber Eats)",
       "location": "North Main Street, Cork",
-      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden.",
+      "note": "User asked to check Ready Meals & Soups and search 'Clean Cut'. 2026-10-13: just-eat.ie blocked headless Chrome (Cloudflare 'Sorry, you have been blocked'); no connected browser in the session. Three SKUs not confirmed, so the service stays hidden. 2026-10-13: shown as a labelled demo dialog at the user's request; no availability or link claimed.",
       "checks": [],
-      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu"
+      "candidate_url": "https://www.just-eat.ie/restaurants-centra-north-main-street-cork/menu",
+      "label": "Choose a store"
     }
   ]
 }

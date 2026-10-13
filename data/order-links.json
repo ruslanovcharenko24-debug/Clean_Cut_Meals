@@ -31,13 +31,12 @@
     },
     "just_eat": {
       "name": "Just Eat",
-      "logo": "assets/retailers/just_eat.png",
-      "logo_source": "Official App Store icon of 'Just Eat: Food and Shops' (seller Just-Eat Holdings Limited), via itunes.apple.com search API, 512×512, 2026-10-13. just-eat.ie and justeattakeaway.com brand pages blocked automated access (Cloudflare)",
-      "bg": "#FF8000",
-      "bg_source": "Sampled from the official app icon [interpretation]",
-      "fg": "#000000",
-      "border": "#FF8000",
-      "note": "Restored 2026-10-13 from git (version before ba9ea9d) at the user's request; the Drive wordmark version was withdrawn."
+      "logo": "assets/retailers/just-eat-approved-wordmark.png",
+      "logo_source": "User-approved file 'Just-Eat-APPROVED-white-on-orange.png' (Drive id 1M1xabE-UWabjIMTjA4LlP2fFL8xQKZGg; 3840×2160, 21 705 bytes, SHA-256 36b900af…f44363). Bytes obtained via the Drive connector (download_file_content) and decoded programmatically from the session log; original kept unpublished in evidence/logos/. Derivative: orange margins trimmed (4% padding), 1000 px wide, colours unchanged.",
+      "bg": "#FF8100",
+      "border": "#FF8100",
+      "fg": "#FFFFFF",
+      "bg_source": "Background colour of the approved file (rgb 255,129,0)"
     }
   },
   "links": [

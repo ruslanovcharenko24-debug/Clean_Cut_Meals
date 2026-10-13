@@ -31,12 +31,13 @@
     },
     "just_eat": {
       "name": "Just Eat",
-      "logo": "assets/retailers/just_eat_wordmark.png",
-      "logo_source": "User-supplied file 'Just-Eat-Logo.png' (Google Drive id 1hiSxQ-ZoMQKP09IyAkSsF-RWeTxGMbAE, owner: project Drive, created 2026-10-13), downloaded via the Drive connector; original kept (not published) as evidence/logos/Just-Eat-Logo_drive-1hiSxQ-ZoMQKP09IyAkSsF-RWeTxGMbAE.png (3840×2160, 11655 bytes, SHA256 4fa2f05c…2a7658). Derivative just_eat_wordmark.png: transparent margins trimmed (3% padding), scaled to 900×227, colours unchanged (#FF8100).",
-      "bg": "#FFFFFF",
-      "bg_source": "White button with orange border so the orange wordmark stays visible (user decision 2026-10-13)",
-      "fg": "#24014C",
-      "border": "#FF8100"
+      "logo": "assets/retailers/just_eat.png",
+      "logo_source": "Official App Store icon of 'Just Eat: Food and Shops' (seller Just-Eat Holdings Limited), via itunes.apple.com search API, 512×512, 2026-10-13. just-eat.ie and justeattakeaway.com brand pages blocked automated access (Cloudflare)",
+      "bg": "#FF8000",
+      "bg_source": "Sampled from the official app icon [interpretation]",
+      "fg": "#000000",
+      "border": "#FF8000",
+      "note": "Restored 2026-10-13 from git (version before ba9ea9d) at the user's request; the Drive wordmark version was withdrawn."
     }
   },
   "links": [

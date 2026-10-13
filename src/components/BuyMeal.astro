@@ -153,9 +153,13 @@ const dialogId = `demo-${product.slug}`;
   .svc--uber_eats :global(.svc-logo) {
     max-height: 34px;
   }
-  /* Just Eat wordmark is about 4:1; a little taller cap so it matches the other two visually. */
+  /* Just Eat: square app icon (white mark on orange), shown whole as a rounded tile. */
   .svc--just_eat :global(.svc-logo) {
-    max-height: 24px;
+    width: 36px;
+    height: 36px;
+    max-height: none;
+    border-radius: 7px;
+    clip-path: inset(1px round 7px);
   }
   .demo {
     max-width: min(26rem, calc(100vw - 2 * var(--gutter)));

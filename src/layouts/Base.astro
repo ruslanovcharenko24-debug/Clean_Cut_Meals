@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import '../styles/global.css';
 import fontUrl from '../assets/fonts/lexend-latin.woff2?url';
-import { DATA_DATE_LABEL, withBase, absoluteUrl, CREATOR } from '../lib/products';
+import { DATA_DATE_LABEL, withBase, absoluteUrl } from '../lib/products';
 
 // The logo file is not in the public repository (rights not confirmed); a plain text name replaces it there.
 const logos = import.meta.glob<{ default: ImageMetadata }>('../../assets/brand/ccm-logo.png', { eager: true });
@@ -87,16 +87,6 @@ const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official 
         <slot />
       </main>
       <footer class="site-footer wrap" id="site-footer">
-        <section class="creator" aria-labelledby="creator-title">
-          <h2 id="creator-title" class="creator-title">Have a project in mind?</h2>
-          <p class="creator-lead">Interested in using or developing this concept? Contact its creator.</p>
-          <p class="creator-credit">Original idea, concept and creative direction by Ruslan Ovcharenko.</p>
-          <ul class="creator-contacts">
-            <li><a href={`mailto:${CREATOR.email}`}>{CREATOR.email}</a></li>
-            <li><a href={`tel:${CREATOR.phoneHref}`}>{CREATOR.phone}</a></li>
-          </ul>
-          <a class="btn creator-btn" href={`mailto:${CREATOR.email}`}>Contact the creator</a>
-        </section>
         <p><strong>{DISCLAIMER}</strong> Not a SuperValu service either.</p>
         <p>
           Product info from SuperValu product pages, data as of {DATA_DATE_LABEL}. Always check the pack, especially if you have
@@ -164,58 +154,6 @@ const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official 
   }
   .site-footer strong {
     color: var(--ink);
-  }
-  /* Creator block: the one dark panel on the page, after all meal and order content. */
-  .creator {
-    margin: 0 0 var(--s4);
-    padding: var(--s4) var(--s3);
-    border-radius: 10px;
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .site-footer .creator p {
-    max-width: var(--measure);
-  }
-  .creator-title {
-    margin: 0 0 var(--s2);
-    font-size: var(--fs-h3);
-    line-height: 1.2;
-    color: var(--paper);
-  }
-  .site-footer .creator-lead {
-    margin: 0 0 var(--s3);
-    font-size: var(--fs-body);
-    color: var(--paper);
-  }
-  .site-footer .creator-credit {
-    margin: 0 0 var(--s3);
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .creator-contacts {
-    margin: 0 0 var(--s3);
-    padding: 0;
-    list-style: none;
-  }
-  .creator-contacts a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: var(--paper);
-    font-size: var(--fs-body);
-    font-weight: 600;
-    text-underline-offset: 3px;
-    word-break: break-all;
-  }
-  .creator a:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .creator-btn {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--ink);
-    text-decoration: none;
   }
   .site-footer .copyright {
     margin-top: var(--s3);

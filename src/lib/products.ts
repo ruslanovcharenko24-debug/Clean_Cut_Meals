@@ -86,14 +86,13 @@ export function shortPath(p: Product): string {
   return withBase(`/s/${shortSlug(p)}/`);
 }
 
-// Meal cards made by scripts/make-cards.py and served from public/cards/.
-export function cardPath(p: Product, kind: 'og' | 'story'): string {
-  return withBase(`/cards/${p.slug}-${kind}.jpg`);
+// 1200×630 share card made by scripts/make-cards.py (public/cards/), used as the link preview image.
+export function cardPath(p: Product): string {
+  return withBase(`/cards/${p.slug}-share.jpg`);
 }
 
-export function shareText(p: Product): string {
-  return `Fancy ${SHORT_NAME[p.slug]}? ${perPack(p, 'Protein')} protein · ${perPack(p, 'kcal')}. See details & ordering options:`;
-}
+// The only text sent with the link; name and figures travel in the preview image.
+export const SHARE_TEXT = 'View meal & order:';
 
 export const channels = data.channels;
 

@@ -5,7 +5,7 @@ import ActionBar from './ActionBar.astro';
 import InfoSections from './InfoSections.astro';
 import BuyMeal from './BuyMeal.astro';
 import {
-  absoluteUrl, band, shortName, officialName, packImage, perPack, mealPath, shortPath, cardPath, shareText, type Product,
+  absoluteUrl, band, shortName, officialName, packImage, perPack, mealPath, shortPath, cardPath, type Product,
 } from '../lib/products';
 
 // One meal page, rendered at /meals/<slug>/ and at the short route /s/<short>/ (same content, own preview URL).
@@ -22,10 +22,6 @@ const kcal = perPack(p, 'kcal');
 const share = {
   url: absoluteUrl(shortPath(p), Astro.site),
   path: shortPath(p),
-  title: `${name} — Clean Cut Meals`,
-  text: shareText(p),
-  card: cardPath(p, 'story'),
-  cardName: `${p.slug}-clean-cut-meals.jpg`,
 };
 ---
 
@@ -34,10 +30,10 @@ const share = {
   title={`${name} — Clean Cut Meals (student concept)`}
   description={p.description}
   preview={{
-    title: `${name} — Clean Cut Meals`,
-    description: `${protein} protein · ${kcal} per ${p.weight} pack. See details and ordering options.`,
-    image: cardPath(p, 'og'),
-    imageAlt: `${name} card: Clean Cut Meals pack photo, ${protein} protein, ${kcal}, ${p.weight}.`,
+    title: 'View meal & order',
+    description: 'Student concept — not an official Clean Cut Meals service.',
+    image: cardPath(p),
+    imageAlt: `${name}: Clean Cut Meals pack, ${protein} protein, ${kcal}, ${p.weight} pack.`,
     url: path,
     canonical: mealPath(p),
   }}

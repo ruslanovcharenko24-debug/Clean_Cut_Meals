@@ -10,6 +10,9 @@ A mobile web page a shopper opens by scanning a QR code at the shelf: one meal p
 - Just Eat is shown as a labelled demo: no store or meal availability is claimed.
 - Typeface: Lexend, SIL Open Font License (`public/fonts/OFL-Lexend.txt`).
 
+## Creator
+Original idea, concept and creative direction by Ruslan Ovcharenko — ruslanovcharenko24@gmail.com, +353 83 080 4967. Authorship and third-party material: see `NOTICE.md`.
+
 ## Run locally
 ```
 npm ci

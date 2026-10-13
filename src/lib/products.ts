@@ -182,3 +182,11 @@ export type Cooking = (typeof cookingData.records)[number];
 export function cookingFor(p: Product): Cooking | null {
   return cookingData.records.find((r) => (r.product as string | null) === p.slug && r.product_confirmed) ?? null;
 }
+
+// Creator credit and contacts (published with the creator's permission, 13 Oct 2026).
+export const CREATOR = {
+  name: 'Ruslan Ovcharenko',
+  email: 'ruslanovcharenko24@gmail.com',
+  phone: '+353 83 080 4967',
+  phoneHref: '+353830804967',
+};

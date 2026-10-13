@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { products, shortName, hasPackImages, DATA_DATE_LABEL } from '../lib/products';
+import { products, shortName, hasPackImages, DATA_DATE_LABEL, CREATOR } from '../lib/products';
 ---
 
 <Base title="About this prototype — Clean Cut Meals (student concept)" description="Sources, dates and limits of this student prototype.">
@@ -33,8 +33,9 @@ import { products, shortName, hasPackImages, DATA_DATE_LABEL } from '../lib/prod
     {
       hasPackImages ? (
         <p>
-          Pack images are from the SuperValu product pages and are shown unchanged for this student concept. The bowl printed
-          on each pack is a serving suggestion. Colours and logo follow the Clean Cut Meals Brand Book (June 2026).
+          Pack images are from the SuperValu product pages, with only the empty white background cropped. The bowl printed on
+          each pack is a serving suggestion. SuperValu, Uber Eats and Just Eat logos belong to their owners and only mark
+          where each link goes. Colours follow the Clean Cut Meals Brand Book (June 2026).
         </p>
       ) : (
         <p>
@@ -45,6 +46,16 @@ import { products, shortName, hasPackImages, DATA_DATE_LABEL } from '../lib/prod
       )
     }
     <p>The brand typeface Rink isn't available to us, so Lexend (SIL Open Font License) stands in for it.</p>
+
+    <h2>Creator &amp; enquiries</h2>
+    <p>
+      This solution was conceived by Ruslan Ovcharenko through research into existing market offerings. For enquiries about
+      collaboration, adaptation or use of his original materials, please contact him.
+    </p>
+    <ul class="contacts">
+      <li><a href={`mailto:${CREATOR.email}`}>{CREATOR.email}</a></li>
+      <li><a href={`tel:${CREATOR.phoneHref}`}>{CREATOR.phone}</a></li>
+    </ul>
   </div>
 </Base>
 
@@ -67,5 +78,15 @@ import { products, shortName, hasPackImages, DATA_DATE_LABEL } from '../lib/prod
   }
   ul {
     padding-left: 1.2em;
+  }
+  .contacts {
+    padding-left: 0;
+    list-style: none;
+  }
+  .contacts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
   }
 </style>

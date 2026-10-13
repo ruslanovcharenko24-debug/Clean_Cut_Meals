@@ -131,6 +131,7 @@ export interface ServiceStyle {
   serviceName: string;
   logo: string;
   bg: string;
+  border: string;
   fg: string;
 }
 export interface OrderLink extends ServiceStyle {
@@ -148,7 +149,7 @@ const LEVELS: OrderLevel[] = ['exact_product', 'store_search', 'store_page'];
 
 function serviceStyle(service: string): ServiceStyle {
   const s = orderData.services[service as keyof typeof orderData.services];
-  return { service, serviceName: s.name, logo: s.logo, bg: s.bg, fg: s.fg };
+  return { service, serviceName: s.name, logo: s.logo, bg: s.bg, border: s.border, fg: s.fg };
 }
 
 export function orderLinks(p: Product): OrderLink[] {

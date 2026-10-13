@@ -17,7 +17,6 @@ const logoFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/ret
 function logoFor(s: ServiceStyle): ImageMetadata | null {
   return logoFiles[`../../${s.logo}`]?.default ?? null;
 }
-const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
 // Destinations for the accessible names; the visible limits live in "Where to buy" (InfoSections).
 const NOTE: Record<string, string> = {
   supervalu: 'opens this meal',
@@ -39,7 +38,7 @@ const dialogId = `demo-${product.slug}`;
               href={l.url}
               rel="noopener noreferrer"
               target="_blank"
-              style={`--svc-bg: ${l.bg}; --svc-fg: ${l.fg}`}
+              style={`--svc-bg: ${l.bg}; --svc-border: ${l.border}; --svc-fg: ${l.fg}`}
               aria-label={`${l.serviceName}: ${NOTE[l.service] ?? l.label} (opens in a new tab)`}
             >
               {logo ? <Image src={logo} alt="" height={64} class="svc-logo" /> : l.serviceName}
@@ -57,11 +56,11 @@ const dialogId = `demo-${product.slug}`;
               type="button"
               class={`svc svc--${d.service}`}
               data-demo-open={dialogId}
-              style={`--svc-bg: ${d.bg}; --svc-fg: ${d.fg}`}
+              style={`--svc-bg: ${d.bg}; --svc-border: ${d.border}; --svc-fg: ${d.fg}`}
               aria-haspopup="dialog"
               aria-label={`${d.serviceName} (demo, opens an explanation)`}
             >
-              {logo ? <Image src={logo} alt="" height={64} class:list={['svc-logo', { 'svc-logo--icon': isIcon(d) }]} /> : d.serviceName}
+              {logo ? <Image src={logo} alt="" height={64} class="svc-logo" /> : d.serviceName}
             </button>
           </li>
         );
@@ -127,7 +126,7 @@ const dialogId = `demo-${product.slug}`;
     width: 100%;
     min-height: 48px;
     padding: 6px var(--s2);
-    border: 0;
+    border: 2px solid var(--svc-border, var(--svc-bg));
     border-radius: 10px;
     background: var(--svc-bg);
     color: var(--svc-fg);
@@ -142,22 +141,21 @@ const dialogId = `demo-${product.slug}`;
   .svc:active {
     transform: translateY(1px);
   }
+  /* Logos keep their own ratio: width and height are both auto, capped by the button and a per-service height. */
   .svc :global(.svc-logo) {
     display: block;
     width: auto;
+    height: auto;
     max-width: 100%;
-    height: 22px;
-    object-fit: contain;
+    max-height: 22px;
   }
-  /* The Uber Eats file has green clear space built in (brand rule), so it is shown taller. */
+  /* The Uber Eats file has green clear space built in (brand rule), so it may be taller. */
   .svc--uber_eats :global(.svc-logo) {
-    height: 34px;
+    max-height: 34px;
   }
-  .svc :global(.svc-logo--icon) {
-    width: 36px;
-    height: 36px;
-    border-radius: 7px;
-    clip-path: inset(1px round 7px);
+  /* Just Eat wordmark is about 4:1; a little taller cap so it matches the other two visually. */
+  .svc--just_eat :global(.svc-logo) {
+    max-height: 24px;
   }
   .demo {
     max-width: min(26rem, calc(100vw - 2 * var(--gutter)));

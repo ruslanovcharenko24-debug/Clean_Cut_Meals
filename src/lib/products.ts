@@ -27,6 +27,11 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
   '../../assets/products/supervalu/*.jpg',
   { eager: true },
 );
+// Derived copies with only the empty white background cropped away (pack untouched); originals are kept.
+const trimmed = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/products/supervalu-trimmed/*.jpg',
+  { eager: true },
+);
 
 export const products: Product[] = [...data.products].sort((a, b) =>
   SHORT_NAME[a.slug].localeCompare(SHORT_NAME[b.slug]),
@@ -45,10 +50,13 @@ export function officialName(p: Product): string {
   return p.official_name.replace(/\s*\(400 g\)$/, '');
 }
 
-// Pack photos and the logo are kept out of the public repository (rights for public reuse not confirmed,
-// docs/OPEN_QUESTIONS.md Q8). Without the files the pages build with a text-only replacement.
+// Pack photo for pages: trimmed copy first, original as fallback. Returns null if neither file is present.
 export function packImage(p: Product): ImageMetadata | null {
-  return images[`../../${p.image.file}`]?.default ?? null;
+  return (
+    trimmed[`../../assets/products/supervalu-trimmed/${p.slug}.jpg`]?.default ??
+    images[`../../${p.image.file}`]?.default ??
+    null
+  );
 }
 
 export const hasPackImages = products.every((p) => packImage(p) !== null);

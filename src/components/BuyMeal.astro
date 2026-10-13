@@ -18,7 +18,7 @@ function logoFor(s: ServiceStyle): ImageMetadata | null {
   return logoFiles[`../../${s.logo}`]?.default ?? null;
 }
 const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
-// Short visible notes under the row; exact destinations, no availability promise.
+// Destinations for the accessible names; the visible limits live in "Where to buy" (InfoSections).
 const NOTE: Record<string, string> = {
   supervalu: 'opens this meal',
   uber_eats: 'opens Centra Shandon Street',
@@ -59,21 +59,15 @@ const dialogId = `demo-${product.slug}`;
               data-demo-open={dialogId}
               style={`--svc-bg: ${d.bg}; --svc-fg: ${d.fg}`}
               aria-haspopup="dialog"
-              aria-label={`${d.serviceName} Demo`}
+              aria-label={`${d.serviceName} (demo, opens an explanation)`}
             >
-              {logo && <Image src={logo} alt="" height={64} class:list={['svc-logo', { 'svc-logo--icon': isIcon(d) }]} />}
-              <span class="svc-tag">Demo</span>
+              {logo ? <Image src={logo} alt="" height={64} class:list={['svc-logo', { 'svc-logo--icon': isIcon(d) }]} /> : d.serviceName}
             </button>
           </li>
         );
       })
     }
   </ul>
-  <p class="buy-note">
-    {links.map((l) => <><strong>{l.serviceName}</strong> {NOTE[l.service] ?? l.label}.{' '}</>)}
-    {demos.map((d) => <><strong>{d.serviceName}</strong> is a demo: no confirmed offer yet.{' '}</>)}
-    Availability and delivery depend on your location.
-  </p>
 
   {
     demos.map((d) => (
@@ -160,27 +154,10 @@ const dialogId = `demo-${product.slug}`;
     height: 34px;
   }
   .svc :global(.svc-logo--icon) {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     border-radius: 7px;
     clip-path: inset(1px round 7px);
-  }
-  .svc-tag {
-    padding: 0 6px;
-    border: 1.5px solid currentColor;
-    border-radius: 999px;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    line-height: 1.4;
-  }
-  .buy-note {
-    margin: var(--s2) 0 0;
-    font-size: 0.8125rem;
-    line-height: 1.45;
-    color: var(--ink-soft);
-  }
-  .buy-note strong {
-    color: var(--ink);
   }
   .demo {
     max-width: min(26rem, calc(100vw - 2 * var(--gutter)));

@@ -32,9 +32,9 @@ const PREVIEW_TITLE: Record<MealMode, string> = {
 };
 const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
 const BUY_HEADING: Record<MealMode, string> = {
-  standard: 'Order for yourself',
-  invite: 'Or order it yourself',
-  pick: 'Order this meal',
+  standard: 'Order to your door',
+  invite: 'Or order to your door',
+  pick: 'Order to your door',
 };
 ---
 
@@ -60,13 +60,12 @@ const BUY_HEADING: Record<MealMode, string> = {
         <Picture
           src={img}
           formats={['avif', 'webp']}
-          widths={[300, 600, 900]}
-          sizes="220px"
+          widths={[400, 700, 1000, 1400]}
+          sizes="(max-width: 520px) calc(100vw - 32px), 480px"
           alt={`${officialName(p)}, 400 g pack`}
           loading="eager"
           fetchpriority="high"
         />
-        <p class="caption">Pack photo from SuperValu. The bowl on the pack is a serving suggestion.</p>
       </div>
       )}
       <div class:list={['hero-band wrap', { 'hero-band--solo': !img }]}>
@@ -104,7 +103,7 @@ const BUY_HEADING: Record<MealMode, string> = {
               <SendButton
                 id="invite"
                 label="What would you like?"
-                sub="Choose a meal for lunch or dinner. I can pick it up for you, or you can order yours."
+                sub="Send this to someone you care about. Let them choose their lunch or dinner — pick it up for them, or they can order delivery."
                 text={INVITE_TEXT}
                 url={absoluteUrl(invitePath(p), Astro.site)}
                 path={invitePath(p)}
@@ -116,9 +115,11 @@ const BUY_HEADING: Record<MealMode, string> = {
     }
 
     <section class="wrap dish-about" aria-label="About this meal">
-      <p class="official">{officialName(p)}</p>
       <p class="desc">{p.description}</p>
-      <p class="claim">Ready in 5 minutes, according to the product card.</p>
+      <ul class="about-facts">
+        <li>Ready in 5 minutes. Follow the heating instructions on your pack.</li>
+        {p.origin.ingredients_statements.length > 0 && <li>Made with {p.origin.ingredients_statements.join(', ')}.</li>}
+      </ul>
     </section>
 
     <nav class="wrap secondary" aria-label="More options">
@@ -181,18 +182,16 @@ const BUY_HEADING: Record<MealMode, string> = {
   }
   .hero-photo {
     background: var(--paper);
-    padding: 0 var(--gutter) var(--s2);
+    padding: var(--s2) var(--gutter) var(--s3);
   }
-  /* The source photo is square with empty white space above and below the tray.
-     A 5:4 window trims only that white space (pack spans rows ~192–1308 of 1500 in all three images);
-     the file itself is unchanged and the whole pack stays visible. */
+  /* Trimmed copy of the SuperValu photo (white background cropped, pack whole): it fills the phone width
+     at its own aspect ratio, so nothing is stretched or cut. */
   .hero-photo :global(img) {
+    display: block;
     width: 100%;
-    max-width: 220px;
+    max-width: 480px;
+    height: auto;
     margin: 0 auto;
-    aspect-ratio: 5 / 4;
-    object-fit: cover;
-    object-position: 50% 50%;
   }
   /* Two-tone split from the pack backdrop (brandbook p.21, p.24): solid band colour under the image */
   .hero-band {
@@ -220,33 +219,20 @@ const BUY_HEADING: Record<MealMode, string> = {
   .dish-about {
     padding-top: var(--s4);
   }
-  .official {
-    margin: 0;
-    font-size: var(--fs-small);
-    font-weight: 600;
-  }
   .desc {
-    margin: var(--s1) 0 0;
-    font-size: var(--fs-small);
-    line-height: 1.4;
+    margin: 0;
+    font-size: var(--fs-body);
+    line-height: 1.45;
     max-width: var(--measure);
   }
-  /* Short screens (e.g. 375×667): smaller pack image and title so the buy buttons reach the first screen.
-     Body text and button sizes stay the same. */
-  @media (max-height: 700px) {
-    .hero-photo :global(img) {
-      max-width: 120px;
-    }
-    .dish-name {
-      font-size: 1.75rem;
-    }
-  }
-  .caption {
-    max-width: 420px;
-    margin: var(--s1) auto 0;
-    text-align: center;
-    font-size: 0.8125rem;
+  .about-facts {
+    margin: var(--s2) 0 0;
+    padding-left: 1.1em;
+    font-size: var(--fs-small);
     color: var(--ink-soft);
+  }
+  .about-facts li + li {
+    margin-top: var(--s1);
   }
   .facts {
     padding-top: 12px;
@@ -274,9 +260,5 @@ const BUY_HEADING: Record<MealMode, string> = {
     font-weight: 700;
     line-height: 1.1;
     white-space: nowrap;
-  }
-  .claim {
-    margin: var(--s2) 0 0;
-    font-size: var(--fs-small);
   }
 </style>

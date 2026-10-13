@@ -1,0 +1,16 @@
+---
+// Other meals inside an invitation; strips stay in invite mode.
+import ChoosePage from '../../../components/ChoosePage.astro';
+import { pageProducts, shortSlug, type Product } from '../../../lib/products';
+
+export function getStaticPaths() {
+  return pageProducts.map((p) => ({ params: { short: shortSlug(p) }, props: { product: p } }));
+}
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+---
+
+<ChoosePage product={product} mode="invite" />

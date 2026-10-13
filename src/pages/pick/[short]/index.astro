@@ -1,0 +1,16 @@
+---
+// Answer link sent back by the recipient: the chosen meal, with order buttons.
+import MealPage from '../../../components/MealPage.astro';
+import { pageProducts, shortSlug, pickPath, type Product } from '../../../lib/products';
+
+export function getStaticPaths() {
+  return pageProducts.map((p) => ({ params: { short: shortSlug(p) }, props: { product: p } }));
+}
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+---
+
+<MealPage product={product} path={pickPath(product)} mode="pick" />

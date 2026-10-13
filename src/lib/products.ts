@@ -91,8 +91,23 @@ export function cardPath(p: Product): string {
   return withBase(`/cards/${p.slug}-share.jpg`);
 }
 
-// The only text sent with the link; name and figures travel in the preview image.
-export const SHARE_TEXT = 'View meal & order:';
+// Invite flow (static routes so link previews get their own title without JavaScript):
+//   /invite/<short>/        recipient's view of an invitation, starting on this meal
+//   /invite/<short>/choose/ other meals, staying in invite mode
+//   /pick/<short>/          link sent back by the recipient ("This one for me, please")
+export type MealMode = 'standard' | 'invite' | 'pick';
+
+export function invitePath(p: Product): string {
+  return withBase(`/invite/${shortSlug(p)}/`);
+}
+
+export function pickPath(p: Product): string {
+  return withBase(`/pick/${shortSlug(p)}/`);
+}
+
+// Message texts; the preview card carries the meal name and figures, so they are not repeated here.
+export const INVITE_TEXT = 'What would you like for lunch or dinner? Pick your meal:';
+export const REPLY_TEXT = 'This one for me, please:';
 
 export const channels = data.channels;
 

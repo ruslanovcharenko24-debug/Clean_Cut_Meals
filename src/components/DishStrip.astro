@@ -5,13 +5,15 @@ import { band, shortName, packImage, perPack, mealPath, type Product } from '../
 interface Props {
   product: Product;
   headingLevel?: 'h2' | 'h3';
+  /** Link target; defaults to the standard meal page */
+  href?: string;
 }
-const { product: p, headingLevel = 'h2' } = Astro.props;
+const { product: p, headingLevel = 'h2', href } = Astro.props;
 const Heading = headingLevel;
 const img = packImage(p);
 ---
 
-<a class:list={['strip', { 'strip--text': !img }]} href={mealPath(p)} style={`--band: ${band(p)}`}>
+<a class:list={['strip', { 'strip--text': !img }]} href={href ?? mealPath(p)} style={`--band: ${band(p)}`}>
   {img && <Picture
     src={img}
     formats={['avif', 'webp']}

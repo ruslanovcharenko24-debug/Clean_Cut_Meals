@@ -6,8 +6,9 @@ import { orderLinks, demoServices, type Product, type ServiceStyle } from '../li
 interface Props {
   product: Product;
   dishName: string;
+  heading: string;
 }
-const { product, dishName } = Astro.props;
+const { product, dishName, heading } = Astro.props;
 const links = orderLinks(product);
 const demos = demoServices(product);
 
@@ -16,36 +17,32 @@ const logoFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/ret
 function logoFor(s: ServiceStyle): ImageMetadata | null {
   return logoFiles[`../../${s.logo}`]?.default ?? null;
 }
-// App icons are square and carry the name only in small type, so the name is also written out.
 const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
+// Short visible notes under the row; exact destinations, no availability promise.
+const NOTE: Record<string, string> = {
+  supervalu: 'opens this meal',
+  uber_eats: 'opens Centra Shandon Street',
+};
+const dialogId = `demo-${product.slug}`;
 ---
 
 <section class="buy" id="buy" aria-labelledby="buy-title">
-  <h2 id="buy-title" class="buy-title">Buy this meal</h2>
-  <ul class="buy-list">
+  <h2 id="buy-title" class="buy-title">{heading}</h2>
+  <ul class="svc-row">
     {
       links.map((l) => {
         const logo = logoFor(l);
         return (
           <li>
             <a
-              class="svc"
+              class={`svc svc--${l.service}`}
               href={l.url}
               rel="noopener noreferrer"
               target="_blank"
               style={`--svc-bg: ${l.bg}; --svc-fg: ${l.fg}`}
-              aria-label={`${l.serviceName}: ${l.label} (opens in a new tab)`}
+              aria-label={`${l.serviceName}: ${NOTE[l.service] ?? l.label} (opens in a new tab)`}
             >
-              <span class:list={['svc-logo', `svc-logo--${l.service}`, { 'svc-logo--icon': isIcon(l) }]}>
-                {logo ? <Image src={logo} alt="" height={64} /> : l.serviceName}
-              </span>
-              <span class="svc-text">
-                {isIcon(l) && <span class="svc-name">{l.serviceName}</span>}
-                <span class="svc-action">{l.label}</span>
-              </span>
-              <svg class="svc-ext" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-                <path d="M6 3H3v10h10v-3M9 2h5v5M14 2 7 9" fill="none" stroke="currentColor" stroke-width="1.8" />
-              </svg>
+              {logo ? <Image src={logo} alt="" height={64} class="svc-logo" /> : l.serviceName}
             </a>
           </li>
         );
@@ -58,39 +55,41 @@ const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
           <li>
             <button
               type="button"
-              class="svc"
-              data-demo-open={`demo-${d.service}`}
+              class={`svc svc--${d.service}`}
+              data-demo-open={dialogId}
               style={`--svc-bg: ${d.bg}; --svc-fg: ${d.fg}`}
               aria-haspopup="dialog"
-              aria-label={`${d.serviceName} demo: ${d.label}`}
+              aria-label={`${d.serviceName} Demo`}
             >
-              <span class:list={['svc-logo', `svc-logo--${d.service}`, { 'svc-logo--icon': isIcon(d) }]}>
-                {logo ? <Image src={logo} alt="" height={64} /> : d.serviceName}
-              </span>
-              <span class="svc-text">
-                <span class="svc-name">
-                  {isIcon(d) && d.serviceName} <span class="svc-tag">Demo</span>
-                </span>
-                <span class="svc-action">{d.label}</span>
-              </span>
+              {logo && <Image src={logo} alt="" height={64} class:list={['svc-logo', { 'svc-logo--icon': isIcon(d) }]} />}
+              <span class="svc-tag">Demo</span>
             </button>
-            <dialog id={`demo-${d.service}`} class="demo" aria-labelledby={`demo-${d.service}-title`}>
-              <h3 id={`demo-${d.service}-title`} class="demo-title">Choose a participating store — demo</h3>
-              <p>
-                This is a demo for the student showcase. We haven't confirmed which {d.serviceName} stores list {dishName},
-                so there's no store or meal link here.
-              </p>
-              <p class="demo-note">In a real version, you'd pick a nearby store that stocks this meal.</p>
-              <form method="dialog">
-                <button type="submit" class="btn btn--primary">Close</button>
-              </form>
-            </dialog>
           </li>
         );
       })
     }
   </ul>
-  <p class="buy-note">Availability and delivery depend on your location.</p>
+  <p class="buy-note">
+    {links.map((l) => <><strong>{l.serviceName}</strong> {NOTE[l.service] ?? l.label}.{' '}</>)}
+    {demos.map((d) => <><strong>{d.serviceName}</strong> is a demo: no confirmed offer yet.{' '}</>)}
+    Availability and delivery depend on your location.
+  </p>
+
+  {
+    demos.map((d) => (
+      <dialog id={dialogId} class="demo" aria-labelledby={`${dialogId}-title`}>
+        <h3 id={`${dialogId}-title`} class="demo-title">Choose a participating store — demo</h3>
+        <p>
+          This is a demo for the student showcase. We haven't confirmed which {d.serviceName} stores list {dishName}, so
+          there's no store or meal link here.
+        </p>
+        <p class="demo-note">In a real version, you'd pick a nearby store that stocks this meal.</p>
+        <form method="dialog">
+          <button type="submit" class="btn btn--primary">Close</button>
+        </form>
+      </dialog>
+    ))
+  }
 </section>
 
 <script>
@@ -111,33 +110,36 @@ const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
   }
   .buy-title {
     margin: 0 0 var(--s2);
-    font-size: var(--fs-body);
+    font-size: var(--fs-small);
     font-weight: 700;
   }
-  .buy-list {
+  /* Three services in one row at every phone width; each keeps its own colours. */
+  .svc-row {
     display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--s2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  /* Each service keeps its own colours; the CCM frame is the heading, spacing and note around them. */
+  .svc-row li {
+    display: flex;
+  }
   .svc {
-    display: grid;
-    grid-template-columns: 124px 1fr auto;
+    display: flex;
     align-items: center;
-    gap: var(--s3);
+    justify-content: center;
+    gap: 6px;
     width: 100%;
-    min-height: 60px;
-    padding: var(--s2) var(--s3);
+    min-height: 48px;
+    padding: 6px var(--s2);
     border: 0;
     border-radius: 10px;
     background: var(--svc-bg);
     color: var(--svc-fg);
     font: inherit;
-    text-align: left;
-    text-decoration: none;
     cursor: pointer;
+    text-decoration: none;
   }
   .svc:focus-visible {
     outline: 3px solid var(--ink);
@@ -146,69 +148,39 @@ const isIcon = (s: ServiceStyle) => s.logo.endsWith('.png');
   .svc:active {
     transform: translateY(1px);
   }
-  .svc-logo {
-    display: flex;
-    align-items: center;
-    height: 32px;
-    font-weight: 700;
-  }
-  .svc-logo :global(img) {
+  .svc :global(.svc-logo) {
     display: block;
     width: auto;
-    max-width: 112px;
-    height: 32px;
+    max-width: 100%;
+    height: 22px;
     object-fit: contain;
-    object-position: left center;
   }
-  /* App icon: shown whole with the rounded corners of an app tile */
   /* The Uber Eats file has green clear space built in (brand rule), so it is shown taller. */
-  .svc-logo--uber_eats {
-    height: 44px;
+  .svc--uber_eats :global(.svc-logo) {
+    height: 34px;
   }
-  .svc-logo--uber_eats :global(img) {
-    height: 44px;
-    max-width: 124px;
-  }
-  /* App icon: rounded tile; the store artwork's light edge falls outside the clip. */
-  .svc-logo--icon {
-    width: 40px;
-    height: 40px;
-    overflow: hidden;
-    border-radius: 9px;
-  }
-  .svc-logo--icon :global(img) {
-    width: 40px;
-    height: 40px;
-    transform: scale(1.06);
-  }
-  .svc-text {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-  .svc-name {
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  .svc-action {
-    font-size: var(--fs-small);
-    font-weight: 600;
-    line-height: 1.25;
+  .svc :global(.svc-logo--icon) {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    clip-path: inset(1px round 7px);
   }
   .svc-tag {
-    display: inline-block;
-    margin-left: var(--s1);
-    padding: 0 8px;
-    vertical-align: 2px;
+    padding: 0 6px;
     border: 1.5px solid currentColor;
     border-radius: 999px;
     font-size: 0.8125rem;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1.4;
   }
   .buy-note {
     margin: var(--s2) 0 0;
-    font-size: var(--fs-small);
+    font-size: 0.8125rem;
+    line-height: 1.45;
     color: var(--ink-soft);
+  }
+  .buy-note strong {
+    color: var(--ink);
   }
   .demo {
     max-width: min(26rem, calc(100vw - 2 * var(--gutter)));

@@ -1,36 +1,48 @@
 ---
 import { Picture } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import ActionBar from './ActionBar.astro';
-import InfoSections from './InfoSections.astro';
 import BuyMeal from './BuyMeal.astro';
+import SendButton from './SendButton.astro';
+import InfoSections from './InfoSections.astro';
 import {
-  absoluteUrl, band, shortName, officialName, packImage, perPack, mealPath, shortPath, cardPath, type Product,
+  absoluteUrl, band, shortName, officialName, packImage, perPack, mealPath, invitePath, pickPath, cardPath,
+  INVITE_TEXT, REPLY_TEXT, type MealMode, type Product,
 } from '../lib/products';
 
-// One meal page, rendered at /meals/<slug>/ and at the short route /s/<short>/ (same content, own preview URL).
+// One meal page in three modes, all static so link previews read their own tags without JavaScript:
+//   standard  /meals/<slug>/ and /s/<short>/   order for yourself + invite someone
+//   invite    /invite/<short>/                  recipient picks: "This one for me" or another meal
+//   pick      /pick/<short>/                    the meal someone picked, sent back to the inviter
 interface Props {
   product: Product;
   /** Path this copy is served at; used for og:url. */
   path: string;
+  mode?: MealMode;
 }
-const { product: p, path } = Astro.props;
+const { product: p, path, mode = 'standard' } = Astro.props;
 const img = packImage(p);
 const name = shortName(p);
 const protein = perPack(p, 'Protein');
 const kcal = perPack(p, 'kcal');
-const share = {
-  url: absoluteUrl(shortPath(p), Astro.site),
-  path: shortPath(p),
+
+const PREVIEW_TITLE: Record<MealMode, string> = {
+  standard: 'View meal & order',
+  invite: 'What would you like?',
+  pick: 'This one for me, please',
+};
+const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
+const BUY_HEADING: Record<MealMode, string> = {
+  standard: 'Order for yourself',
+  invite: 'Or order it yourself',
+  pick: 'Order this meal',
 };
 ---
-
 
 <Base
   title={`${name} — Clean Cut Meals (student concept)`}
   description={p.description}
   preview={{
-    title: 'View meal & order',
+    title: PREVIEW_TITLE[mode],
     description: 'Student concept — not an official Clean Cut Meals service.',
     image: cardPath(p),
     imageAlt: `${name}: Clean Cut Meals pack, ${protein} protein, ${kcal}, ${p.weight} pack.`,
@@ -38,7 +50,10 @@ const share = {
     canonical: mealPath(p),
   }}
 >
-  <article class="dish" style={`--band: ${band(p)}`}>
+  <article class:list={['dish', `dish--${mode}`]} style={`--band: ${band(p)}`}>
+    {mode === 'invite' && <p class="mode-head">What would you like?</p>}
+    {mode === 'pick' && <p class="mode-head">This one for me, please</p>}
+
     <section class="hero" aria-labelledby="dish-name">
       {img && (
       <div class="hero-photo">
@@ -62,14 +77,43 @@ const share = {
     <section class="facts wrap" aria-label="Key facts, per pack">
       <dl>
         <div><dt>Pack</dt><dd>{p.weight}</dd></div>
-        <div><dt>Protein</dt><dd>{perPack(p, 'Protein')}</dd></div>
-        <div><dt>Energy</dt><dd>{perPack(p, 'kcal')}</dd></div>
+        <div><dt>Protein</dt><dd>{protein}</dd></div>
+        <div><dt>Energy</dt><dd>{kcal}</dd></div>
       </dl>
     </section>
 
-    <div class="wrap">
-      <BuyMeal product={p} dishName={name} />
-    </div>
+    {
+      mode === 'invite' ? (
+        <div class="wrap primary">
+          <SendButton
+            id="reply"
+            label="This one for me"
+            sub="Opens your messages so you can send this meal back."
+            text={REPLY_TEXT}
+            url={absoluteUrl(pickPath(p), Astro.site)}
+            path={pickPath(p)}
+          />
+          <a class="btn btn-secondary-wide" href={chooseHref}>Choose another meal</a>
+          <BuyMeal product={p} dishName={name} heading={BUY_HEADING[mode]} />
+        </div>
+      ) : (
+        <div class="wrap">
+          <BuyMeal product={p} dishName={name} heading={BUY_HEADING[mode]} />
+          {mode === 'standard' && (
+            <div class="primary">
+              <SendButton
+                id="invite"
+                label="What would you like?"
+                sub="Choose a meal for lunch or dinner. I can pick it up for you, or you can order yours."
+                text={INVITE_TEXT}
+                url={absoluteUrl(invitePath(p), Astro.site)}
+                path={invitePath(p)}
+              />
+            </div>
+          )}
+        </div>
+      )
+    }
 
     <section class="wrap dish-about" aria-label="About this meal">
       <p class="official">{officialName(p)}</p>
@@ -77,9 +121,10 @@ const share = {
       <p class="claim">Ready in 5 minutes, according to the product card.</p>
     </section>
 
-    <section class="wrap act" aria-label="What next">
-      <ActionBar dishName={name} mealPath={mealPath(p)} share={share} />
-    </section>
+    <nav class="wrap secondary" aria-label="More options">
+      <a class="btn btn--small" href="#how-to-heat" data-open-heat>How to heat</a>
+      {mode !== 'invite' && <a class="btn btn--small" href={chooseHref}>Choose another meal</a>}
+    </nav>
 
     <section class="more" aria-label="More about this meal">
       <InfoSections product={p} />
@@ -87,7 +132,53 @@ const share = {
   </article>
 </Base>
 
+<script>
+  // "How to heat" opens its section below instead of jumping to a closed one.
+  document.querySelectorAll<HTMLAnchorElement>('[data-open-heat]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const section = document.getElementById('how-to-heat') as HTMLDetailsElement | null;
+      if (!section) return;
+      event.preventDefault();
+      section.open = true;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      section.querySelector('summary')?.focus({ preventScroll: true });
+    });
+  });
+</script>
+
 <style>
+  .mode-head {
+    margin: 0;
+    padding: var(--s2) var(--gutter) var(--s3);
+    font-size: var(--fs-h2);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .primary {
+    padding-top: var(--s4);
+  }
+  .dish--invite .primary {
+    padding-top: var(--s3);
+  }
+  .btn-secondary-wide {
+    margin-top: var(--s2);
+    min-height: 52px;
+  }
+  .secondary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s2);
+    padding-top: var(--s4);
+    padding-bottom: var(--s5);
+  }
+  .btn--small {
+    min-height: 48px;
+    padding: var(--s1) var(--s2);
+    font-size: var(--fs-small);
+    text-align: center;
+    line-height: 1.15;
+  }
   .hero-photo {
     background: var(--paper);
     padding: 0 var(--gutter) var(--s2);
@@ -187,9 +278,5 @@ const share = {
   .claim {
     margin: var(--s2) 0 0;
     font-size: var(--fs-small);
-  }
-  .act {
-    padding-top: var(--s3);
-    padding-bottom: var(--s5);
   }
 </style>

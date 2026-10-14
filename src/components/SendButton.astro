@@ -24,10 +24,10 @@ const shown = url ?? path;
   {sub && <p class="send-sub" id={`${id}-sub`}>{sub}</p>}
   <div class="send-panel" data-send-panel hidden>
     <label for={`${id}-msg`} class="send-label">Copy this message</label>
-    <textarea id={`${id}-msg`} class="send-msg" rows="3" readonly data-send-msg>{`${text}\n${shown}`}</textarea>
+    <textarea id={`${id}-msg`} class="send-msg" rows="4" readonly data-send-msg>{`${text}\n${shown}`}</textarea>
   </div>
   <p class="send-status" role="status" aria-live="polite" data-send-status></p>
-  <noscript><p class="send-sub">Send this: {text}<br />{shown}</p></noscript>
+  <noscript><p class="send-sub">Send this:<br />{text.split('\n').map((line) => <>{line}<br /></>)}{shown}</p></noscript>
 </div>
 
 <script>

@@ -31,8 +31,8 @@ const cold = isCold(p);
 // page's top strip and footer and on /about/.
 const PREVIEW: Record<MealMode, { title: string; description: string }> = {
   standard: { title: 'View meal & order', description: 'Student concept — not an official Clean Cut Meals service.' },
-  invite: { title: 'Thought of you ❤️', description: 'Something you’d enjoy? Take a look, choose your favourite or order delivery.' },
-  pick: { title: 'This one for me ❤️', description: 'My pick — open to see the details and ordering options.' },
+  invite: { title: 'Take a look & choose your favourite ❤️', description: 'Thought of you. Have a look at this one, or choose something you’d enjoy.' },
+  pick: { title: 'This one for me ❤️', description: 'This one looks lovely. Thank you ❤️' },
 };
 const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
 const BUY_HEADING: Record<MealMode, string> = {
@@ -51,7 +51,9 @@ const BUY_HEADING: Record<MealMode, string> = {
     image: cardPath(p),
     imageAlt: `${name}: Clean Cut pack, ${protein ?? ''} protein, ${kcal ?? ''}, ${p.size}.`,
     url: path,
-    canonical: mealPath(p),
+    // Invite and pick pages are their own canonical: pointing at /meals/ let link-preview bots show the
+    // standard page's title and disclaimer instead of the invitation or reply.
+    canonical: mode === 'standard' ? mealPath(p) : path,
   }}
 >
   <article class:list={['dish', `dish--${mode}`]} style={`--band: ${band(p)}`}>

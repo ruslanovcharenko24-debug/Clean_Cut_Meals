@@ -130,7 +130,7 @@ export function pickPath(p: Product): string {
 
 // Message texts, sent as "<text>\n<link>"; the preview card carries the meal name and figures,
 // so they are not repeated here. Nothing promises that the sender has bought or will deliver the meal.
-export const INVITE_TEXT = 'Thought of you ❤️ What would you fancy?';
+export const INVITE_TEXT = 'Thought of you ❤️ What would you fancy?\nTake a look & choose your favourite:';
 export const REPLY_TEXT = 'This one looks lovely. Thank you ❤️';
 
 

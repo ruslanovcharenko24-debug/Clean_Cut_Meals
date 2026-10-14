@@ -131,6 +131,7 @@ export function pickPath(p: Product): string {
 // Message texts; the preview card carries the meal name and figures, so they are not repeated here.
 export const INVITE_TEXT = 'What would you like for lunch or dinner? Pick your meal:';
 export const REPLY_TEXT = 'This one for me, please:';
+export const REPLY_AFTER = '❤️';
 
 
 // One page per product; the template was first checked on Spaghetti Bolognese.

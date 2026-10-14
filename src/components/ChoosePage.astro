@@ -14,10 +14,10 @@ const { product: p, mode = 'standard' } = Astro.props;
 const list = p ? products.filter((o) => o.slug !== p.slug) : products;
 const backHref = p ? (mode === 'invite' ? invitePath(p) : mealPath(p)) : null;
 const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, list.filter((o) => o.category === c.id).length]));
-const title = mode === 'invite' ? 'What would you like?' : p ? 'Choose another' : 'Clean Cut range';
+const title = mode === 'invite' ? 'What would you fancy?' : p ? 'Choose another' : 'Clean Cut range';
 ---
 
-<Base title={`${title} — Clean Cut Meals (student concept)`} description="Clean Cut products listed on SuperValu Online.">
+<Base title={mode === 'invite' ? `${title} — Clean Cut Meals` : `${title} — Clean Cut Meals (student concept)`} description="Clean Cut products listed on SuperValu Online.">
   <div class="choose">
     <div class="wrap">
       {backHref && <a class="back" href={backHref}>Back to {shortName(p!)}</a>}

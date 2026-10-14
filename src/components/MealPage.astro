@@ -6,12 +6,12 @@ import SendButton from './SendButton.astro';
 import InfoSections from './InfoSections.astro';
 import {
   absoluteUrl, band, shortName, officialName, packImage, perPack, perPackLabel, isCold, mealPath, invitePath, pickPath, cardPath,
-  INVITE_TEXT, REPLY_TEXT, REPLY_AFTER, type MealMode, type Product,
+  INVITE_TEXT, REPLY_TEXT, type MealMode, type Product,
 } from '../lib/products';
 
 // One meal page in three modes, all static so link previews read their own tags without JavaScript:
 //   standard  /meals/<slug>/ and /s/<short>/   order for yourself + invite someone
-//   invite    /invite/<short>/                  recipient picks: "This one for me" or another meal
+//   invite    /invite/<short>/                  recipient picks: "This one for me ❤️" or another meal
 //   pick      /pick/<short>/                    the meal someone picked, sent back to the inviter
 interface Props {
   product: Product;
@@ -27,10 +27,12 @@ const kcal = perPack(p, 'kcal');
 const basis = perPackLabel(p);
 const cold = isCold(p);
 
-const PREVIEW_TITLE: Record<MealMode, string> = {
-  standard: 'View meal & order',
-  invite: 'What would you like?',
-  pick: 'This one for me, please ❤️',
+// Previews of personal messages (invite, pick) carry no project wording; the disclaimer stays in the
+// page's top strip and footer and on /about/.
+const PREVIEW: Record<MealMode, { title: string; description: string }> = {
+  standard: { title: 'View meal & order', description: 'Student concept — not an official Clean Cut Meals service.' },
+  invite: { title: 'Thought of you ❤️', description: 'Something you’d enjoy? Take a look, choose your favourite or order delivery.' },
+  pick: { title: 'This one for me ❤️', description: 'My pick — open to see the details and ordering options.' },
 };
 const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
 const BUY_HEADING: Record<MealMode, string> = {
@@ -41,11 +43,11 @@ const BUY_HEADING: Record<MealMode, string> = {
 ---
 
 <Base
-  title={`${name} — Clean Cut Meals (student concept)`}
+  title={mode === 'standard' ? `${name} — Clean Cut Meals (student concept)` : `${name} — Clean Cut Meals`}
   description={p.description ?? officialName(p)}
   preview={{
-    title: PREVIEW_TITLE[mode],
-    description: 'Student concept — not an official Clean Cut Meals service.',
+    title: PREVIEW[mode].title,
+    description: PREVIEW[mode].description,
     image: cardPath(p),
     imageAlt: `${name}: Clean Cut pack, ${protein ?? ''} protein, ${kcal ?? ''}, ${p.size}.`,
     url: path,
@@ -53,8 +55,8 @@ const BUY_HEADING: Record<MealMode, string> = {
   }}
 >
   <article class:list={['dish', `dish--${mode}`]} style={`--band: ${band(p)}`}>
-    {mode === 'invite' && <p class="mode-head">What would you like?</p>}
-    {mode === 'pick' && <p class="mode-head">This one for me, please</p>}
+    {mode === 'invite' && <p class="mode-head">What would you fancy?</p>}
+    {mode === 'pick' && <p class="mode-head">This one for me ❤️</p>}
 
     <section class="hero" aria-labelledby="dish-name">
       {img && (
@@ -88,10 +90,9 @@ const BUY_HEADING: Record<MealMode, string> = {
         <div class="wrap primary">
           <SendButton
             id="reply"
-            label="This one for me"
-            sub="Opens your messages so you can send this meal back."
+            label="This one for me ❤️"
+            sub="Opens your share menu. You choose who to send it to."
             text={REPLY_TEXT}
-            after={REPLY_AFTER}
             url={absoluteUrl(pickPath(p), Astro.site)}
             path={pickPath(p)}
           />
@@ -105,8 +106,8 @@ const BUY_HEADING: Record<MealMode, string> = {
             <div class="primary">
               <SendButton
                 id="invite"
-                label="What would you like?"
-                sub="Send this to someone you care about. Let them choose their lunch or dinner — pick it up for them, or they can order delivery."
+                label="Thinking of someone? ❤️"
+                sub="Send them something they might like. Let them choose — pick it up for them, or they can order delivery."
                 text={INVITE_TEXT}
                 url={absoluteUrl(invitePath(p), Astro.site)}
                 path={invitePath(p)}

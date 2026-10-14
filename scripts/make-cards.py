@@ -1,7 +1,7 @@
 """Share card per meal: one 1200×630 image used as the link preview (og:image).
 
 Usage: python3 scripts/make-cards.py
-Writes public/cards/<slug>-share.jpg. No QR, no printed URL: the link travels with the message.
+Writes public/cards/<slug>-share-v2.jpg (v2 from 14.10.2026: basis of the figures added; new name so apps refetch). No QR, no printed URL: the link travels with the message.
 Layout is HTML/CSS (Lexend, brand colours) rendered by the local Google Chrome; QR by OpenCV. No installs.
 Figures come only from data/products.json; the pack photo file is used unchanged (only its white margin is cropped by CSS).
 """
@@ -67,7 +67,7 @@ body {{ display: grid; grid-template-columns: 600px 600px; }}
     <div class="stat"><span class="num">{c['protein']}</span><span class="unit">g</span><span class="lbl">protein</span></div>
     <div class="stat"><span class="num">{c['kcal']}</span><span class="unit">kcal</span></div>
   </div>
-  <div class="pack-w">{c['weight']} pack</div>
+  <div class="pack-w">{c['basis']} · {c['weight']}</div>
 </div>"""
 
 
@@ -104,9 +104,10 @@ def main() -> None:
                 print(f'STOP {slug}: catalog {(protein, kcal, p["size"])} != {EXPECTED[slug]}'); ok = False; continue
             c = {'font': font, 'logo': logo, 'band': BAND.get(slug, '#E0A0C9'),
                  'pack': data_uri(ROOT / p['image']['trimmed'], 'image/jpeg'), 'name': short_name(p), 'name_px': 56 if len(short_name(p)) <= 26 else 44,
-                 'protein': protein.removesuffix('g'), 'kcal': kcal.removesuffix('kcal'), 'weight': p['size']}
-            render(og_html(p, c), (1200, 630), OUT / f'{slug}-share.jpg', tmp)
-        print('cards written', len(list(OUT.glob('*-share.jpg'))))
+                 'protein': protein.removesuffix('g'), 'kcal': kcal.removesuffix('kcal'), 'weight': p['size'],
+                 'basis': re.sub(r'^\(As (Microwaved|Consumed)\):?\s*', '', p['nutrition_columns'][-1], flags=re.I).capitalize()}
+            render(og_html(p, c), (1200, 630), OUT / f'{slug}-share-v2.jpg', tmp)
+        print('cards written', len(list(OUT.glob('*-share-v2.jpg'))))
     sys.exit(0 if ok else 1)
 
 

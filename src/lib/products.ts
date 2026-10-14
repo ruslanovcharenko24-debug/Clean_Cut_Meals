@@ -128,10 +128,10 @@ export function pickPath(p: Product): string {
   return withBase(`/pick/${shortSlug(p)}/`);
 }
 
-// The reply's heart is the only one in this flow (14.10.2026). Message texts, sent as "<text>\n<link>"; the preview card carries the meal name and figures,
+// No emoji in this flow (14.10.2026). Message texts, sent as "<text>\n<link>"; the preview card carries the meal name and figures,
 // so they are not repeated here. Nothing promises that the sender has bought or will deliver the meal.
 export const INVITE_TEXT = 'Thought of you.\nWhat would you fancy?\nTake a look & choose your favourite:';
-export const REPLY_TEXT = 'This one looks lovely. Thank you ❤️';
+export const REPLY_TEXT = 'This one looks lovely. Thank you!';
 
 
 // One page per product; the template was first checked on Spaghetti Bolognese.

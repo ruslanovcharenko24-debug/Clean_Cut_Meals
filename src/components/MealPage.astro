@@ -32,7 +32,7 @@ const cold = isCold(p);
 const PREVIEW: Record<MealMode, { title: string; description: string }> = {
   standard: { title: 'View meal & order', description: 'Student concept — not an official Clean Cut Meals service.' },
   invite: { title: 'Take a look & choose your favourite', description: 'Thought of you. Have a look at this one, or choose something you’d enjoy.' },
-  pick: { title: 'This one for me', description: 'This one looks lovely. Thank you' },
+  pick: { title: 'This one for me', description: 'This one looks lovely. Thank you!' },
 };
 const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
 const BUY_HEADING: Record<MealMode, string> = {

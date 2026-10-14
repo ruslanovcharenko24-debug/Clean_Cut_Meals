@@ -117,7 +117,7 @@ export function cardPath(p: Product): string {
 // Invite flow (static routes so link previews get their own title without JavaScript):
 //   /invite/<short>/        recipient's view of an invitation, starting on this meal
 //   /invite/<short>/choose/ other meals, staying in invite mode
-//   /pick/<short>/          link sent back by the recipient ("This one for me ❤️")
+//   /pick/<short>/          link sent back by the recipient ("This one for me")
 export type MealMode = 'standard' | 'invite' | 'pick';
 
 export function invitePath(p: Product): string {
@@ -128,9 +128,9 @@ export function pickPath(p: Product): string {
   return withBase(`/pick/${shortSlug(p)}/`);
 }
 
-// Message texts, sent as "<text>\n<link>"; the preview card carries the meal name and figures,
+// The reply's heart is the only one in this flow (14.10.2026). Message texts, sent as "<text>\n<link>"; the preview card carries the meal name and figures,
 // so they are not repeated here. Nothing promises that the sender has bought or will deliver the meal.
-export const INVITE_TEXT = 'Thought of you ❤️ What would you fancy?\nTake a look & choose your favourite:';
+export const INVITE_TEXT = 'Thought of you.\nWhat would you fancy?\nTake a look & choose your favourite:';
 export const REPLY_TEXT = 'This one looks lovely. Thank you ❤️';
 
 

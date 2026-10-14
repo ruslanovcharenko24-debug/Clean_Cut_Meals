@@ -11,7 +11,7 @@ import {
 
 // One meal page in three modes, all static so link previews read their own tags without JavaScript:
 //   standard  /meals/<slug>/ and /s/<short>/   order for yourself + invite someone
-//   invite    /invite/<short>/                  recipient picks: "This one for me ❤️" or another meal
+//   invite    /invite/<short>/                  recipient picks: "This one for me" or another meal
 //   pick      /pick/<short>/                    the meal someone picked, sent back to the inviter
 interface Props {
   product: Product;
@@ -31,8 +31,8 @@ const cold = isCold(p);
 // page's top strip and footer and on /about/.
 const PREVIEW: Record<MealMode, { title: string; description: string }> = {
   standard: { title: 'View meal & order', description: 'Student concept — not an official Clean Cut Meals service.' },
-  invite: { title: 'Take a look & choose your favourite ❤️', description: 'Thought of you. Have a look at this one, or choose something you’d enjoy.' },
-  pick: { title: 'This one for me ❤️', description: 'This one looks lovely. Thank you ❤️' },
+  invite: { title: 'Take a look & choose your favourite', description: 'Thought of you. Have a look at this one, or choose something you’d enjoy.' },
+  pick: { title: 'This one for me', description: 'This one looks lovely. Thank you' },
 };
 const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
 const BUY_HEADING: Record<MealMode, string> = {
@@ -58,7 +58,7 @@ const BUY_HEADING: Record<MealMode, string> = {
 >
   <article class:list={['dish', `dish--${mode}`]} style={`--band: ${band(p)}`}>
     {mode === 'invite' && <p class="mode-head">What would you fancy?</p>}
-    {mode === 'pick' && <p class="mode-head">This one for me ❤️</p>}
+    {mode === 'pick' && <p class="mode-head">This one for me</p>}
 
     <section class="hero" aria-labelledby="dish-name">
       {img && (
@@ -92,7 +92,7 @@ const BUY_HEADING: Record<MealMode, string> = {
         <div class="wrap primary">
           <SendButton
             id="reply"
-            label="This one for me ❤️"
+            label="This one for me"
             sub="Opens your share menu. You choose who to send it to."
             text={REPLY_TEXT}
             url={absoluteUrl(pickPath(p), Astro.site)}
@@ -108,7 +108,7 @@ const BUY_HEADING: Record<MealMode, string> = {
             <div class="primary">
               <SendButton
                 id="invite"
-                label="Thinking of someone? ❤️"
+                label="Thinking of someone?"
                 sub="Send them something they might like. Let them choose — pick it up for them, or they can order delivery."
                 text={INVITE_TEXT}
                 url={absoluteUrl(invitePath(p), Astro.site)}

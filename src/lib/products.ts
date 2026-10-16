@@ -41,6 +41,9 @@ const SHORT_NAME: Record<string, string> = {
 const images = import.meta.glob<{ default: ImageMetadata }>('../../assets/products/supervalu/*.jpg', { eager: true });
 // Derived copies with only the empty white background cropped away (pack untouched); originals are kept.
 const trimmed = import.meta.glob<{ default: ImageMetadata }>('../../assets/products/supervalu-trimmed/*.jpg', { eager: true });
+// Approved pack pictures with the QR heart (Drive "Clean Cut Pictures", 16.10.2026), one per slug; made by
+// scripts/prepare-approved-photos.py (white background cropped only). The SuperValu copies above stay for rollback.
+const approved = import.meta.glob<{ default: ImageMetadata }>('../../assets/products/approved-2026-10-16/*.jpg', { eager: true });
 
 const CAT_ORDER = CATEGORIES.map((c) => c.id as string);
 export const products: Product[] = [...catalog.products].sort(
@@ -65,8 +68,17 @@ export function categoryLabel(p: Product): string {
 }
 
 export function packImage(p: Product): ImageMetadata | null {
-  return trimmed[`../../${p.image.trimmed}`]?.default ?? images[`../../${p.image.file}`]?.default ?? null;
+  return (
+    approved[`../../assets/products/approved-2026-10-16/${p.slug}.jpg`]?.default ??
+    trimmed[`../../${p.image.trimmed}`]?.default ??
+    images[`../../${p.image.file}`]?.default ??
+    null
+  );
 }
+
+// Every product must show its approved picture; never fall back to the old photo without noticing.
+const missingApproved = catalog.products.filter((p) => !approved[`../../assets/products/approved-2026-10-16/${p.slug}.jpg`]);
+if (missingApproved.length) throw new Error(`No approved photo for: ${missingApproved.map((p) => p.slug).join(', ')}`);
 
 export const hasPackImages = products.every((p) => packImage(p) !== null);
 

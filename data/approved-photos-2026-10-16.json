@@ -1,0 +1,666 @@
+{
+  "source": "Google Drive folder \"Clean Cut Pictures\" (1_y5v5CtrhKoYWhrldqnIQaTu7oh7jkjr), 16.10.2026",
+  "processing": "white background cropped (< 235), 12 px margin, no resize, JPEG q95 4:4:4",
+  "photos": [
+    {
+      "slug": "beef-stroganoff",
+      "product_id": "1934793000",
+      "source_file": "1.png",
+      "source_sha256": "f23a84fd7c95f6385cc198333e6600b6ebd623ca5a77adb13a126544072c01fe",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        89,
+        1254,
+        1158
+      ],
+      "file": "assets/products/approved-2026-10-16/beef-stroganoff.jpg",
+      "px": [
+        1254,
+        1069
+      ],
+      "sha256": "bcfd0dd585efeda93ff3420d0b48ca5fddf729846512e465f6a902146cc359d3"
+    },
+    {
+      "slug": "beef-taco-wedges",
+      "product_id": "1955749000",
+      "source_file": "2.png",
+      "source_sha256": "1f4ef5da504b3e236e843892696f69d95f880af300182d6fc6548c2b77bfe64c",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        67,
+        1254,
+        1140
+      ],
+      "file": "assets/products/approved-2026-10-16/beef-taco-wedges.jpg",
+      "px": [
+        1254,
+        1073
+      ],
+      "sha256": "1c4a9c612b204c76f8044d3abdf0dad9d4eb78b6b6bf4e26c5ada215dcf7f028"
+    },
+    {
+      "slug": "blueberry-and-white-chocolate-pancakes",
+      "product_id": "1956937000",
+      "source_file": "8.png",
+      "source_sha256": "78d02cceeb5ee432c78831895ba16a20287adba0482f40959fa8bbac52a8fab8",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        55,
+        30,
+        1216,
+        1202
+      ],
+      "file": "assets/products/approved-2026-10-16/blueberry-and-white-chocolate-pancakes.jpg",
+      "px": [
+        1161,
+        1172
+      ],
+      "sha256": "931564eaae908878314d4cd2841d12a90eed47836aaff8febed916fbc9bc40a9"
+    },
+    {
+      "slug": "breaded-chicken-katsu-curry",
+      "product_id": "2008367000",
+      "source_file": "13.png",
+      "source_sha256": "271064dac3fd78e4018b26bb73e3bace923ceab0edc4d2b6c280d02123e3ab72",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        1,
+        1249,
+        1244
+      ],
+      "file": "assets/products/approved-2026-10-16/breaded-chicken-katsu-curry.jpg",
+      "px": [
+        1249,
+        1243
+      ],
+      "sha256": "938cd263be84afb67ce6c389c178c2903c2b128bc62d5c33e7ba6953578ed990"
+    },
+    {
+      "slug": "butter-chicken",
+      "product_id": "1955758000",
+      "source_file": "3.png",
+      "source_sha256": "e452ee458b859cd3d440f2fd229bf4a2ba859680c63a079745e6d8632ffbfc69",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        63,
+        1254,
+        1191
+      ],
+      "file": "assets/products/approved-2026-10-16/butter-chicken.jpg",
+      "px": [
+        1254,
+        1128
+      ],
+      "sha256": "cd2a5de6123200ada35adf0cd6d7444c04203192b873c93866cc0bc547e1c0c6"
+    },
+    {
+      "slug": "cajun-chicken-jambalaya-protein-pot",
+      "product_id": "2002847000",
+      "source_file": "19.png",
+      "source_sha256": "b05fedf7552505a844257cd2542e65e2c1a978638a13da31e2504edf326af439",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1253,
+        1253
+      ],
+      "file": "assets/products/approved-2026-10-16/cajun-chicken-jambalaya-protein-pot.jpg",
+      "px": [
+        1253,
+        1253
+      ],
+      "sha256": "e25bfc54cbe4d3290aec38709217a6279eaede7f2396689273a1ebf8806e6fcd"
+    },
+    {
+      "slug": "chicken-and-chorizo-with-penne-pasta",
+      "product_id": "1934808000",
+      "source_file": "29.png",
+      "source_sha256": "6ee841083f73035c19c8d972dc494762a6ff9f514f9341f43add7a179998088c",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        69,
+        1254,
+        1183
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-and-chorizo-with-penne-pasta.jpg",
+      "px": [
+        1254,
+        1114
+      ],
+      "sha256": "e805665cf3ad46efc52fa654d58c808b2b8fa0170c8d40de16acf2a1093162f1"
+    },
+    {
+      "slug": "chicken-and-stuff-fries",
+      "product_id": "2008355000",
+      "source_file": "15.png",
+      "source_sha256": "1df4c6ea7650701dfb547b56bec644ce9de70daabe8b6d738a6110088d09b022",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1254,
+        1253
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-and-stuff-fries.jpg",
+      "px": [
+        1254,
+        1253
+      ],
+      "sha256": "c51f5606847bc18f729f215f68798c445ba89c4774d3bab987ea916cbe100699"
+    },
+    {
+      "slug": "chicken-burrito-bowl",
+      "product_id": "2026763000",
+      "source_file": "7.png",
+      "source_sha256": "0b9455e209efe60eac0c506778069c053096ea9a3af0ec240a9d2856c99d40eb",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        59,
+        1254,
+        1178
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-burrito-bowl.jpg",
+      "px": [
+        1254,
+        1119
+      ],
+      "sha256": "354d0d5f8fc3aa53987435a3b29ab25353fc2e37d6b2bcd89ff9fad060b1d88e"
+    },
+    {
+      "slug": "chicken-carbonara-with-tagliatelle-pasta",
+      "product_id": "1934813000",
+      "source_file": "27.png",
+      "source_sha256": "1109004e211e72d8d2936c669643f53de7b81ea7272a7e2592594464407120c1",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        69,
+        1254,
+        1182
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-carbonara-with-tagliatelle-pasta.jpg",
+      "px": [
+        1254,
+        1113
+      ],
+      "sha256": "a6d09f3f01254f3f21a16e5fd019cf3d235530b62e146ee068aa27a31ef2deb8"
+    },
+    {
+      "slug": "chicken-chow-mein-with-noodles",
+      "product_id": "1934860000",
+      "source_file": "30.png",
+      "source_sha256": "3f55e51425243d15eb2d256e167345a12c4abc5504668704bbcada66fa8fd249",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        69,
+        1254,
+        1183
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-chow-mein-with-noodles.jpg",
+      "px": [
+        1254,
+        1114
+      ],
+      "sha256": "a51cb3b458490d6eb43a2ba6d8c73b8d8f6a2619401a7de885bf9eba62897848"
+    },
+    {
+      "slug": "chicken-curry-with-long-grain-rice",
+      "product_id": "1934867000",
+      "source_file": "31.png",
+      "source_sha256": "1d497bd71e63e99774eae456e7ff5333918cdd16d7b1d1b5ef03c9a29e0afa8d",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        68,
+        1254,
+        1182
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-curry-with-long-grain-rice.jpg",
+      "px": [
+        1254,
+        1114
+      ],
+      "sha256": "7351e7bb0a1dc7367805e33cb06cffd712b3da4671efa45b2920c33d22d9612b"
+    },
+    {
+      "slug": "chicken-dahl-protein-pot",
+      "product_id": "2026768000",
+      "source_file": "21.png",
+      "source_sha256": "9979d5269dd1a1a9df671f4c3ec948f0c206feacc7e95feb1304ee97681d7c5e",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-dahl-protein-pot.jpg",
+      "px": [
+        1254,
+        1254
+      ],
+      "sha256": "b42fd1cede0571019e23ffffdcc2693af7094764dcf725fb656f7fef2e040bb1"
+    },
+    {
+      "slug": "chicken-spice-box-with-sweet-potato",
+      "product_id": "1934876000",
+      "source_file": "11.png",
+      "source_sha256": "778a02a5a9383aa8968ccc878e15614d0ce8add5d0f52a4101cce57d0a47168e",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-spice-box-with-sweet-potato.jpg",
+      "px": [
+        1254,
+        1254
+      ],
+      "sha256": "3d675d2e56231c586bbe11144c6aea8efd8d07cb4f6bc1a1d8294829ab7f7e30"
+    },
+    {
+      "slug": "chicken-spinach-and-mushroom-lasagne",
+      "product_id": "2026761000",
+      "source_file": "6.png",
+      "source_sha256": "98971dfe5292a5275fbe6b734a14052816644fc76aa4ff6ca7d4602998fa5b8f",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        52,
+        1254,
+        1196
+      ],
+      "file": "assets/products/approved-2026-10-16/chicken-spinach-and-mushroom-lasagne.jpg",
+      "px": [
+        1254,
+        1144
+      ],
+      "sha256": "5822765fc92ba07f27a95c25eabca376dc0b62b20330027ba448757f4b262563"
+    },
+    {
+      "slug": "chocolate-salted-caramel-ice-cream",
+      "product_id": "2008637000",
+      "source_file": "12.png",
+      "source_sha256": "fb7f6741af5def86c5f9611d02f355be565f0fd362e36b1fcd3368b7f37d6969",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        95,
+        0,
+        1158,
+        1244
+      ],
+      "file": "assets/products/approved-2026-10-16/chocolate-salted-caramel-ice-cream.jpg",
+      "px": [
+        1063,
+        1244
+      ],
+      "sha256": "a29b10c2f628d5f0f3dcbef6db57fd0983a424dacab3772665adc33d6c1183bc"
+    },
+    {
+      "slug": "classic-chicken-curry-protein-pot",
+      "product_id": "2002848000",
+      "source_file": "23.png",
+      "source_sha256": "2ff7c09b501b3f7f03e5bb64d6e36aa4784c3f591f3a600e885bdf952b95fb4d",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1236,
+        1244
+      ],
+      "file": "assets/products/approved-2026-10-16/classic-chicken-curry-protein-pot.jpg",
+      "px": [
+        1236,
+        1244
+      ],
+      "sha256": "8a0fc532d10809770faf8649f01f49a0587db2312a9ab309b5eafc5c6fc4a435"
+    },
+    {
+      "slug": "coconut-tropical-ice-cream-tub",
+      "product_id": "2008637002",
+      "source_file": "14.png",
+      "source_sha256": "6c67aee392da686526c2bd6252e19c7de2e9959d1a9a2fce5d082c7843713f0f",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        90,
+        0,
+        1162,
+        1250
+      ],
+      "file": "assets/products/approved-2026-10-16/coconut-tropical-ice-cream-tub.jpg",
+      "px": [
+        1072,
+        1250
+      ],
+      "sha256": "f9c632842aac7f820cb5be211b7facc7cf3fdaded44edb1d95ba96d2eeca2204"
+    },
+    {
+      "slug": "cottage-pie",
+      "product_id": "1955838000",
+      "source_file": "4.png",
+      "source_sha256": "ac9ed65c95cf03e858e9e8b5d0a86939025ae11f804364685a0d7cea2b1965b8",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        3,
+        68,
+        1252,
+        1199
+      ],
+      "file": "assets/products/approved-2026-10-16/cottage-pie.jpg",
+      "px": [
+        1249,
+        1131
+      ],
+      "sha256": "3fcc0f96e60f8b41e56ae71cb201d0df9c34a360fc4a796b134e28e23f5ad37d"
+    },
+    {
+      "slug": "granola-protein-caramel-yogurt",
+      "product_id": "1954317001",
+      "source_file": "16.png",
+      "source_sha256": "2073f382b8797248769b5f98bc6762a5b81b4fb43ae4f9d3fbfadf36287d4d15",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        56,
+        1254,
+        1193
+      ],
+      "file": "assets/products/approved-2026-10-16/granola-protein-caramel-yogurt.jpg",
+      "px": [
+        1254,
+        1137
+      ],
+      "sha256": "ff5f71f512ad44cc616ec06020c09dc2fbd493e0f81fd3ac3b8784fc700eb636"
+    },
+    {
+      "slug": "granola-protein-strawberry-yogurt",
+      "product_id": "1954317000",
+      "source_file": "18.png",
+      "source_sha256": "40de5b99a8f8601a9c792813f5a5b35ff51d7b7209a24a88c50f0f444dac3259",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        47,
+        1254,
+        1231
+      ],
+      "file": "assets/products/approved-2026-10-16/granola-protein-strawberry-yogurt.jpg",
+      "px": [
+        1254,
+        1184
+      ],
+      "sha256": "34533e5fca90b0280342b694746db75ef5ec442953166a06b2e86c2fc1254274"
+    },
+    {
+      "slug": "italian-style-pork-ragu-protein-pot",
+      "product_id": "2026777000",
+      "source_file": "20.png",
+      "source_sha256": "c02eb323907e54d409388738de5f5c1e89c053ebd10645eb97a7ad60643fa681",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        2,
+        1254,
+        1250
+      ],
+      "file": "assets/products/approved-2026-10-16/italian-style-pork-ragu-protein-pot.jpg",
+      "px": [
+        1254,
+        1248
+      ],
+      "sha256": "61ffb22ed1aa6a49ed7ae42cfe0eb550318003013b75bac4604cc7de2567d37e"
+    },
+    {
+      "slug": "mac-n-cheese-with-bbq-pulled-chicken",
+      "product_id": "2026792000",
+      "source_file": "22.png",
+      "source_sha256": "638c0074273df87977e79cce14f8b470685d19311cee8aee85127a936b404a04",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1254,
+        1251
+      ],
+      "file": "assets/products/approved-2026-10-16/mac-n-cheese-with-bbq-pulled-chicken.jpg",
+      "px": [
+        1254,
+        1251
+      ],
+      "sha256": "864d7c6116725374fe44091217cd9a3304fab7acc88e964843e79e652e416436"
+    },
+    {
+      "slug": "maple-and-vanilla-pancakes",
+      "product_id": "1956942000",
+      "source_file": "17.png",
+      "source_sha256": "cd58eac2b5c607ad0fa37aaa6818fed4a6ef85cfca6e08e568d1053f37d43f83",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        41,
+        16,
+        1219,
+        1250
+      ],
+      "file": "assets/products/approved-2026-10-16/maple-and-vanilla-pancakes.jpg",
+      "px": [
+        1178,
+        1234
+      ],
+      "sha256": "546f05f1f7c42f988ddee9b041efe7347e67982e62d47611b7098a559f2ca3b3"
+    },
+    {
+      "slug": "marry-me-chicken-pasta-bake",
+      "product_id": "2026815000",
+      "source_file": "9.png",
+      "source_sha256": "c2b64aa733cfe10435bf8b4a473b1b3869f46b8fe6b4566a0c0d481d41166b3b",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        46,
+        1254,
+        1205
+      ],
+      "file": "assets/products/approved-2026-10-16/marry-me-chicken-pasta-bake.jpg",
+      "px": [
+        1254,
+        1159
+      ],
+      "sha256": "8b0d699c7b314b3043ce3a8712240ed3b5ca6b5b25d87e6d9d98d2f8722bd4bd"
+    },
+    {
+      "slug": "salted-caramel-cookie-ice-cream",
+      "product_id": "2008637001",
+      "source_file": "25.png",
+      "source_sha256": "db2960988965536fe2b478692319b46131dffe3ed49c0e182b23fb64ad8b6400",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        119,
+        14,
+        1133,
+        1234
+      ],
+      "file": "assets/products/approved-2026-10-16/salted-caramel-cookie-ice-cream.jpg",
+      "px": [
+        1014,
+        1220
+      ],
+      "sha256": "362f94cbe739b380c971645b078c9b2fb5475ec92a9255c82fcaff0296e65191"
+    },
+    {
+      "slug": "slow-cooked-beef-and-baby-potatoes",
+      "product_id": "2008382000",
+      "source_file": "5.png",
+      "source_sha256": "7fbf320f6f45118c54393f8e67b62f43453bf6e283deebe262b7be51c8c457b1",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        58,
+        1254,
+        1190
+      ],
+      "file": "assets/products/approved-2026-10-16/slow-cooked-beef-and-baby-potatoes.jpg",
+      "px": [
+        1254,
+        1132
+      ],
+      "sha256": "c7853c7b41f792c2d5f48a61ae6e97790e6c52a31d9845f72b74dd0f13490cc6"
+    },
+    {
+      "slug": "spaghetti-bolognese",
+      "product_id": "1934872000",
+      "source_file": "28.png",
+      "source_sha256": "b3f9b8d22ae097e4f8363d1c2f99828a528a6ba85e252629befb5ffcd9711ed8",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        6,
+        98,
+        1247,
+        1133
+      ],
+      "file": "assets/products/approved-2026-10-16/spaghetti-bolognese.jpg",
+      "px": [
+        1241,
+        1035
+      ],
+      "sha256": "b55e1c74914d1e1d4267d75824d34e180b4c330c0edb85e0f4cc9af3920525e2"
+    },
+    {
+      "slug": "sweet-and-spicy-chicken-noodles",
+      "product_id": "2008333000",
+      "source_file": "24.png",
+      "source_sha256": "9361b74b9442cf04710403e701f1dec4ae4f73e750dc520930e260fcc55773ad",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        0,
+        1249,
+        1254
+      ],
+      "file": "assets/products/approved-2026-10-16/sweet-and-spicy-chicken-noodles.jpg",
+      "px": [
+        1249,
+        1254
+      ],
+      "sha256": "f2887bc1f68a1d76a6c5cbbf77d5f732d442df31b121b2bea8e8836d91078da5"
+    },
+    {
+      "slug": "thai-green-curry-with-coconut-basmati-rice",
+      "product_id": "1934904000",
+      "source_file": "26.png",
+      "source_sha256": "b92a2fbffda47debe270e58b7c9a9242f3faaa1e547ba199afc98900751a305f",
+      "source_px": [
+        1254,
+        1254
+      ],
+      "crop_box": [
+        0,
+        64,
+        1254,
+        1145
+      ],
+      "file": "assets/products/approved-2026-10-16/thai-green-curry-with-coconut-basmati-rice.jpg",
+      "px": [
+        1254,
+        1081
+      ],
+      "sha256": "0b19fd4c503d558153109ece8c96760c7c9da8ccef0bec0042df3f787940ede2"
+    }
+  ]
+}

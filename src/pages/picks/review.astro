@@ -1,6 +1,7 @@
 ---
-// Review the picks on this device, then send them as one message: every product with its number of packs, one link
-// to the whole list (/picks/view/?p=…) and "Thank you ❤️". A wish list only: no prices, order, payment or delivery.
+// Review the picks on this device, then send them in one go: a picture card of the products (src/lib/picks-card.ts)
+// with "These would be lovely." / link to the whole list (/picks/view/?p=…) / "Thank you ❤️"; where pictures cannot be
+// shared, the full list as text plus "Download picture". A wish list only: no prices, order, payment or delivery.
 import Base from '../../layouts/Base.astro';
 import PickRow from '../../components/PickRow.astro';
 import PicksData from '../../components/PicksData.astro';
@@ -25,12 +26,14 @@ import { products, withBase } from '../../lib/products';
 
     <div class="wrap actions" data-actions hidden>
       <button type="button" class="btn btn--primary send-btn" data-send aria-describedby="send-sub">Send my picks</button>
-      <p class="send-sub" id="send-sub">Opens your share menu with the whole list. You choose who to send it to.</p>
+      <p class="send-sub" id="send-sub">Opens your share menu with a picture of your picks. You choose who to send it to.</p>
+      <p class="send-note" data-note hidden></p>
       <div class="send-panel" data-panel hidden>
         <label for="picks-msg" class="send-label">Copy this message</label>
         <textarea id="picks-msg" class="send-msg" rows="8" readonly data-box></textarea>
       </div>
       <p class="send-status" role="status" aria-live="polite" data-status></p>
+      <div class="downloads" data-downloads hidden></div>
       <a class="btn keep" href={withBase('/picks/')}>Keep choosing</a>
 
       <div class="clear">
@@ -50,7 +53,11 @@ import { products, withBase } from '../../lib/products';
 </Base>
 
 <script>
-  import { changePacks, loadDraft, packsLabel, picksMessage, readPicksData, saveDraft, summaryLabel, MAX_PACKS, type Pick } from '../../lib/picks';
+  import {
+    captionMessage, changePacks, encodePicks, loadDraft, picksMessage, readPicksData, saveDraft, summaryLabel, unitLabel, MAX_PACKS,
+    type Pick,
+  } from '../../lib/picks';
+  import { renderPicksPictures } from '../../lib/picks-card';
 
   const data = readPicksData();
   const list = document.querySelector<HTMLElement>('[data-list]')!;
@@ -64,9 +71,87 @@ import { products, withBase } from '../../lib/products';
   const title = document.getElementById('review-title')!;
   const clearBtn = document.querySelector<HTMLButtonElement>('[data-clear]')!;
   const confirmBox = document.querySelector<HTMLElement>('[data-confirm]')!;
+  const sendBtn = document.querySelector<HTMLButtonElement>('[data-send]')!;
+  const note = document.querySelector<HTMLElement>('[data-note]')!;
+  const downloads = document.querySelector<HTMLElement>('[data-downloads]')!;
   let picks: Pick[] = [];
 
   const message = () => picksMessage(picks, data.byId, data.viewUrl);
+
+  // Can this browser share image files at all? canShare needs no tap; true does not promise how an app shows them.
+  const probe = (() => {
+    try {
+      return new File([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], 'probe.jpg', { type: 'image/jpeg' });
+    } catch {
+      return null;
+    }
+  })();
+  const canShareFiles =
+    typeof navigator.share === 'function' &&
+    typeof navigator.canShare === 'function' &&
+    !!probe &&
+    (() => {
+      try {
+        return navigator.canShare({ files: [probe], text: 'x' });
+      } catch {
+        return false;
+      }
+    })();
+
+  // Pictures are made ahead, every time the list changes, so the tap can open the share sheet at once
+  // (share() must run while the tap still counts). `prepared.key` ties them to exactly this list.
+  let prepared: { key: string; files: File[]; urls: string[] } | null = null;
+  let failedKey: string | null = null;
+  let job = 0;
+  let downloadsWanted = !canShareFiles;
+
+  function showDownloads() {
+    downloads.replaceChildren();
+    const ready = prepared && prepared.key === encodePicks(picks);
+    downloads.hidden = !(downloadsWanted && ready);
+    if (!ready) return;
+    prepared!.urls.forEach((url, i, all) => {
+      const a = document.createElement('a');
+      a.className = 'btn download';
+      a.href = url;
+      a.download = prepared!.files[i].name;
+      a.textContent = all.length === 1 ? 'Download picture' : `Download picture ${i + 1}`;
+      downloads.append(a);
+    });
+  }
+
+  function prepare() {
+    const key = encodePicks(picks);
+    if (prepared?.key === key) return;
+    if (prepared) prepared.urls.forEach((u) => URL.revokeObjectURL(u));
+    prepared = null;
+    failedKey = null;
+    note.hidden = true;
+    showDownloads();
+    if (!picks.length) return;
+    const mine = ++job;
+    // Until the pictures for this exact list are ready, the button waits (normally well under a second).
+    sendBtn.disabled = canShareFiles;
+    renderPicksPictures(picks, data.byId)
+      .then((blobs) => {
+        if (mine !== job) return;
+        const files = blobs.map(
+          (b, i) => new File([b], blobs.length === 1 ? 'these-would-be-lovely.jpg' : `these-would-be-lovely-${i + 1}.jpg`, { type: 'image/jpeg' }),
+        );
+        prepared = { key, files, urls: blobs.map((b) => URL.createObjectURL(b)) };
+      })
+      .catch(() => {
+        if (mine !== job) return;
+        failedKey = key;
+        note.textContent = 'Couldn’t make the picture. Your list will be sent as text.';
+        note.hidden = false;
+      })
+      .finally(() => {
+        if (mine !== job) return;
+        sendBtn.disabled = false;
+        showDownloads();
+      });
+  }
 
   function render() {
     for (const [id, el] of rows) {
@@ -76,12 +161,14 @@ import { products, withBase } from '../../lib/products';
       const name = data.byId.get(id)!.name;
       el.querySelector<HTMLElement>('[data-add]')!.hidden = true;
       el.querySelector<HTMLElement>('[data-row]')!.hidden = false;
-      el.querySelector<HTMLElement>('[data-count]')!.textContent = packsLabel(packs);
+      const unit = data.byId.get(id)!.unit;
+      el.querySelector<HTMLElement>('[data-count]')!.textContent = unitLabel(packs, unit);
       el.querySelector<HTMLButtonElement>('[data-plus]')!.disabled = packs >= MAX_PACKS;
       el.querySelector<HTMLElement>('[data-minus]')!.setAttribute(
         'aria-label',
-        packs === 1 ? `Remove ${name} from my picks` : `One pack fewer of ${name}`,
+        packs === 1 ? `Remove ${name} from my picks` : `One ${unit} fewer of ${name}`,
       );
+      el.querySelector<HTMLElement>('[data-plus]')!.setAttribute('aria-label', `One more ${unit} of ${name}`);
     }
     // Same order as the message: the order things were added in.
     for (const p of picks) list.append(rows.get(p.id)!);
@@ -90,6 +177,7 @@ import { products, withBase } from '../../lib/products';
     actions.hidden = picks.length === 0;
     // A copy box left open from an earlier attempt must not show an old list.
     box.value = picks.length ? message() : '';
+    prepare();
   }
 
   function change(id: string, delta: number) {
@@ -126,21 +214,42 @@ import { products, withBase } from '../../lib/products';
     }
   };
 
-  // Opens the share sheet straight from the tap (first call in the handler, so the tap still counts). Neither
-  // closing the sheet nor finishing it clears the list: the site cannot know whether anything was sent.
-  document.querySelector('[data-send]')!.addEventListener('click', async () => {
+  // Opens the share sheet straight from the tap (the first await in the handler is share() itself, so the tap still
+  // counts). With pictures: the files + a short text (heading, link, thanks). Without: the full list as text, and
+  // "Download picture" appears. Closing or finishing the sheet clears nothing: the site cannot know what was sent.
+  sendBtn.addEventListener('click', async () => {
     if (!picks.length) return;
-    const text = message();
-    const shareData: ShareData = { text };
-    if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(shareData))) {
+    const key = encodePicks(picks);
+    const full = message();
+    if (canShareFiles && prepared?.key === key && failedKey !== key) {
+      const withPictures: ShareData = { files: prepared.files, text: captionMessage(picks, data.viewUrl) };
+      if (navigator.canShare(withPictures)) {
+        status.textContent = '';
+        try {
+          await navigator.share(withPictures);
+        } catch (err) {
+          // Cancel: nothing else happens. Other failures: the text list to copy, and the pictures to download.
+          if ((err as DOMException).name !== 'AbortError') {
+            downloadsWanted = true;
+            showDownloads();
+            await copy(full);
+          }
+        }
+        return;
+      }
+    }
+    downloadsWanted = true;
+    showDownloads();
+    const textOnly: ShareData = { text: full };
+    if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(textOnly))) {
       try {
-        await navigator.share(shareData);
+        await navigator.share(textOnly);
       } catch (err) {
-        if ((err as DOMException).name !== 'AbortError') await copy(text);
+        if ((err as DOMException).name !== 'AbortError') await copy(full);
       }
       return;
     }
-    await copy(text);
+    await copy(full);
   });
 
   const closeConfirm = (focus: boolean) => {
@@ -236,6 +345,23 @@ import { products, withBase } from '../../lib/products';
     color: var(--ink);
     background: var(--surface);
     resize: none;
+  }
+  .send-note {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+  }
+  .send-note[hidden],
+  .downloads[hidden] {
+    display: none;
+  }
+  .send-btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .downloads {
+    display: grid;
+    gap: var(--s2);
+    margin-top: var(--s3);
   }
   .send-status {
     margin: var(--s2) 0 0;

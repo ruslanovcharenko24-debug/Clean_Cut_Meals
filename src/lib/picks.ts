@@ -19,6 +19,10 @@ export interface PickProduct {
   short: string;
   /** Invitation page of this product (with base) */
   invite: string;
+  /** What one unit is: "tub" for ice cream (the card's nutrition column says "Per Tub"), otherwise "pack" */
+  unit: 'pack' | 'tub';
+  /** Same-origin JPEG of the whole pack photo for the picture card, or null */
+  card: string | null;
 }
 export interface Pick {
   id: string;
@@ -69,6 +73,16 @@ export function packsLabel(n: number): string {
   return `${n}\u00a0${n === 1 ? 'pack' : 'packs'}`;
 }
 
+/** "1 pack", "2 packs", "1 tub", "2 tubs": number of units of this product, never grams or servings. */
+export function unitLabel(n: number, unit: PickProduct['unit']): string {
+  return `${n}\u00a0${unit}${n === 1 ? '' : 's'}`;
+}
+
+/** "400 g per pack", "500 ml per tub": the size of one unit as printed on the product card. */
+export function sizeLabel(product: PickProduct): string {
+  return `${product.size} per ${product.unit}`;
+}
+
 export function summaryLabel(picks: Pick[]): string {
   const n = picks.length;
   return `${n}\u00a0${n === 1 ? 'product' : 'products'} · ${packsLabel(totalPacks(picks))}`;
@@ -78,13 +92,22 @@ export function viewLink(viewUrl: string, picks: Pick[]): string {
   return `${viewUrl}?p=${encodePicks(picks)}`;
 }
 
-/** The one message sent from the review page: every product with its number of packs, the link, then thanks. */
+export const PICKS_HEADING = 'These would be lovely.';
+export const PICKS_THANKS = 'Thank you \u2764\uFE0F';
+
+/** Text-only message (when pictures cannot be shared): every product with its number of units, the link, then thanks. */
 export function picksMessage(picks: Pick[], byId: ReadonlyMap<string, PickProduct>, viewUrl: string): string {
   const lines = picks.map((p) => {
     const product = byId.get(p.id)!;
     return `${p.packs} × ${product.name} · ${product.size}`;
   });
-  return ['These are my picks:', ...lines, viewLink(viewUrl, picks), 'Thank you ❤️'].join('\n');
+  return [PICKS_HEADING, ...lines, viewLink(viewUrl, picks), PICKS_THANKS].join('\n');
+}
+
+/** Text sent with the pictures: the pictures carry the products, so no list here. The thanks is repeated in case
+ *  an app separates the text from the images. */
+export function captionMessage(picks: Pick[], viewUrl: string): string {
+  return [PICKS_HEADING, viewLink(viewUrl, picks), PICKS_THANKS].join('\n');
 }
 
 // Draft kept on this device only, for convenience while choosing. Opening someone else's list never writes here.

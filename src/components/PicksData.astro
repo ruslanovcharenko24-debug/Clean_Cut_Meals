@@ -1,11 +1,33 @@
 ---
-// The slice of the catalogue the "My picks" scripts need (id, slug, short name, pack size) and the address of the
-// shared list page. Plain JSON, escaped so no product text can close the script element.
-import { products, shortName, shortSlug, invitePath, withBase, absoluteUrl } from '../lib/products';
+// The slice of the catalogue the "My picks" scripts need (id, slug, short name, pack size, unit, card photo) and the
+// address of the shared list page. Plain JSON, escaped so no product text can close the script element.
+import { getImage } from 'astro:assets';
+import { products, shortName, shortSlug, invitePath, packImage, withBase, absoluteUrl } from '../lib/products';
 import type { PickProduct } from '../lib/picks';
 
+// Pack photo for the picture card: the trimmed copy (whole pack on its white background), scaled only, as a
+// same-origin JPEG so the page can draw it on a canvas.
+const cards = await Promise.all(
+  products.map(async (p) => {
+    const img = packImage(p);
+    return img ? (await getImage({ src: img, width: 640, format: 'jpeg', quality: 88 })).src : null;
+  }),
+);
+// Ice cream comes in a tub (nutrition column "Per Tub (275g)" on the card); everything else is counted in packs.
+const unit = (p: (typeof products)[number]): PickProduct['unit'] =>
+  p.category === 'ice-cream' && p.nutrition_columns.some((c) => /tub/i.test(c)) ? 'tub' : 'pack';
+
 const data: { products: PickProduct[]; viewPath: string; viewUrl: string | null } = {
-  products: products.map((p) => ({ id: p.id, slug: p.slug, name: shortName(p), size: p.size, short: shortSlug(p), invite: invitePath(p) })),
+  products: products.map((p, i) => ({
+    id: p.id,
+    slug: p.slug,
+    name: shortName(p),
+    size: p.size,
+    short: shortSlug(p),
+    invite: invitePath(p),
+    unit: unit(p),
+    card: cards[i],
+  })),
   viewPath: withBase('/picks/view/'),
   viewUrl: absoluteUrl(withBase('/picks/view/'), Astro.site),
 };

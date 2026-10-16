@@ -12,7 +12,7 @@ import { withBase } from '../lib/products';
 <PicksData />
 
 <script>
-  import { changePacks, loadDraft, packsLabel, readPicksData, saveDraft, summaryLabel, MAX_PACKS, type Pick } from '../lib/picks';
+  import { changePacks, loadDraft, readPicksData, saveDraft, summaryLabel, unitLabel, MAX_PACKS, type Pick } from '../lib/picks';
 
   const data = readPicksData();
   const steppers = [...document.querySelectorAll<HTMLElement>('[data-stepper]')];
@@ -34,15 +34,16 @@ import { withBase } from '../lib/products';
     for (const el of steppers) {
       const id = el.dataset.stepper!;
       const packs = picks.find((p) => p.id === id)?.packs ?? 0;
-      const name = data.byId.get(id)!.name;
+      const { name, unit } = data.byId.get(id)!;
       el.querySelector<HTMLElement>('[data-add]')!.hidden = packs > 0;
       el.querySelector<HTMLElement>('[data-row]')!.hidden = packs === 0;
-      el.querySelector<HTMLElement>('[data-count]')!.textContent = packs ? packsLabel(packs) : '';
+      el.querySelector<HTMLElement>('[data-count]')!.textContent = packs ? unitLabel(packs, unit) : '';
       el.querySelector<HTMLButtonElement>('[data-plus]')!.disabled = packs >= MAX_PACKS;
       el.querySelector<HTMLElement>('[data-minus]')!.setAttribute(
         'aria-label',
-        packs === 1 ? `Remove ${name} from my picks` : `One pack fewer of ${name}`,
+        packs === 1 ? `Remove ${name} from my picks` : `One ${unit} fewer of ${name}`,
       );
+      el.querySelector<HTMLElement>('[data-plus]')!.setAttribute('aria-label', `One more ${unit} of ${name}`);
     }
     bar.hidden = picks.length === 0;
     sum.textContent = picks.length ? summaryLabel(picks) : '';

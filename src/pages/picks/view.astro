@@ -9,24 +9,25 @@ import { products, withBase } from '../../lib/products';
 ---
 
 <Base
-  title="My picks — Clean Cut Meals"
-  description="A few things I’d like. Open to see the products and quantities."
+  title="These would be lovely. — Clean Cut Meals"
+  description="Open to see the products and quantities."
   preview={{
-    title: 'My picks',
-    description: 'A few things I’d like. Open to see the products and quantities.',
+    title: 'These would be lovely.',
+    description: 'Open to see the products and quantities.',
     url: withBase('/picks/view/'),
   }}
 >
   <div class="view">
     <div class="wrap">
-      <h1 class="title" id="view-title">My picks</h1>
-      <p class="sum" data-sum></p>
+      <h1 class="title" id="view-title">These would be lovely.</h1>
       <p class="note" data-skipped hidden>Part of this link couldn’t be read, so some items may be missing.</p>
     </div>
 
     <ul class="list" aria-labelledby="view-title" data-list>
       {products.map((p) => <PickRow product={p} mode="view" />)}
     </ul>
+
+    <p class="wrap thanks" data-thanks hidden>Thank you ❤️</p>
 
     <div class="wrap empty" data-empty hidden>
       <p>This list link is incomplete, so there is nothing to show. Ask for the link again.</p>
@@ -38,7 +39,7 @@ import { products, withBase } from '../../lib/products';
 </Base>
 
 <script>
-  import { decodePicks, packsLabel, readPicksData, summaryLabel } from '../../lib/picks';
+  import { decodePicks, readPicksData, unitLabel } from '../../lib/picks';
 
   // Read-only: no draft is loaded or saved here.
   const data = readPicksData();
@@ -47,26 +48,28 @@ import { products, withBase } from '../../lib/products';
   const rows = new Map([...list.querySelectorAll<HTMLElement>('[data-pick]')].map((el) => [el.dataset.pick!, el]));
   for (const p of picks) {
     const el = rows.get(p.id)!;
-    el.querySelector<HTMLElement>('[data-packs]')!.textContent = packsLabel(p.packs);
+    el.querySelector<HTMLElement>('[data-packs]')!.textContent = unitLabel(p.packs, data.byId.get(p.id)!.unit);
     el.hidden = false;
     list.append(el);
   }
-  document.querySelector<HTMLElement>('[data-sum]')!.textContent = picks.length ? summaryLabel(picks) : '';
+  // Each product shows its own number; no overall total for the person receiving the list.
+  document.querySelector<HTMLElement>('[data-thanks]')!.hidden = picks.length === 0;
   document.querySelector<HTMLElement>('[data-skipped]')!.hidden = skipped === 0 || picks.length === 0;
   document.querySelector<HTMLElement>('[data-empty]')!.hidden = picks.length > 0;
 </script>
 
 <style>
   .title {
-    margin: var(--s2) 0 var(--s1);
+    margin: var(--s2) 0 var(--s3);
     font-size: var(--fs-h2);
     line-height: 1.1;
   }
-  .sum {
-    margin: 0 0 var(--s3);
+  .thanks {
+    margin: var(--s4) 0 0;
+    font-size: var(--fs-h3);
     font-weight: 700;
   }
-  .sum:empty {
+  .thanks[hidden] {
     display: none;
   }
   .note {

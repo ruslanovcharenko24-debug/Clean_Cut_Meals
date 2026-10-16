@@ -4,9 +4,9 @@
 //   two columns: whole pack photo, name, "400 g per pack", "2 packs"
 //   "Thank you" + one red heart         (last picture only)
 // No totals, prices, nutrition, links, QR codes, buttons or project wording. Long lists are split into several
-// pictures of at most PER_PICTURE products (2 × 2), in the same order, without page numbers. Each picture is drawn
-// on its own canvas, as tall as its content, kept close to 4:5: taller pictures (up to six products, about 1:2)
-// were cropped top and bottom in chat previews.
+// pictures of at most PER_PICTURE products (2 × 2), in the same order, without page numbers. Kept close to 4:5:
+// taller pictures (up to six products, about 1:2) were cropped top and bottom in chat previews. A single picture
+// fits its content; the pictures of a series share one template (same size and scale on every page).
 import { sizeLabel, unitLabel, PICKS_HEADING, type Pick, type PickProduct } from './picks';
 
 const INK = '#24014c';
@@ -60,10 +60,29 @@ interface Cell {
   img: HTMLImageElement | null;
 }
 
-function cellTextHeight(ctx: CanvasRenderingContext2D, cell: Cell, col: number): { name: string[]; height: number } {
+// Name block: as many lines as the name needs, or a fixed number of lines in a series (see Template).
+function textHeight(nameLines: number): number {
+  return nameLines * NAME.line + 8 + SIZE.line + 10 + QTY.line;
+}
+
+function cellText(ctx: CanvasRenderingContext2D, cell: Cell, col: number): { name: string[]; height: number } {
   ctx.font = `700 ${NAME.size}px ${FONT}`;
   const name = wrap(ctx, cell.product.name, col);
-  return { name, height: name.length * NAME.line + 8 + SIZE.line + 10 + QTY.line };
+  return { name, height: textHeight(name.length) };
+}
+
+/** One layout for every picture of a series (more than one picture): same canvas, same 2 × 2 slots, room for the
+ *  longest catalogue name, heading and thanks areas reserved on every page even where they are not drawn. */
+interface Template {
+  nameLines: number;
+}
+
+function seriesTemplate(products: Iterable<PickProduct>): Template {
+  const ctx = document.createElement('canvas').getContext('2d')!;
+  ctx.font = `700 ${NAME.size}px ${FONT}`;
+  let nameLines = 1;
+  for (const p of products) nameLines = Math.max(nameLines, wrap(ctx, p.name, COL).length);
+  return { nameLines };
 }
 
 function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
@@ -86,22 +105,27 @@ function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: nu
   ctx.restore();
 }
 
-function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasElement {
-  const single = cells.length === 1;
+function drawPicture(cells: Cell[], first: boolean, last: boolean, template: Template | null): HTMLCanvasElement {
+  const single = cells.length === 1 && !template;
   const width = single ? SINGLE_COL + PAD * 2 : W;
   const col = single ? SINGLE_COL : COL;
   const photoH = single ? SINGLE_PHOTO_H : PHOTO_H;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
 
-  // Measure first: rows are as tall as their taller cell, so names can wrap freely.
+  // Measure first. Alone (one picture): rows are as tall as their taller cell. In a series: every row and slot has
+  // the template's height and the canvas always holds two rows, heading and thanks areas.
   const rows: Cell[][] = [];
   for (let i = 0; i < cells.length; i += single ? 1 : 2) rows.push(cells.slice(i, i + (single ? 1 : 2)));
-  const rowText = rows.map((row) => row.map((c) => cellTextHeight(ctx, c, col)));
-  const rowHeights = rowText.map((t) => photoH + 20 + Math.max(...t.map((x) => x.height)));
-  const headH = first ? HEAD.size + HEAD.gap : 0;
-  const footH = last ? FOOT.gap + FOOT.size + 8 : 0;
-  const height = PAD + headH + rowHeights.reduce((a, b) => a + b, 0) + ROW_GAP * (rows.length - 1) + footH + PAD;
+  const rowText = rows.map((row) => row.map((c) => cellText(ctx, c, col)));
+  const slotH = (t: { height: number }[]) => (template ? textHeight(template.nameLines) : Math.max(...t.map((x) => x.height)));
+  const rowHeights = rowText.map((t) => photoH + 20 + slotH(t));
+  const headH = first || template ? HEAD.size + HEAD.gap : 0;
+  const footH = last || template ? FOOT.gap + FOOT.size + 8 : 0;
+  const gridH = template
+    ? (photoH + 20 + textHeight(template.nameLines)) * 2 + ROW_GAP
+    : rowHeights.reduce((a, b) => a + b, 0) + ROW_GAP * (rows.length - 1);
+  const height = PAD + headH + gridH + footH + PAD;
 
   canvas.width = width;
   canvas.height = Math.ceil(height);
@@ -120,8 +144,8 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
     ctx.textAlign = 'center';
     ctx.fillText(PICKS_HEADING, width / 2, y);
     ctx.textAlign = 'left';
-    y += headH;
   }
+  y += headH;
 
   rows.forEach((row, r) => {
     // A row with one product (odd count) is centred instead of leaving an empty column.
@@ -147,6 +171,8 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
         ctx.fillText(line, x, ty);
         ty += NAME.line;
       }
+      // In a series the size and quantity sit at the same place in every slot, below the reserved name lines.
+      if (template) ty = y + photoH + 20 + template.nameLines * NAME.line;
       ty += 8;
       ctx.fillStyle = INK_SOFT;
       ctx.font = `400 ${SIZE.size}px ${FONT}`;
@@ -160,6 +186,8 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
   });
 
   if (last) {
+    // In a series the thanks sits in the reserved footer area, under the grid, whatever the number of rows.
+    if (template) y = PAD + headH + gridH;
     y += FOOT.gap;
     ctx.fillStyle = INK;
     ctx.font = `700 ${FOOT.size}px ${FONT}`;
@@ -216,10 +244,11 @@ export async function renderPicksPictures(
     }),
   );
   const sizes = pictureSizes(cells.length);
+  const template = sizes.length > 1 ? seriesTemplate(byId.values()) : null;
   const blobs: Blob[] = [];
   let start = 0;
   for (let i = 0; i < sizes.length; i++) {
-    const canvas = drawPicture(cells.slice(start, start + sizes[i]), i === 0, i === sizes.length - 1);
+    const canvas = drawPicture(cells.slice(start, start + sizes[i]), i === 0, i === sizes.length - 1, template);
     start += sizes[i];
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
     if (!blob) throw new Error('canvas.toBlob failed');

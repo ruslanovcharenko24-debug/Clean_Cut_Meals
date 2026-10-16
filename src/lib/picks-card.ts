@@ -11,7 +11,9 @@ import { sizeLabel, unitLabel, PICKS_HEADING, type Pick, type PickProduct } from
 
 const INK = '#24014c';
 const INK_SOFT = '#4a3a63';
-const PHOTO_BG = '#f8eef5'; // soft pink-lilac behind each pack
+// One plain white for the canvas and the photo areas (16.10.2026: no pink boxes behind the packs). The photos keep
+// their own white background; nothing is drawn around them.
+const WHITE = '#ffffff';
 const HEART = '#e0243c';
 const FONT = "Lexend, system-ui, -apple-system, 'Segoe UI', sans-serif";
 
@@ -129,7 +131,7 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean, template: Tem
 
   canvas.width = width;
   canvas.height = Math.ceil(height);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = WHITE;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
@@ -153,7 +155,7 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean, template: Tem
     const x0 = (width - rowW) / 2;
     row.forEach((cell, c) => {
       const x = x0 + c * (col + GAP);
-      ctx.fillStyle = PHOTO_BG;
+      ctx.fillStyle = WHITE;
       ctx.fillRect(x, y, col, photoH);
       if (cell.img) {
         // Whole pack, own aspect ratio (contain): never stretched or cropped.

@@ -1,82 +1,133 @@
 ---
-// One full-width send action. Opens the system share sheet with one text: the message, a line break,
-// an absolute link and, optionally, a blank line and a closing line (one string, so apps cannot reorder them);
-// without it, copies the same text.
-// The person picks who to send it to in the share sheet. The receiving app builds the preview from the link (Open Graph),
-// so no title or image file is attached.
+// One full-width send action that opens a small panel with two separate messages, in order. A share sheet carries
+// one text to one chat the person picks, so each message has its own Share (system share sheet, text only: no title,
+// url field or file) and Copy. The person sends message 1, then message 2, to the same chat; nothing is sent
+// automatically and the site never says "sent". The receiving app builds the preview from the link (Open Graph).
+import type { SendMessage } from '../lib/products';
+
 interface Props {
   id: string;
   label: string;
   /** Short line under the button */
   sub?: string;
-  /** Message text before the link */
-  text: string;
-  /** Optional closing line after the link, separated by a blank line */
-  after?: string;
+  /** Messages in sending order; `link` appends "\n<link>" */
+  messages: SendMessage[];
   /** Absolute public URL when configured */
   url: string | null;
   /** Site path (with base), used when url is null (local preview) */
   path: string;
 }
-const { id, label, sub, text, after, url, path } = Astro.props;
+const { id, label, sub, messages, url, path } = Astro.props;
 const shown = url ?? path;
-const tail = after ? `\n\n${after}` : '';
+const full = (m: SendMessage) => (m.link ? `${m.text}\n${shown}` : m.text);
 ---
 
-<div class="send" data-send data-text={text} data-after={after} data-url={url ?? undefined} data-path={path}>
-  <button type="button" class="btn btn--primary send-btn" aria-describedby={sub ? `${id}-sub` : undefined}>{label}</button>
+<div class="send" data-send data-url={url ?? undefined} data-path={path}>
+  <button
+    type="button"
+    class="btn btn--primary send-btn"
+    aria-expanded="false"
+    aria-controls={`${id}-panel`}
+    aria-describedby={sub ? `${id}-sub` : undefined}
+  >{label}</button>
   {sub && <p class="send-sub" id={`${id}-sub`}>{sub}</p>}
-  <div class="send-panel" data-send-panel hidden>
-    <label for={`${id}-msg`} class="send-label">Copy this message</label>
-    <textarea id={`${id}-msg`} class="send-msg" rows="6" readonly data-send-msg>{`${text}\n${shown}${tail}`}</textarea>
+  <div class="send-panel" id={`${id}-panel`} role="group" aria-labelledby={`${id}-note`} tabindex="-1" data-send-panel hidden>
+    <p class="send-note" id={`${id}-note`}>Send these separately to the same chat.</p>
+    <ol class="msgs">
+      {messages.map((m, i) => (
+        <li class="msg" data-msg data-text={m.text} data-link={m.link ? '' : undefined}>
+          <p class="msg-num" id={`${id}-m${i + 1}`}>Message {i + 1}</p>
+          <p class="msg-text" data-msg-text>{full(m)}</p>
+          <div class="msg-actions">
+            <button type="button" class="btn btn--primary msg-share" aria-label={`Share message ${i + 1}`} data-share hidden>Share</button>
+            <button type="button" class="btn msg-copy" aria-label={`Copy message ${i + 1}`} data-copy>Copy</button>
+          </div>
+          <label class="msg-manual" data-manual hidden>
+            <span class="msg-manual-label">Select and copy message {i + 1}</span>
+            <textarea class="msg-box" rows="3" readonly data-box>{full(m)}</textarea>
+          </label>
+          <p class="msg-status" role="status" aria-live="polite" data-status></p>
+        </li>
+      ))}
+    </ol>
+    <button type="button" class="btn send-close" data-close>Close</button>
   </div>
-  <p class="send-status" role="status" aria-live="polite" data-send-status></p>
-  <noscript><p class="send-sub">Send this:<br />{text.split('\n').map((line) => <>{line}<br /></>)}{shown}{after && <><br /><br />{after}</>}</p></noscript>
+  <noscript>
+    <p class="send-sub">Send these separately to the same chat:</p>
+    <ol class="msgs">
+      {messages.map((m) => <li class="msg"><p class="msg-text">{full(m)}</p></li>)}
+    </ol>
+  </noscript>
 </div>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-send]').forEach((root) => {
-    const button = root.querySelector<HTMLButtonElement>('.send-btn')!;
+    const trigger = root.querySelector<HTMLButtonElement>('.send-btn')!;
     const panel = root.querySelector<HTMLElement>('[data-send-panel]')!;
-    const box = root.querySelector<HTMLTextAreaElement>('[data-send-msg]')!;
-    const status = root.querySelector<HTMLElement>('[data-send-status]')!;
-    const text = root.dataset.text!;
     const url = root.dataset.url || new URL(root.dataset.path!, window.location.origin).href;
-    const after = root.dataset.after;
-    const message = `${text}\n${url}${after ? `\n\n${after}` : ''}`;
-    box.value = message;
+    const canShareApi = typeof navigator.share === 'function';
 
-    const say = (msg: string) => {
-      status.textContent = '';
-      // Set on the next frame so a repeated message is announced again.
-      requestAnimationFrame(() => (status.textContent = msg));
+    const open = () => {
+      panel.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.focus({ preventScroll: true });
+      panel.scrollIntoView({ block: 'nearest' });
     };
-    const copy = async () => {
-      try {
-        if (!navigator.clipboard) throw new Error('no clipboard');
-        await navigator.clipboard.writeText(message);
-        say('Message copied. Paste it into your chat.');
-      } catch {
-        panel.hidden = false;
-        box.focus();
-        box.select();
-        say('Copy the selected message.');
-      }
+    const close = () => {
+      panel.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.focus();
     };
+    trigger.addEventListener('click', () => (panel.hidden ? open() : close()));
+    root.querySelector('[data-close]')!.addEventListener('click', close);
+    panel.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close();
+    });
 
-    button.addEventListener('click', async () => {
-      // One string: with a separate url field, apps place the link where they like.
-      const data: ShareData = { text: message };
-      if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data))) {
+    panel.querySelectorAll<HTMLElement>('[data-msg]').forEach((block) => {
+      const message = block.dataset.link !== undefined ? `${block.dataset.text}\n${url}` : block.dataset.text!;
+      block.querySelector<HTMLElement>('[data-msg-text]')!.textContent = message;
+      const box = block.querySelector<HTMLTextAreaElement>('[data-box]')!;
+      box.value = message;
+      const manual = block.querySelector<HTMLElement>('[data-manual]')!;
+      const status = block.querySelector<HTMLElement>('[data-status]')!;
+      const shareBtn = block.querySelector<HTMLButtonElement>('[data-share]')!;
+
+      const say = (msg: string) => {
+        status.textContent = '';
+        // Set on the next frame so a repeated message is announced again.
+        requestAnimationFrame(() => (status.textContent = msg));
+      };
+      const copy = async () => {
         try {
-          await navigator.share(data);
-        } catch (err) {
-          // Closing the share sheet is a normal choice, not an error.
-          if ((err as DOMException).name !== 'AbortError') await copy();
+          if (!navigator.clipboard) throw new Error('no clipboard');
+          await navigator.clipboard.writeText(message);
+          manual.hidden = true;
+          say('Copied');
+        } catch {
+          manual.hidden = false;
+          box.focus();
+          box.select();
+          say('Select the text and copy it.');
         }
-        return;
+      };
+      block.querySelector('[data-copy]')!.addEventListener('click', copy);
+
+      // Text only, one message per share sheet; resolving means only that the sheet handed it on, not that it was sent.
+      const data: ShareData = { text: message };
+      if (canShareApi && (!navigator.canShare || navigator.canShare(data))) {
+        shareBtn.hidden = false;
+        shareBtn.addEventListener('click', async () => {
+          status.textContent = '';
+          try {
+            await navigator.share(data);
+          } catch (err) {
+            // Closing the share sheet is a normal choice; a sheet already open is not an error either.
+            const name = (err as DOMException).name;
+            if (name !== 'AbortError' && name !== 'InvalidStateError') await copy();
+          }
+        });
       }
-      await copy();
     });
   });
 </script>
@@ -94,28 +145,92 @@ const tail = after ? `\n\n${after}` : '';
   }
   .send-panel {
     margin-top: var(--s3);
+    padding: var(--s3);
+    border: 2px solid var(--ink);
+    background: var(--surface);
   }
-  .send-label {
+  .send-panel:focus {
+    outline: none;
+  }
+  .send-panel:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+  .send-note {
+    margin: 0 0 var(--s3);
+    font-weight: 600;
+  }
+  .msgs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--s3);
+  }
+  .msg {
+    min-width: 0;
+  }
+  .msg-num {
+    margin: 0 0 var(--s1);
+    font-size: var(--fs-small);
+    font-weight: 700;
+  }
+  .msg-text {
+    margin: 0;
+    padding: var(--s2) var(--s3);
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: var(--fs-small);
+    line-height: 1.4;
+  }
+  .msg-actions {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: var(--s2);
+    margin-top: var(--s2);
+  }
+  .msg-actions .btn {
+    min-height: 48px;
+  }
+  .msg-actions .btn[hidden] {
+    display: none;
+  }
+  .msg-manual {
     display: block;
-    margin-bottom: var(--s2);
+    margin-top: var(--s2);
+  }
+  .msg-manual[hidden] {
+    display: none;
+  }
+  .msg-manual-label {
+    display: block;
+    margin-bottom: var(--s1);
     font-size: var(--fs-small);
     font-weight: 600;
   }
-  .send-msg {
+  .msg-box {
     width: 100%;
     padding: var(--s2) var(--s3);
     border: 2px solid var(--ink);
     border-radius: 0;
     font: 400 var(--fs-small) / 1.35 var(--font);
     color: var(--ink);
-    background: var(--surface);
+    background: var(--paper);
     resize: none;
   }
-  .send-status {
-    margin: var(--s2) 0 0;
+  .msg-status {
+    margin: var(--s1) 0 0;
+    font-size: var(--fs-small);
     font-weight: 600;
   }
-  .send-status:empty {
+  .msg-status:empty {
     display: none;
+  }
+  .send-close {
+    margin-top: var(--s3);
+    min-height: 48px;
   }
 </style>

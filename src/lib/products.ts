@@ -128,12 +128,22 @@ export function pickPath(p: Product): string {
   return withBase(`/pick/${shortSlug(p)}/`);
 }
 
-// Message texts (16.10.2026), each sent as one message "<text>\n<link>[\n\n<after>]": a share sheet carries one text
-// to one chosen chat, so they cannot be split into separate messages. One red heart only, in the reply's thank-you line;
-// none in the invite, buttons, headings or previews. Nothing promises that the sender has bought or will deliver the meal.
-export const INVITE_TEXT = 'Thought of you.\n\nWhat would you fancy?';
-export const REPLY_TEXT = 'This one looks lovely.';
-export const REPLY_AFTER = 'Thank you \u2764\uFE0F';
+// Two separate messages per step (agreed 16.10.2026). A share sheet carries one text to one chosen chat, so the person
+// sends message 1, then message 2, to the same chat themselves; the site never knows the chat or whether anything was sent.
+// `link: true` appends "\n<link>" (the link appears once, nothing after it). One red heart only, in the reply's
+// "Thank you" message; none in buttons, headings or previews. Nothing promises that the sender has bought or will deliver the meal.
+export interface SendMessage {
+  text: string;
+  link?: boolean;
+}
+export const INVITE_MESSAGES: SendMessage[] = [
+  { text: 'Thought of you.' },
+  { text: 'What would you fancy?\nTake a look & choose your favourite:', link: true },
+];
+export const REPLY_MESSAGES: SendMessage[] = [
+  { text: 'This one looks lovely.', link: true },
+  { text: 'Thank you \u2764\uFE0F' },
+];
 
 
 // One page per product; the template was first checked on Spaghetti Bolognese.

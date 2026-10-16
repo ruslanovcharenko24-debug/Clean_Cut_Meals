@@ -6,7 +6,7 @@ import SendButton from './SendButton.astro';
 import InfoSections from './InfoSections.astro';
 import {
   absoluteUrl, band, shortName, officialName, packImage, perPack, perPackLabel, isCold, mealPath, invitePath, pickPath, cardPath,
-  INVITE_MESSAGES, REPLY_MESSAGES, type MealMode, type Product,
+  INVITE_TEXT, REPLY_TEXT, REPLY_AFTER, type MealMode, type Product,
 } from '../lib/products';
 
 // One meal page in three modes, all static so link previews read their own tags without JavaScript:
@@ -94,8 +94,9 @@ const BUY_HEADING: Record<MealMode, string> = {
           <SendButton
             id="reply"
             label="This one for me"
-            sub="Two short messages to send them, one after the other."
-            messages={REPLY_MESSAGES}
+            sub="Opens your share menu. You choose who to send it to."
+            text={REPLY_TEXT}
+            after={REPLY_AFTER}
             url={absoluteUrl(pickPath(p), Astro.site)}
             path={pickPath(p)}
           />
@@ -111,7 +112,7 @@ const BUY_HEADING: Record<MealMode, string> = {
                 id="invite"
                 label="Thinking of someone?"
                 sub="Send them something they might like. Let them choose — pick it up for them, or they can order delivery."
-                messages={INVITE_MESSAGES}
+                text={INVITE_TEXT}
                 url={absoluteUrl(invitePath(p), Astro.site)}
                 path={invitePath(p)}
               />

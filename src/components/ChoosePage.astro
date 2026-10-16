@@ -1,28 +1,40 @@
 ---
 import Base from '../layouts/Base.astro';
 import DishStrip from './DishStrip.astro';
-import { products, CATEGORIES, shortName, mealPath, invitePath, withBase, type Product } from '../lib/products';
+import PackStepper from './PackStepper.astro';
+import PicksBar from './PicksBar.astro';
+import { products, CATEGORIES, shortName, mealPath, invitePath, withBase, band, type Product } from '../lib/products';
 
 // Catalogue of all Clean Cut products captured from SuperValu, filtered by category with radio buttons
 // (CSS only, works without JavaScript). From a product page it lists the others; in invite mode every link
-// stays in invite mode so the recipient can answer with the product they pick.
+// stays in invite mode so the recipient can answer with the product they pick. In picks mode every product gets
+// Add / − n packs + and a summary bar links to the review page (a wish list, not a shop basket).
 interface Props {
   product?: Product;
-  mode?: 'standard' | 'invite';
+  mode?: 'standard' | 'invite' | 'picks';
 }
 const { product: p, mode = 'standard' } = Astro.props;
 const list = p ? products.filter((o) => o.slug !== p.slug) : products;
 const backHref = p ? (mode === 'invite' ? invitePath(p) : mealPath(p)) : null;
 const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, list.filter((o) => o.category === c.id).length]));
-const title = mode === 'invite' ? 'What would you fancy?' : p ? 'Choose another' : 'Clean Cut range';
+const picks = mode === 'picks';
+const title = mode === 'invite' ? 'What would you fancy?' : picks ? 'Choose a few things' : p ? 'Choose another' : 'Clean Cut range';
+const ownTitle = mode === 'standard' ? `${title} — Clean Cut Meals (student concept)` : `${title} — Clean Cut Meals`;
 ---
 
-<Base title={mode === 'invite' ? `${title} — Clean Cut Meals` : `${title} — Clean Cut Meals (student concept)`} description="Clean Cut products listed on SuperValu Online.">
-  <div class="choose">
+<Base title={ownTitle} description="Clean Cut products listed on SuperValu Online.">
+  <div class:list={['choose', { 'choose--picks': picks }]}>
     <div class="wrap">
       {backHref && <a class="back" href={backHref}>Back to {shortName(p!)}</a>}
+      {picks && <a class="back" href={withBase('/')} data-back-invite hidden>Back</a>}
       <h1 class="title">{title}</h1>
-      <p class="lede">Clean Cut products on SuperValu Online, {list.length} {p ? 'more ' : ''}to browse. Not every store stocks every product.</p>
+      {
+        picks ? (
+          <p class="lede">Add what you’d like and how many packs of each. Not every store stocks every product.</p>
+        ) : (
+          <p class="lede">Clean Cut products on SuperValu Online, {list.length} {p ? 'more ' : ''}to browse. Not every store stocks every product.</p>
+        )
+      }
 
       <fieldset class="filters">
         <legend class="visually-hidden">Show</legend>
@@ -39,11 +51,24 @@ const title = mode === 'invite' ? 'What would you fancy?' : p ? 'Choose another'
 
     <ul class="list">
       {list.map((o) => (
-        <li class={`item item--${o.category}`}>
-          <DishStrip product={o} href={mode === 'invite' ? invitePath(o) : mealPath(o)} />
+        <li class={`item item--${o.category}`} style={`--band: ${band(o)}`}>
+          <DishStrip product={o} href={mode === 'invite' ? invitePath(o) : picks ? `${mealPath(o)}?from=picks` : mealPath(o)} />
+          {picks && (
+            <div class="pick-ctl">
+              <PackStepper id={o.id} name={shortName(o)} />
+            </div>
+          )}
         </li>
       ))}
     </ul>
+    {
+      picks && (
+        <>
+          <PicksBar />
+          <noscript><p class="wrap">Choosing a few things needs JavaScript in your browser.</p></noscript>
+        </>
+      )
+    }
     {!p && <p class="wrap foot"><a href={withBase('/about/')}>About this prototype and its sources</a></p>}
   </div>
 </Base>
@@ -129,8 +154,22 @@ const title = mode === 'invite' ? 'What would you fancy?' : p ? 'Choose another'
   .choose:has(#cat-ice-cream:checked) .item:not(.item--ice-cream) {
     display: none;
   }
+  /* Picks mode: the stepper sits under each product, inside the same colour band. */
+  .choose--picks .item :global(.strip) {
+    border-bottom: 0;
+    padding-bottom: var(--s2);
+  }
+  .pick-ctl {
+    padding: 0 var(--gutter) var(--s3) calc(var(--gutter) - 2px);
+    border-left: 10px solid var(--band);
+    border-bottom: 1px solid var(--rule);
+  }
+  .pick-ctl > :global(*) {
+    max-width: 18rem;
+  }
   .foot {
     margin-top: var(--s4);
     font-size: var(--fs-small);
   }
 </style>
+

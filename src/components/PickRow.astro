@@ -1,0 +1,95 @@
+---
+// One product in a list of picks: small pack photo, name, pack size and the number of packs. Every product is
+// printed hidden at build time; the page script shows the picked ones, so nothing from a link becomes markup.
+import { Picture } from 'astro:assets';
+import PackStepper from './PackStepper.astro';
+import { band, mealPath, packImage, shortName, type Product } from '../lib/products';
+
+interface Props {
+  product: Product;
+  /** edit: − n + and Remove (review page); view: the number only (received list) */
+  mode: 'edit' | 'view';
+}
+const { product: p, mode } = Astro.props;
+const img = packImage(p);
+const name = shortName(p);
+---
+
+<li class="pick" data-pick={p.id} style={`--band: ${band(p)}`} hidden>
+  {img ? <Picture src={img} formats={['avif', 'webp']} widths={[80, 160]} sizes="80px" alt="" class="pick-img" /> : <span />}
+  <div class="pick-body">
+    <h2 class="pick-name"><a href={mealPath(p)}>{name}</a></h2>
+    <p class="pick-size">Pack size: {p.size}</p>
+    {
+      mode === 'edit' ? (
+        <div class="pick-edit">
+          <PackStepper id={p.id} name={name} />
+          <button type="button" class="pick-remove" data-remove aria-label={`Remove ${name}`}>Remove</button>
+        </div>
+      ) : (
+        <p class="pick-packs" data-packs></p>
+      )
+    }
+  </div>
+</li>
+
+<style>
+  .pick {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: var(--s3);
+    align-items: start;
+    padding: var(--s3) var(--gutter) var(--s3) calc(var(--gutter) - 2px);
+    border-left: 10px solid var(--band);
+    border-bottom: 1px solid var(--rule);
+  }
+  .pick[hidden] {
+    display: none;
+  }
+  .pick :global(.pick-img) {
+    display: block;
+    width: 80px;
+    max-width: none;
+    height: auto;
+  }
+  .pick-body {
+    min-width: 0;
+  }
+  .pick-name {
+    margin: 0;
+    font-size: var(--fs-body);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .pick-name a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .pick-size {
+    margin: var(--s1) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .pick-packs {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-h3);
+    font-weight: 700;
+  }
+  .pick-edit {
+    display: grid;
+    gap: var(--s2);
+    margin-top: var(--s2);
+    max-width: 18rem;
+  }
+  .pick-remove {
+    justify-self: start;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.2 var(--font);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+</style>

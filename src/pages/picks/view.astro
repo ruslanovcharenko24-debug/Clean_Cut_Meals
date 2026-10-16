@@ -1,0 +1,92 @@
+---
+// A list someone sent back: /picks/view/?p=<id>-<packs>.… (format in src/lib/picks.ts). The page only reads the
+// link: it never changes the viewer's own draft. Products, names, sizes and photos come from the catalogue.
+// The preview is the same for every list (a static page cannot tailor it); the message text carries the list.
+import Base from '../../layouts/Base.astro';
+import PickRow from '../../components/PickRow.astro';
+import PicksData from '../../components/PicksData.astro';
+import { products, withBase } from '../../lib/products';
+---
+
+<Base
+  title="My picks — Clean Cut Meals"
+  description="A few things I’d like. Open to see the products and quantities."
+  preview={{
+    title: 'My picks',
+    description: 'A few things I’d like. Open to see the products and quantities.',
+    url: withBase('/picks/view/'),
+  }}
+>
+  <div class="view">
+    <div class="wrap">
+      <h1 class="title" id="view-title">My picks</h1>
+      <p class="sum" data-sum></p>
+      <p class="note" data-skipped hidden>Part of this link couldn’t be read, so some items may be missing.</p>
+    </div>
+
+    <ul class="list" aria-labelledby="view-title" data-list>
+      {products.map((p) => <PickRow product={p} mode="view" />)}
+    </ul>
+
+    <div class="wrap empty" data-empty hidden>
+      <p>This list link is incomplete, so there is nothing to show. Ask for the link again.</p>
+      <a class="btn" href={withBase('/')}>See Clean Cut products</a>
+    </div>
+    <noscript><p class="wrap">This list needs JavaScript in your browser.</p></noscript>
+  </div>
+  <PicksData />
+</Base>
+
+<script>
+  import { decodePicks, packsLabel, readPicksData, summaryLabel } from '../../lib/picks';
+
+  // Read-only: no draft is loaded or saved here.
+  const data = readPicksData();
+  const { picks, skipped } = decodePicks(new URLSearchParams(location.search).get('p'), data.known);
+  const list = document.querySelector<HTMLElement>('[data-list]')!;
+  const rows = new Map([...list.querySelectorAll<HTMLElement>('[data-pick]')].map((el) => [el.dataset.pick!, el]));
+  for (const p of picks) {
+    const el = rows.get(p.id)!;
+    el.querySelector<HTMLElement>('[data-packs]')!.textContent = packsLabel(p.packs);
+    el.hidden = false;
+    list.append(el);
+  }
+  document.querySelector<HTMLElement>('[data-sum]')!.textContent = picks.length ? summaryLabel(picks) : '';
+  document.querySelector<HTMLElement>('[data-skipped]')!.hidden = skipped === 0 || picks.length === 0;
+  document.querySelector<HTMLElement>('[data-empty]')!.hidden = picks.length > 0;
+</script>
+
+<style>
+  .title {
+    margin: var(--s2) 0 var(--s1);
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+  }
+  .sum {
+    margin: 0 0 var(--s3);
+    font-weight: 700;
+  }
+  .sum:empty {
+    display: none;
+  }
+  .note {
+    margin: 0 0 var(--s3);
+    font-size: var(--fs-small);
+  }
+  .note[hidden],
+  .empty[hidden] {
+    display: none;
+  }
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+  .empty {
+    padding-top: var(--s3);
+  }
+  .empty p {
+    margin: 0 0 var(--s3);
+  }
+</style>

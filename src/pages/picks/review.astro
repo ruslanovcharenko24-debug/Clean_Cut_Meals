@@ -1,0 +1,280 @@
+---
+// Review the picks on this device, then send them as one message: every product with its number of packs, one link
+// to the whole list (/picks/view/?p=…) and "Thank you ❤️". A wish list only: no prices, order, payment or delivery.
+import Base from '../../layouts/Base.astro';
+import PickRow from '../../components/PickRow.astro';
+import PicksData from '../../components/PicksData.astro';
+import { products, withBase } from '../../lib/products';
+---
+
+<Base title="Your picks — Clean Cut Meals" description="Review the products you picked and send the list.">
+  <div class="review">
+    <div class="wrap">
+      <h1 class="title" id="review-title" tabindex="-1">Your picks</h1>
+      <p class="sum" data-sum aria-live="polite"></p>
+    </div>
+
+    <ul class="list" aria-labelledby="review-title" data-list>
+      {products.map((p) => <PickRow product={p} mode="edit" />)}
+    </ul>
+
+    <div class="wrap empty" data-empty hidden>
+      <p>Nothing on your list yet.</p>
+      <a class="btn btn--primary" href={withBase('/picks/')}>Choose a few things</a>
+    </div>
+
+    <div class="wrap actions" data-actions hidden>
+      <button type="button" class="btn btn--primary send-btn" data-send aria-describedby="send-sub">Send my picks</button>
+      <p class="send-sub" id="send-sub">Opens your share menu with the whole list. You choose who to send it to.</p>
+      <div class="send-panel" data-panel hidden>
+        <label for="picks-msg" class="send-label">Copy this message</label>
+        <textarea id="picks-msg" class="send-msg" rows="8" readonly data-box></textarea>
+      </div>
+      <p class="send-status" role="status" aria-live="polite" data-status></p>
+      <a class="btn keep" href={withBase('/picks/')}>Keep choosing</a>
+
+      <div class="clear">
+        <button type="button" class="clear-btn" data-clear aria-expanded="false" aria-controls="clear-confirm">Clear all</button>
+        <div class="clear-confirm" id="clear-confirm" data-confirm hidden>
+          <p>Remove everything from your list?</p>
+          <div class="clear-row">
+            <button type="button" class="btn" data-clear-yes>Yes, clear all</button>
+            <button type="button" class="btn" data-clear-no>Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <noscript><p class="wrap">Your picks need JavaScript in your browser.</p></noscript>
+  </div>
+  <PicksData />
+</Base>
+
+<script>
+  import { changePacks, loadDraft, packsLabel, picksMessage, readPicksData, saveDraft, summaryLabel, MAX_PACKS, type Pick } from '../../lib/picks';
+
+  const data = readPicksData();
+  const list = document.querySelector<HTMLElement>('[data-list]')!;
+  const rows = new Map([...list.querySelectorAll<HTMLElement>('[data-pick]')].map((el) => [el.dataset.pick!, el]));
+  const sum = document.querySelector<HTMLElement>('[data-sum]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const actions = document.querySelector<HTMLElement>('[data-actions]')!;
+  const panel = document.querySelector<HTMLElement>('[data-panel]')!;
+  const box = document.querySelector<HTMLTextAreaElement>('[data-box]')!;
+  const status = document.querySelector<HTMLElement>('[data-status]')!;
+  const title = document.getElementById('review-title')!;
+  const clearBtn = document.querySelector<HTMLButtonElement>('[data-clear]')!;
+  const confirmBox = document.querySelector<HTMLElement>('[data-confirm]')!;
+  let picks: Pick[] = [];
+
+  const message = () => picksMessage(picks, data.byId, data.viewUrl);
+
+  function render() {
+    for (const [id, el] of rows) {
+      const packs = picks.find((p) => p.id === id)?.packs ?? 0;
+      el.hidden = packs === 0;
+      if (!packs) continue;
+      const name = data.byId.get(id)!.name;
+      el.querySelector<HTMLElement>('[data-add]')!.hidden = true;
+      el.querySelector<HTMLElement>('[data-row]')!.hidden = false;
+      el.querySelector<HTMLElement>('[data-count]')!.textContent = packsLabel(packs);
+      el.querySelector<HTMLButtonElement>('[data-plus]')!.disabled = packs >= MAX_PACKS;
+      el.querySelector<HTMLElement>('[data-minus]')!.setAttribute(
+        'aria-label',
+        packs === 1 ? `Remove ${name} from my picks` : `One pack fewer of ${name}`,
+      );
+    }
+    // Same order as the message: the order things were added in.
+    for (const p of picks) list.append(rows.get(p.id)!);
+    sum.textContent = picks.length ? summaryLabel(picks) : '';
+    empty.hidden = picks.length > 0;
+    actions.hidden = picks.length === 0;
+    // A copy box left open from an earlier attempt must not show an old list.
+    box.value = picks.length ? message() : '';
+  }
+
+  function change(id: string, delta: number) {
+    picks = changePacks(loadDraft(data.known), id, delta);
+    saveDraft(picks);
+    status.textContent = '';
+    render();
+    // The row is gone: keep focus on the page instead of losing it with the removed buttons.
+    if (!picks.some((p) => p.id === id)) title.focus();
+  }
+
+  for (const [id, el] of rows) {
+    el.querySelector('[data-plus]')!.addEventListener('click', () => change(id, 1));
+    el.querySelector('[data-minus]')!.addEventListener('click', () => change(id, -1));
+    el.querySelector('[data-remove]')!.addEventListener('click', () => change(id, -MAX_PACKS));
+  }
+
+  const say = (msg: string) => {
+    status.textContent = '';
+    // Set on the next frame so a repeated message is announced again.
+    requestAnimationFrame(() => (status.textContent = msg));
+  };
+  const copy = async (text: string) => {
+    try {
+      if (!navigator.clipboard) throw new Error('no clipboard');
+      await navigator.clipboard.writeText(text);
+      say('Message copied. Paste it into your chat.');
+    } catch {
+      box.value = text;
+      panel.hidden = false;
+      box.focus();
+      box.select();
+      say('Copy the selected message.');
+    }
+  };
+
+  // Opens the share sheet straight from the tap (first call in the handler, so the tap still counts). Neither
+  // closing the sheet nor finishing it clears the list: the site cannot know whether anything was sent.
+  document.querySelector('[data-send]')!.addEventListener('click', async () => {
+    if (!picks.length) return;
+    const text = message();
+    const shareData: ShareData = { text };
+    if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(shareData))) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as DOMException).name !== 'AbortError') await copy(text);
+      }
+      return;
+    }
+    await copy(text);
+  });
+
+  const closeConfirm = (focus: boolean) => {
+    confirmBox.hidden = true;
+    clearBtn.setAttribute('aria-expanded', 'false');
+    if (focus) clearBtn.focus();
+  };
+  clearBtn.addEventListener('click', () => {
+    const open = confirmBox.hidden;
+    confirmBox.hidden = !open;
+    clearBtn.setAttribute('aria-expanded', String(open));
+    if (open) confirmBox.querySelector<HTMLElement>('[data-clear-no]')!.focus();
+  });
+  confirmBox.querySelector('[data-clear-no]')!.addEventListener('click', () => closeConfirm(true));
+  confirmBox.querySelector('[data-clear-yes]')!.addEventListener('click', () => {
+    picks = [];
+    saveDraft(picks);
+    closeConfirm(false);
+    panel.hidden = true;
+    status.textContent = '';
+    render();
+    empty.querySelector<HTMLElement>('a')!.focus();
+  });
+
+  const refresh = () => {
+    picks = loadDraft(data.known);
+    render();
+  };
+  refresh();
+  window.addEventListener('pageshow', refresh);
+</script>
+
+<style>
+  .title {
+    margin: var(--s2) 0 var(--s1);
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+  }
+  .title:focus {
+    outline: none;
+  }
+  .sum {
+    margin: 0 0 var(--s3);
+    font-weight: 700;
+  }
+  .sum:empty {
+    display: none;
+  }
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+  .empty {
+    padding-top: var(--s3);
+  }
+  .empty[hidden],
+  .actions[hidden] {
+    display: none;
+  }
+  .empty p {
+    margin: 0 0 var(--s3);
+  }
+  .actions {
+    padding-top: var(--s4);
+  }
+  .send-btn {
+    min-height: 60px;
+    font-size: var(--fs-h3);
+    font-weight: 700;
+  }
+  .send-sub {
+    margin: var(--s2) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+  }
+  .send-panel {
+    margin-top: var(--s3);
+  }
+  .send-label {
+    display: block;
+    margin-bottom: var(--s2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .send-msg {
+    width: 100%;
+    padding: var(--s2) var(--s3);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    font: 400 var(--fs-small) / 1.35 var(--font);
+    color: var(--ink);
+    background: var(--surface);
+    resize: none;
+  }
+  .send-status {
+    margin: var(--s2) 0 0;
+    font-weight: 600;
+  }
+  .send-status:empty {
+    display: none;
+  }
+  .keep {
+    margin-top: var(--s3);
+  }
+  .clear {
+    margin-top: var(--s4);
+  }
+  .clear-btn {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.2 var(--font);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .clear-confirm {
+    margin-top: var(--s2);
+    padding: var(--s3);
+    border: 2px solid var(--ink);
+  }
+  .clear-confirm[hidden] {
+    display: none;
+  }
+  .clear-confirm p {
+    margin: 0 0 var(--s2);
+    font-weight: 600;
+  }
+  .clear-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s2);
+  }
+</style>

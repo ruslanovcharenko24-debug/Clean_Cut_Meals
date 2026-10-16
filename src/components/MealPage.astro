@@ -5,7 +5,7 @@ import BuyMeal from './BuyMeal.astro';
 import SendButton from './SendButton.astro';
 import InfoSections from './InfoSections.astro';
 import {
-  absoluteUrl, band, shortName, officialName, packImage, perPack, perPackLabel, isCold, mealPath, invitePath, pickPath, cardPath,
+  absoluteUrl, band, shortName, shortSlug, officialName, packImage, perPack, perPackLabel, isCold, mealPath, invitePath, pickPath, cardPath, withBase,
   INVITE_TEXT, REPLY_TEXT, REPLY_AFTER, type MealMode, type Product,
 } from '../lib/products';
 
@@ -58,6 +58,7 @@ const BUY_HEADING: Record<MealMode, string> = {
   }}
 >
   <article class:list={['dish', `dish--${mode}`]} style={`--band: ${band(p)}`}>
+    {mode === 'standard' && <a class="back-picks" href={withBase('/picks/')} data-back-picks hidden>Back to my picks</a>}
     {mode === 'invite' && <p class="mode-head">What would you fancy?</p>}
     {mode === 'pick' && <p class="mode-head">This one for me</p>}
 
@@ -101,6 +102,7 @@ const BUY_HEADING: Record<MealMode, string> = {
             path={pickPath(p)}
           />
           <a class="btn btn-secondary-wide" href={chooseHref}>Choose another meal</a>
+          <a class="btn btn-secondary-wide" href={`${withBase('/picks/')}?from=${shortSlug(p)}`}>Choose a few things</a>
           <BuyMeal product={p} dishName={name} heading={BUY_HEADING[mode]} />
         </div>
       ) : (
@@ -143,6 +145,10 @@ const BUY_HEADING: Record<MealMode, string> = {
 </Base>
 
 <script>
+  // Opened from the picks catalogue (?from=picks): offer the way back; the list itself is kept on this device.
+  const backToPicks = document.querySelector<HTMLElement>('[data-back-picks]');
+  if (backToPicks && new URLSearchParams(location.search).get('from') === 'picks') backToPicks.hidden = false;
+
   // "How to heat" opens its section below instead of jumping to a closed one.
   document.querySelectorAll<HTMLAnchorElement>('[data-open-heat]').forEach((link) => {
     link.addEventListener('click', (event) => {
@@ -160,6 +166,17 @@ const BUY_HEADING: Record<MealMode, string> = {
 </script>
 
 <style>
+  .back-picks {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0 var(--gutter);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .back-picks[hidden] {
+    display: none;
+  }
   .mode-head {
     margin: 0;
     padding: var(--s2) var(--gutter) var(--s3);

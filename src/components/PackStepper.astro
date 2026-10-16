@@ -1,0 +1,52 @@
+---
+// "Add" for a product, then − <n packs> + once it is on the list. Buttons only; the page script keeps them in sync.
+interface Props {
+  id: string;
+  name: string;
+}
+const { id, name } = Astro.props;
+---
+
+<div class="stepper" data-stepper={id}>
+  <button type="button" class="btn step-add" data-add aria-label={`Add ${name}`}>Add</button>
+  <div class="step-row" data-row hidden>
+    <button type="button" class="btn step-btn" data-minus aria-label={`One pack fewer of ${name}`}>−</button>
+    <p class="step-n" data-count aria-live="polite"></p>
+    <button type="button" class="btn step-btn" data-plus aria-label={`One more pack of ${name}`}>+</button>
+  </div>
+</div>
+
+<style>
+  .stepper {
+    min-width: 0;
+  }
+  .step-add {
+    min-height: 48px;
+  }
+  .step-row {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .step-row[hidden],
+  .step-add[hidden] {
+    display: none;
+  }
+  .step-btn {
+    min-height: 48px;
+    padding: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .step-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .step-n {
+    margin: 0;
+    text-align: center;
+    font-weight: 700;
+  }
+</style>

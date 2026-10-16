@@ -12,9 +12,9 @@ const logo = Object.values(logos)[0]?.default ?? null;
 interface Preview {
   title: string;
   description: string;
-  /** Site path (with base) of a 1200×630 JPEG */
-  image: string;
-  imageAlt: string;
+  /** Site path (with base) of a 1200×630 JPEG; none for pages without a fixed product */
+  image?: string;
+  imageAlt?: string;
   /** Site path this copy is served at */
   url: string;
   canonical?: string;
@@ -31,7 +31,7 @@ const pageUrl = absoluteUrl(preview?.url ?? Astro.url.pathname, Astro.site);
 const canonicalUrl = absoluteUrl(preview?.canonical ?? preview?.url ?? Astro.url.pathname, Astro.site);
 const ogTitle = preview?.title ?? title;
 const ogDescription = preview?.description ?? description;
-const ogImageUrl = preview && Astro.site ? new URL(preview.image, Astro.site).href : null;
+const ogImageUrl = preview?.image && Astro.site ? new URL(preview.image, Astro.site).href : null;
 const DISCLAIMER = 'Student concept for MTU Brand Challenge — not an official Clean Cut Meals service.';
 ---
 

@@ -1,0 +1,106 @@
+---
+// Picks mode of the catalogue: the summary bar ("3 products · 6 packs" + Review my picks) and the script that keeps
+// every product's Add / − n packs + in step with the draft on this device.
+import PicksData from './PicksData.astro';
+import { withBase } from '../lib/products';
+---
+
+<div class="picks-bar" data-picks-bar hidden>
+  <p class="picks-sum" data-sum aria-live="polite"></p>
+  <a class="btn btn--primary picks-review" href={withBase('/picks/review/')}>Review my picks</a>
+</div>
+<PicksData />
+
+<script>
+  import { changePacks, loadDraft, packsLabel, readPicksData, saveDraft, summaryLabel, MAX_PACKS, type Pick } from '../lib/picks';
+
+  const data = readPicksData();
+  const steppers = [...document.querySelectorAll<HTMLElement>('[data-stepper]')];
+  const bar = document.querySelector<HTMLElement>('[data-picks-bar]')!;
+  const sum = bar.querySelector<HTMLElement>('[data-sum]')!;
+  let picks: Pick[] = [];
+
+  // Back to the invitation this list started from (?from=<short>), only for a product we know.
+  const from = new URLSearchParams(location.search).get('from');
+  const back = document.querySelector<HTMLAnchorElement>('[data-back-invite]');
+  const start = from ? data.products.find((p) => p.short === from) : undefined;
+  if (back && start) {
+    back.href = start.invite;
+    back.textContent = `Back to ${start.name}`;
+    back.hidden = false;
+  }
+
+  function render() {
+    for (const el of steppers) {
+      const id = el.dataset.stepper!;
+      const packs = picks.find((p) => p.id === id)?.packs ?? 0;
+      const name = data.byId.get(id)!.name;
+      el.querySelector<HTMLElement>('[data-add]')!.hidden = packs > 0;
+      el.querySelector<HTMLElement>('[data-row]')!.hidden = packs === 0;
+      el.querySelector<HTMLElement>('[data-count]')!.textContent = packs ? packsLabel(packs) : '';
+      el.querySelector<HTMLButtonElement>('[data-plus]')!.disabled = packs >= MAX_PACKS;
+      el.querySelector<HTMLElement>('[data-minus]')!.setAttribute(
+        'aria-label',
+        packs === 1 ? `Remove ${name} from my picks` : `One pack fewer of ${name}`,
+      );
+    }
+    bar.hidden = picks.length === 0;
+    sum.textContent = picks.length ? summaryLabel(picks) : '';
+  }
+
+  function change(id: string, delta: number) {
+    picks = changePacks(loadDraft(data.known), id, delta);
+    saveDraft(picks);
+    render();
+  }
+
+  for (const el of steppers) {
+    const id = el.dataset.stepper!;
+    el.querySelector('[data-add]')!.addEventListener('click', () => {
+      change(id, 1);
+      el.querySelector<HTMLElement>('[data-plus]')!.focus();
+    });
+    el.querySelector('[data-plus]')!.addEventListener('click', () => change(id, 1));
+    el.querySelector('[data-minus]')!.addEventListener('click', () => {
+      change(id, -1);
+      if (!picks.some((p) => p.id === id)) el.querySelector<HTMLElement>('[data-add]')!.focus();
+    });
+  }
+
+  // Also when the page comes back from the browser's back/forward cache after the review page changed the list.
+  const refresh = () => {
+    picks = loadDraft(data.known);
+    render();
+  };
+  refresh();
+  window.addEventListener('pageshow', refresh);
+</script>
+
+<style>
+  /* Sticky, not fixed: it rides along the list and settles in place after the last product, so it never
+     covers the last card, the footer or the phone's home bar. */
+  .picks-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--s2) var(--s3);
+    padding: var(--s2) var(--gutter) calc(var(--s2) + env(safe-area-inset-bottom, 0px));
+    border-top: 2px solid var(--ink);
+    background: var(--paper);
+  }
+  .picks-bar[hidden] {
+    display: none;
+  }
+  .picks-sum {
+    margin: 0;
+    font-size: var(--fs-small);
+    font-weight: 700;
+  }
+  .picks-review {
+    width: auto;
+    min-height: 48px;
+  }
+</style>

@@ -1,0 +1,15 @@
+---
+// The slice of the catalogue the "My picks" scripts need (id, slug, short name, pack size) and the address of the
+// shared list page. Plain JSON, escaped so no product text can close the script element.
+import { products, shortName, shortSlug, invitePath, withBase, absoluteUrl } from '../lib/products';
+import type { PickProduct } from '../lib/picks';
+
+const data: { products: PickProduct[]; viewPath: string; viewUrl: string | null } = {
+  products: products.map((p) => ({ id: p.id, slug: p.slug, name: shortName(p), size: p.size, short: shortSlug(p), invite: invitePath(p) })),
+  viewPath: withBase('/picks/view/'),
+  viewUrl: absoluteUrl(withBase('/picks/view/'), Astro.site),
+};
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<script type="application/json" id="picks-data" set:html={json} />

@@ -6,7 +6,7 @@ import SendButton from './SendButton.astro';
 import InfoSections from './InfoSections.astro';
 import {
   absoluteUrl, band, shortName, officialName, packImage, perPack, perPackLabel, isCold, mealPath, invitePath, pickPath, cardPath,
-  INVITE_TEXT, REPLY_TEXT, type MealMode, type Product,
+  INVITE_TEXT, REPLY_TEXT, REPLY_AFTER, type MealMode, type Product,
 } from '../lib/products';
 
 // One meal page in three modes, all static so link previews read their own tags without JavaScript:
@@ -27,12 +27,13 @@ const kcal = perPack(p, 'kcal');
 const basis = perPackLabel(p);
 const cold = isCold(p);
 
-// Previews of personal messages (invite, pick) carry no project wording; the disclaimer stays in the
-// page's top strip and footer and on /about/.
+// Previews of personal messages (invite, pick) carry no project wording and do not repeat the message;
+// the description is just the meal and its pack size. The disclaimer stays in the page's top strip and footer and on /about/.
+const mealLine = `${name} · ${p.size}`;
 const PREVIEW: Record<MealMode, { title: string; description: string }> = {
   standard: { title: 'View meal & order', description: 'Student concept — not an official Clean Cut Meals service.' },
-  invite: { title: 'Take a look & choose your favourite', description: 'Thought of you. Have a look at this one, or choose something you’d enjoy.' },
-  pick: { title: 'This one for me', description: 'This one looks lovely. Thank you!' },
+  invite: { title: 'What would you fancy?', description: mealLine },
+  pick: { title: 'This one looks lovely.', description: mealLine },
 };
 const chooseHref = mode === 'invite' ? `${invitePath(p)}choose/` : `${mealPath(p)}choose/`;
 const BUY_HEADING: Record<MealMode, string> = {
@@ -95,6 +96,7 @@ const BUY_HEADING: Record<MealMode, string> = {
             label="This one for me"
             sub="Opens your share menu. You choose who to send it to."
             text={REPLY_TEXT}
+            after={REPLY_AFTER}
             url={absoluteUrl(pickPath(p), Astro.site)}
             path={pickPath(p)}
           />

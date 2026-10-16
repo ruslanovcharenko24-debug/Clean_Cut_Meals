@@ -128,11 +128,12 @@ export function pickPath(p: Product): string {
   return withBase(`/pick/${shortSlug(p)}/`);
 }
 
-// Message texts, sent as "<text>\n<link>" (16.10.2026): one red heart only, at the end of the reply text; none in the invite,
-// buttons, headings or previews. The preview card carries the meal name and figures, so they are not repeated here.
-// Nothing promises that the sender has bought or will deliver the meal.
-export const INVITE_TEXT = 'Thought of you.\nWhat would you fancy?\nTake a look & choose your favourite:';
-export const REPLY_TEXT = 'This one looks lovely. Thank you \u2764\uFE0F';
+// Message texts (16.10.2026), each sent as one message "<text>\n<link>[\n\n<after>]": a share sheet carries one text
+// to one chosen chat, so they cannot be split into separate messages. One red heart only, in the reply's thank-you line;
+// none in the invite, buttons, headings or previews. Nothing promises that the sender has bought or will deliver the meal.
+export const INVITE_TEXT = 'Thought of you.\n\nWhat would you fancy?';
+export const REPLY_TEXT = 'This one looks lovely.';
+export const REPLY_AFTER = 'Thank you \u2764\uFE0F';
 
 
 // One page per product; the template was first checked on Spaghetti Bolognese.

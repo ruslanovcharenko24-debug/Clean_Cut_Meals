@@ -1,5 +1,5 @@
 ---
-// A list someone sent back: /picks/view/?p=<id>-<packs>.… (format in src/lib/picks.ts). The page only reads the
+// A list someone sent back: /picks/view/?c=<compact code> or the older ?p=<id>-<packs>.… (formats in src/lib/picks.ts). The page only reads the
 // link: it never changes the viewer's own draft. Products, names, sizes and photos come from the catalogue.
 // The preview is the same for every list (a static page cannot tailor it); the message text carries the list.
 import Base from '../../layouts/Base.astro';
@@ -21,6 +21,9 @@ import { products, withBase } from '../../lib/products';
     <div class="wrap">
       <h1 class="title" id="view-title">These would be lovely.</h1>
       <p class="note" data-skipped hidden>Part of this link couldn’t be read, so some items may be missing.</p>
+      <p class="note warn" role="alert" data-damaged hidden>
+        This link looks cut short or changed, so this list may be incomplete. Ask for the link again to see everything.
+      </p>
     </div>
 
     <ul class="list" aria-labelledby="view-title" data-list>
@@ -39,11 +42,17 @@ import { products, withBase } from '../../lib/products';
 </Base>
 
 <script>
-  import { decodePicks, readPicksData, unitLabel } from '../../lib/picks';
+  import { decodeLink, decodePicks, readPicksData, unitLabel, type Pick } from '../../lib/picks';
 
-  // Read-only: no draft is loaded or saved here.
+  // Read-only: no draft is loaded or saved here. New links (?c=) carry a check; old links (?p=) are still read.
   const data = readPicksData();
-  const { picks, skipped } = decodePicks(new URLSearchParams(location.search).get('p'), data.known);
+  const params = new URLSearchParams(location.search);
+  const compact = params.get('c');
+  let picks: Pick[];
+  let skipped = 0;
+  let damaged = false;
+  if (compact !== null) ({ picks, damaged } = decodeLink(compact.trim().toLowerCase(), data.byCode));
+  else ({ picks, skipped } = decodePicks(params.get('p'), data.known));
   const list = document.querySelector<HTMLElement>('[data-list]')!;
   const rows = new Map([...list.querySelectorAll<HTMLElement>('[data-pick]')].map((el) => [el.dataset.pick!, el]));
   for (const p of picks) {
@@ -55,6 +64,7 @@ import { products, withBase } from '../../lib/products';
   // Each product shows its own number; no overall total for the person receiving the list.
   document.querySelector<HTMLElement>('[data-thanks]')!.hidden = picks.length === 0;
   document.querySelector<HTMLElement>('[data-skipped]')!.hidden = skipped === 0 || picks.length === 0;
+  document.querySelector<HTMLElement>('[data-damaged]')!.hidden = !damaged || picks.length === 0;
   document.querySelector<HTMLElement>('[data-empty]')!.hidden = picks.length > 0;
 </script>
 
@@ -75,6 +85,11 @@ import { products, withBase } from '../../lib/products';
   .note {
     margin: 0 0 var(--s3);
     font-size: var(--fs-small);
+  }
+  .warn {
+    padding: var(--s2) var(--s3);
+    border-left: 4px solid var(--ink);
+    font-weight: 600;
   }
   .note[hidden],
   .empty[hidden] {

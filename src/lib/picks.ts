@@ -2,11 +2,15 @@
 // invitation. Not a shop basket: no prices, no order, nothing passed to SuperValu, Uber Eats or Just Eat.
 // Pure functions only (no catalogue import), so this module is small enough for the browser.
 //
-// Link format (static site, no server): <base>/picks/view/?p=<id>-<packs>.<id>-<packs>…
-//   id    the SuperValu product id from data/catalog.json (10 digits, stable)
-//   packs whole number of packs, 1–MAX_PACKS
-// Only digits, "-" and "." are used, so the link needs no escaping and messengers keep it whole.
-// Names, sizes and photos always come from the catalogue, never from the link.
+// Shared link (static site, no server), format version 1: <base>/picks/view/?c=1<items><check>
+//   1      format version
+//   items  per product, in the order chosen: 2-letter code from data/pick-codes.json (fixed, never reused) +
+//          number of packs as one base-36 digit (1–9, a = 10 … k = 20)
+//   check  6 base-36 characters: FNV-1a of the version and items, so a cut or changed link is detected
+// Lowercase letters and digits only: one short word that needs no escaping (30 products: 97 characters instead of
+// about 400), without the long runs of digits of the old format.
+// Old links /picks/view/?p=<id>-<packs>.<id>-<packs>… (10-digit SuperValu id) are still read; the draft on this
+// device keeps that format. Names, sizes and photos always come from the catalogue, never from the link.
 
 export interface PickProduct {
   id: string;
@@ -23,6 +27,8 @@ export interface PickProduct {
   unit: 'pack' | 'tub';
   /** Same-origin JPEG of the whole pack photo for the picture card, or null */
   card: string | null;
+  /** Fixed 2-letter code used in shared links (data/pick-codes.json) */
+  code: string;
 }
 export interface Pick {
   id: string;
@@ -88,8 +94,70 @@ export function summaryLabel(picks: Pick[]): string {
   return `${n}\u00a0${n === 1 ? 'product' : 'products'} · ${packsLabel(totalPacks(picks))}`;
 }
 
-export function viewLink(viewUrl: string, picks: Pick[]): string {
-  return `${viewUrl}?p=${encodePicks(picks)}`;
+export const LINK_VERSION = '1';
+const CHECK_LEN = 6;
+
+function checkOf(body: string): string {
+  // FNV-1a, 32 bit, reduced to 6 base-36 characters (about 2 × 10⁹ values).
+  let h = 0x811c9dc5;
+  for (let i = 0; i < body.length; i++) {
+    h ^= body.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return ((h >>> 0) % 36 ** CHECK_LEN).toString(36).padStart(CHECK_LEN, '0');
+}
+
+/** The compact list code: version + (code, packs) per product + check. */
+export function encodeLink(picks: Pick[], byId: ReadonlyMap<string, PickProduct>): string {
+  const body = LINK_VERSION + picks.map((p) => byId.get(p.id)!.code + p.packs.toString(36)).join('');
+  return body + checkOf(body);
+}
+
+const ITEM = /^([a-z]{2})([1-9a-k])/;
+
+/**
+ * Reads a compact list code. `damaged` is true when the check, the version or the item layout does not match (a cut
+ * or changed link): the products that can still be read from the start are returned, and the page must say the list
+ * may be incomplete. Unknown codes and repeats are never shown.
+ */
+export function decodeLink(
+  raw: string | null | undefined,
+  byCode: ReadonlyMap<string, string>,
+): { picks: Pick[]; damaged: boolean } {
+  if (!raw) return { picks: [], damaged: false };
+  const intact =
+    raw.length <= 1 + MAX_ITEMS * 3 + CHECK_LEN &&
+    /^[0-9a-z]+$/.test(raw) &&
+    raw.startsWith(LINK_VERSION) &&
+    (raw.length - 1 - CHECK_LEN) % 3 === 0 &&
+    checkOf(raw.slice(0, -CHECK_LEN)) === raw.slice(-CHECK_LEN);
+  // Another format version is not guessed at.
+  if (!raw.startsWith(LINK_VERSION)) return { picks: [], damaged: true };
+  // Intact: everything between the version and the check. Damaged: read from the start (leaving out the last six
+  // characters when they can only be the check) and stop at the first piece that is not a whole known item.
+  const withoutCheck = !intact && (raw.length - 1) % 3 !== 0 && raw.length >= 1 + CHECK_LEN + 3;
+  let rest = raw.slice(1, intact || withoutCheck ? -CHECK_LEN : raw.length);
+  const picks: Pick[] = [];
+  const seen = new Set<string>();
+  let bad = !intact;
+  while (rest.length && picks.length < MAX_ITEMS) {
+    const m = ITEM.exec(rest);
+    const id = m && byCode.get(m[1]);
+    if (!m || !id || seen.has(id)) {
+      bad = true;
+      break;
+    }
+    seen.add(id);
+    picks.push({ id, packs: parseInt(m[2], 36) });
+    rest = rest.slice(3);
+  }
+  if (rest.length) bad = true;
+  return { picks, damaged: bad };
+}
+
+/** The one place the shared link is made: Share with pictures, Share as text and Copy all use it. */
+export function viewLink(viewUrl: string, picks: Pick[], byId: ReadonlyMap<string, PickProduct>): string {
+  return `${viewUrl}?c=${encodeLink(picks, byId)}`;
 }
 
 export const PICKS_HEADING = 'These would be lovely.';
@@ -101,13 +169,13 @@ export function picksMessage(picks: Pick[], byId: ReadonlyMap<string, PickProduc
     const product = byId.get(p.id)!;
     return `${p.packs} × ${product.name} · ${product.size}`;
   });
-  return [PICKS_HEADING, ...lines, viewLink(viewUrl, picks), PICKS_THANKS].join('\n');
+  return [PICKS_HEADING, ...lines, viewLink(viewUrl, picks, byId), PICKS_THANKS].join('\n');
 }
 
 /** Text sent with the pictures: the pictures carry the products, so no list here. The thanks is repeated in case
  *  an app separates the text from the images. */
-export function captionMessage(picks: Pick[], viewUrl: string): string {
-  return [PICKS_HEADING, viewLink(viewUrl, picks), PICKS_THANKS].join('\n');
+export function captionMessage(picks: Pick[], byId: ReadonlyMap<string, PickProduct>, viewUrl: string): string {
+  return [PICKS_HEADING, viewLink(viewUrl, picks, byId), PICKS_THANKS].join('\n');
 }
 
 // Draft kept on this device only, for convenience while choosing. Opening someone else's list never writes here.
@@ -161,13 +229,20 @@ export function changePacks(picks: Pick[], id: string, delta: number): Pick[] {
 }
 
 /** Reads the catalogue slice printed by PicksData.astro. */
-export function readPicksData(): { products: PickProduct[]; byId: Map<string, PickProduct>; known: Set<string>; viewUrl: string } {
+export function readPicksData(): {
+  products: PickProduct[];
+  byId: Map<string, PickProduct>;
+  byCode: Map<string, string>;
+  known: Set<string>;
+  viewUrl: string;
+} {
   const el = document.getElementById('picks-data')!;
   const data = JSON.parse(el.textContent || '{}') as { products: PickProduct[]; viewPath: string; viewUrl: string | null };
   const products = data.products;
   return {
     products,
     byId: new Map(products.map((p) => [p.id, p])),
+    byCode: new Map(products.map((p) => [p.code, p.id])),
     known: new Set(products.map((p) => p.id)),
     viewUrl: data.viewUrl || new URL(data.viewPath, window.location.origin).href,
   };

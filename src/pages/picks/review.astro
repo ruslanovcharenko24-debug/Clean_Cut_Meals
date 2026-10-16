@@ -222,7 +222,7 @@ import { products, withBase } from '../../lib/products';
     const key = encodePicks(picks);
     const full = message();
     if (canShareFiles && prepared?.key === key && failedKey !== key) {
-      const withPictures: ShareData = { files: prepared.files, text: captionMessage(picks, data.viewUrl) };
+      const withPictures: ShareData = { files: prepared.files, text: captionMessage(picks, data.byId, data.viewUrl) };
       if (navigator.canShare(withPictures)) {
         status.textContent = '';
         try {

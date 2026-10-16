@@ -4,6 +4,7 @@
 import { getImage } from 'astro:assets';
 import { products, shortName, shortSlug, invitePath, packImage, withBase, absoluteUrl } from '../lib/products';
 import type { PickProduct } from '../lib/picks';
+import pickCodes from '../../data/pick-codes.json';
 
 // Pack photo for the picture card: the trimmed copy (whole pack on its white background), scaled only, as a
 // same-origin JPEG so the page can draw it on a canvas.
@@ -17,6 +18,12 @@ const cards = await Promise.all(
 const unit = (p: (typeof products)[number]): PickProduct['unit'] =>
   p.category === 'ice-cream' && p.nutrition_columns.some((c) => /tub/i.test(c)) ? 'tub' : 'pack';
 
+// Every product needs its own fixed link code (two lowercase letters); a missing or repeated code stops the build.
+const codes: Record<string, string> = pickCodes.codes;
+const missing = products.filter((p) => !/^[a-z]{2}$/.test(codes[p.id] ?? ''));
+if (missing.length) throw new Error(`No link code in data/pick-codes.json for: ${missing.map((p) => p.id).join(', ')}`);
+if (new Set(Object.values(codes)).size !== Object.keys(codes).length) throw new Error('Repeated code in data/pick-codes.json');
+
 const data: { products: PickProduct[]; viewPath: string; viewUrl: string | null } = {
   products: products.map((p, i) => ({
     id: p.id,
@@ -27,6 +34,7 @@ const data: { products: PickProduct[]; viewPath: string; viewUrl: string | null 
     invite: invitePath(p),
     unit: unit(p),
     card: cards[i],
+    code: codes[p.id],
   })),
   viewPath: withBase('/picks/view/'),
   viewUrl: absoluteUrl(withBase('/picks/view/'), Astro.site),

@@ -4,7 +4,9 @@
 //   two columns: whole pack photo, name, "400 g per pack", "2 packs"
 //   "Thank you" + one red heart         (last picture only)
 // No totals, prices, nutrition, links, QR codes, buttons or project wording. Long lists are split into several
-// pictures of at most PER_PICTURE products, in the same order, without page numbers.
+// pictures of at most PER_PICTURE products (2 × 2), in the same order, without page numbers. Each picture is drawn
+// on its own canvas, as tall as its content, kept close to 4:5: taller pictures (up to six products, about 1:2)
+// were cropped top and bottom in chat previews.
 import { sizeLabel, unitLabel, PICKS_HEADING, type Pick, type PickProduct } from './picks';
 
 const INK = '#24014c';
@@ -13,18 +15,21 @@ const PHOTO_BG = '#f8eef5'; // soft pink-lilac behind each pack
 const HEART = '#e0243c';
 const FONT = "Lexend, system-ui, -apple-system, 'Segoe UI', sans-serif";
 
-export const PER_PICTURE = 6;
+export const PER_PICTURE = 4;
 const W = 1080;
-const PAD = 72;
-const GAP = 40;
-const COL = (W - PAD * 2 - GAP) / 2; // 448
+const PAD = 56;
+const GAP = 36;
+const COL = (W - PAD * 2 - GAP) / 2; // 466
 const SINGLE_COL = 600;
-const PHOTO_H = 336;
-const PHOTO_INSET = 20;
-const NAME = { size: 38, line: 46 };
-const SIZE = { size: 30, line: 38 };
-const QTY = { size: 46, line: 54 };
-const ROW_GAP = 56;
+const PHOTO_H = 280;
+const SINGLE_PHOTO_H = 360;
+const PHOTO_INSET = 16;
+const NAME = { size: 34, line: 41 };
+const SIZE = { size: 27, line: 34 };
+const QTY = { size: 40, line: 48 };
+const ROW_GAP = 36;
+const HEAD = { size: 58, gap: 34 };
+const FOOT = { gap: 34, size: 48, heart: 42 };
 
 function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[] {
   const lines: string[] = [];
@@ -58,7 +63,7 @@ interface Cell {
 function cellTextHeight(ctx: CanvasRenderingContext2D, cell: Cell, col: number): { name: string[]; height: number } {
   ctx.font = `700 ${NAME.size}px ${FONT}`;
   const name = wrap(ctx, cell.product.name, col);
-  return { name, height: name.length * NAME.line + 10 + SIZE.line + 14 + QTY.line };
+  return { name, height: name.length * NAME.line + 8 + SIZE.line + 10 + QTY.line };
 }
 
 function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
@@ -85,6 +90,7 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
   const single = cells.length === 1;
   const width = single ? SINGLE_COL + PAD * 2 : W;
   const col = single ? SINGLE_COL : COL;
+  const photoH = single ? SINGLE_PHOTO_H : PHOTO_H;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
 
@@ -92,9 +98,9 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
   const rows: Cell[][] = [];
   for (let i = 0; i < cells.length; i += single ? 1 : 2) rows.push(cells.slice(i, i + (single ? 1 : 2)));
   const rowText = rows.map((row) => row.map((c) => cellTextHeight(ctx, c, col)));
-  const rowHeights = rowText.map((t) => PHOTO_H + 24 + Math.max(...t.map((x) => x.height)));
-  const headH = first ? 64 + 56 : 0;
-  const footH = last ? 56 + 64 : 0;
+  const rowHeights = rowText.map((t) => photoH + 20 + Math.max(...t.map((x) => x.height)));
+  const headH = first ? HEAD.size + HEAD.gap : 0;
+  const footH = last ? FOOT.gap + FOOT.size + 8 : 0;
   const height = PAD + headH + rowHeights.reduce((a, b) => a + b, 0) + ROW_GAP * (rows.length - 1) + footH + PAD;
 
   canvas.width = width;
@@ -107,9 +113,9 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
   let y = PAD;
   if (first) {
     ctx.fillStyle = INK;
-    // 64 px, smaller only if the picture is narrow (one product), so the heading is never cut at the edges.
-    ctx.font = `700 64px ${FONT}`;
-    const fit = Math.min(64, Math.floor((64 * (width - PAD * 2)) / ctx.measureText(PICKS_HEADING).width));
+    // Smaller only if the picture is narrow (one product), so the heading is never cut at the edges.
+    ctx.font = `700 ${HEAD.size}px ${FONT}`;
+    const fit = Math.min(HEAD.size, Math.floor((HEAD.size * (width - PAD * 2)) / ctx.measureText(PICKS_HEADING).width));
     ctx.font = `700 ${fit}px ${FONT}`;
     ctx.textAlign = 'center';
     ctx.fillText(PICKS_HEADING, width / 2, y);
@@ -124,28 +130,28 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
     row.forEach((cell, c) => {
       const x = x0 + c * (col + GAP);
       ctx.fillStyle = PHOTO_BG;
-      ctx.fillRect(x, y, col, PHOTO_H);
+      ctx.fillRect(x, y, col, photoH);
       if (cell.img) {
         // Whole pack, own aspect ratio (contain): never stretched or cropped.
         const bw = col - PHOTO_INSET * 2;
-        const bh = PHOTO_H - PHOTO_INSET * 2;
+        const bh = photoH - PHOTO_INSET * 2;
         const k = Math.min(bw / cell.img.naturalWidth, bh / cell.img.naturalHeight);
         const iw = cell.img.naturalWidth * k;
         const ih = cell.img.naturalHeight * k;
-        ctx.drawImage(cell.img, x + (col - iw) / 2, y + (PHOTO_H - ih) / 2, iw, ih);
+        ctx.drawImage(cell.img, x + (col - iw) / 2, y + (photoH - ih) / 2, iw, ih);
       }
-      let ty = y + PHOTO_H + 24;
+      let ty = y + photoH + 20;
       ctx.fillStyle = INK;
       ctx.font = `700 ${NAME.size}px ${FONT}`;
       for (const line of rowText[r][c].name) {
         ctx.fillText(line, x, ty);
         ty += NAME.line;
       }
-      ty += 10;
+      ty += 8;
       ctx.fillStyle = INK_SOFT;
       ctx.font = `400 ${SIZE.size}px ${FONT}`;
       ctx.fillText(sizeLabel(cell.product), x, ty);
-      ty += SIZE.line + 14;
+      ty += SIZE.line + 10;
       ctx.fillStyle = INK;
       ctx.font = `700 ${QTY.size}px ${FONT}`;
       ctx.fillText(unitLabel(cell.packs, cell.product.unit).replace(' ', ' '), x, ty);
@@ -154,16 +160,16 @@ function drawPicture(cells: Cell[], first: boolean, last: boolean): HTMLCanvasEl
   });
 
   if (last) {
-    y += 56;
+    y += FOOT.gap;
     ctx.fillStyle = INK;
-    ctx.font = `700 52px ${FONT}`;
+    ctx.font = `700 ${FOOT.size}px ${FONT}`;
     const thanks = 'Thank you';
-    const heart = 46;
+    const heart = FOOT.heart;
     const tw = ctx.measureText(thanks).width;
     const total = tw + 16 + heart;
     const tx = (width - total) / 2;
     ctx.fillText(thanks, tx, y);
-    drawHeart(ctx, tx + tw + 16, y + 8, heart);
+    drawHeart(ctx, tx + tw + 14, y + 6, heart);
   }
   return canvas;
 }
@@ -184,13 +190,12 @@ function loadImage(src: string, timeoutMs: number): Promise<HTMLImageElement> {
   });
 }
 
-/** Splits n products into pictures of at most PER_PICTURE, as evenly as possible, keeping the order. */
+/** Splits n products into the fewest pictures of at most PER_PICTURE, sizes differing by one at most (13 -> 4, 3, 3, 3,
+ *  never 4, 4, 4, 1), keeping the order. */
 export function pictureSizes(n: number): number[] {
   const pictures = Math.ceil(n / PER_PICTURE);
-  const base = Math.ceil(n / pictures);
-  const sizes: number[] = [];
-  for (let left = n; left > 0; left -= base) sizes.push(Math.min(base, left));
-  return sizes;
+  const small = Math.floor(n / pictures);
+  return Array.from({ length: pictures }, (_, i) => small + (i < n % pictures ? 1 : 0));
 }
 
 /**
